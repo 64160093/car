@@ -132,7 +132,7 @@
 
                         <!-- ปุ่ม -->
                         <div class="text-center">
-                            <a href="{{ route('admin.users') }}" class="btn btn-warning">ย้อนกลับ</a>
+                            <a href="{{ route('admin.users') }}" class="btn btn-warning">ยกเลิก</a>
                             <button type="submit" class="btn btn-primary">อัปเดตข้อมูล</button>
                         </div>
                     </form>

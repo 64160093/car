@@ -10,5 +10,6 @@ class Division extends Model
     use HasFactory;
 
     protected $table = 'division'; // ระบุชื่อของตารางที่ถูกต้อง
-    protected $fillable = ['division_name'];
+    protected $primaryKey = 'division_id';
+    protected $fillable = ['name'];
 }

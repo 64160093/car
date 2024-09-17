@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Input;
 use App\Http\Controllers\FullCalendarController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
@@ -106,8 +107,9 @@ Route::get('/signatures/{filename}', function ($filename) {
 //แอดมินแก้ไขข้อมูลผู้ใช้
 Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.users')
     ->middleware(IsAdmin::class);
-// routes/web.php
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'editUser'])->name('admin.users.edit')
     ->middleware(IsAdmin::class);
 Route::post('/admin/users/update/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
 Route::post('/admin/users/delete/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.delete');
+Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name('admin.users.search')
+    ->middleware(IsAdmin::class);

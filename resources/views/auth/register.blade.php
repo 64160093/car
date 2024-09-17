@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Register') }}</div>
+                <div class="card-header text-center bg-warning">{{ __('เพิ่มข้อมูลบุคลากร') }}</div>
 
                 <div class="card-body">
                     <form method="POST" action="{{ route('register') }}">
@@ -182,39 +182,20 @@
                         </div>
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const divisionSelect = document.getElementById('division');
-        const departmentGroup = document.getElementById('department-group');
-        const departmentSelect = document.getElementById('department');
-
-        // ฟังก์ชันตรวจสอบค่า division
-        function toggleDepartmentField() {
-            console.log('Selected division:', divisionSelect.value); // ตรวจสอบค่า division
-            if (divisionSelect.value == '2') {
-                departmentGroup.style.display = 'block'; // แสดงฟิลด์ฝ่ายงาน
-            } else {
-                departmentGroup.style.display = 'none'; // ซ่อนฟิลด์ฝ่ายงาน
-                departmentSelect.value = ''; // เคลียร์ค่าเมื่อซ่อนฝ่ายงาน
-            }
-        }
-
-        toggleDepartmentField(); // เรียกฟังก์ชันเมื่อหน้าโหลดขึ้นมา (เพื่อตรวจสอบค่าเก่า)
-
-        // เรียกฟังก์ชันเมื่อเปลี่ยนค่าใน dropdown
-        divisionSelect.addEventListener('change', toggleDepartmentField);
-    });
-</script>
+<!-- เช็ค division and departmen -->
+<script src="{{ asset('js/search.js') }}"></script>
 
 
                         <!-- ปุ่มลงทะเบียน -->
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('สมัคร') }}
-                                </button>
-                            </div>
+                        <div class="text-center">
+                            <a href="{{ route('admin.users') }}" class="btn btn-warning">
+                                {{ __('ยกเลิก') }}
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {{ __('บันทึกข้อมูล') }}
+                            </button>
                         </div>
+
                         <!-- แสดงข้อความ error ถ้ามี -->
                         @if ($errors->any())
                             <div class="row mt-3">

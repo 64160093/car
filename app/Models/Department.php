@@ -10,6 +10,7 @@ class Department extends Model
     use HasFactory;
 
     protected $table = 'department'; // กรณีที่ชื่อตารางเป็น departments (plural)
-    protected $fillable = ['department_name'];
+    protected $primaryKey = 'department_id';
+    protected $fillable = ['name'];
 
 }

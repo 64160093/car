@@ -26,10 +26,6 @@ class Vehicle extends Model
     public $incrementing = true; // ถ้า car_id เป็น auto-increment
     protected $keyType = 'int'; // ประเภทของ primary key
 
-    public function carIcon()
-    {
-        return $this->belongsTo(CarIcon::class, 'icon_id', 'icon_id');
-    }
 }
 
 

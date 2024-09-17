@@ -33,7 +33,7 @@ body {
     min-height: 100vh;
     width: calc(100% - 70px);
     transition: margin-left 0.35s ease-in-out;
-    background-color: #fafbfe;
+    background-color: #ffffffa4;
 }
 
 .main.expanded {
@@ -50,7 +50,7 @@ body {
     left: 0;
     height: 100%; /* Sidebar ครอบคลุมทั้งความสูงของหน้าจอ */
     transition: width 0.35s ease-in-out;
-    background-color: #0d6efd;
+    background-color: #3740EE;
     display: flex;
     flex-direction: column;
 }
@@ -75,7 +75,7 @@ body {
 
 .toggle-btn i {
     font-size: 1.5rem;
-    color: #FFF;
+    color: #ffffff;
 }
 
 .sidebar-logo {
@@ -100,7 +100,7 @@ body {
 
 a.sidebar-link {
     padding: .625rem 1.625rem;
-    color: #FFF;
+    color: #ffffff;
     display: block;
     font-size: 0.9rem;
     white-space: nowrap;
@@ -113,8 +113,9 @@ a.sidebar-link {
 }
 
 a.sidebar-link:hover {
-    background-color: rgba(255, 255, 255, .075);
-    border-left: 3px solid #3b7ddd;
+    background-color: rgba(255, 255, 255, 0.096);
+    border-left: 3px solid #ffbb00;
+    color: #ffae00
 }
 
 .sidebar-item {
@@ -159,7 +160,7 @@ a.sidebar-link:hover {
 
 
 .navbar {
-    background-color: #0d6efd !important;
+    background-color: #3740EE !important;
     z-index: 1000; /* ค่า z-index ต่ำกว่า Sidebar */
     position: relative;
     transition: margin-left 0.35s ease-in-out;
@@ -181,9 +182,9 @@ a.sidebar-link:hover {
 }
 
 .nav-link:hover {
-    background-color: #ffc107 !important;
+    background-color: #ffbb00 !important;
     /* เปลี่ยนสีพื้นหลังเมื่อเอาเมาส์ชี้เป็นสีเหลือง */
-    color: #0d6efd !important;
+    color: #000000 !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีน้ำเงินเมื่อเอาเมาส์ชี้ */
     border-radius: 5px;
 }

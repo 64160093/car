@@ -23,6 +23,15 @@
         <div class="card-body">
             <form method="POST" action="{{ route('reqdocument.store') }}" enctype="multipart/form-data">
                 @csrf
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <!-- วันที่ทำเรื่อง (Moved to top-right) -->
                 <div class="row mb-4">
@@ -61,6 +70,7 @@
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
+                            <script src="{{ asset('js/search.js') }}"></script>
                         </div>
                     </div>
                 </div>
@@ -284,22 +294,20 @@
 
                 <!-- ประเภทรถยนต์ -->
                 <div class="form-group mb-4">
-                    <label for="car_id">{{ __('ประเภทของรถยนต์') }}</label>
-                    <select id="car_id" class="form-control @error('car_id') is-invalid @enderror" name="car_id"
-                        required>
+                    <label for="car_type">{{ __('ประเภทของรถยนต์') }}</label>
+                    <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type" required>
                         <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
-                        @foreach($cars as $car)
-                            <option value="{{ $car->type_name_id }}" {{ old('car_id') == $car->type_name_id ? 'selected' : '' }}>
-                                {{ $car->type_name }}
-                            </option>
-                        @endforeach
+                        <option value="รถกระบะ">{{ __('รถกระบะ') }}</option>
+                        <option value="รถตู้">{{ __('รถตู้') }}</option>
+                        <option value="เรือ">{{ __('เรือ') }}</option>
                     </select>
-                    @error('car_id')
+                    @error('car_type')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
                 </div>
+
 
                 <!-- เอกสารที่แนบ -->
                 <div class="form-group mb-4">
@@ -336,36 +344,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 
-<script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
-        function convertToBuddhistDate(date) {
-            var buddhistYear = date.getFullYear() + 543;
-            return buddhistYear + '-' +
-                String(date.getMonth() + 1).padStart(2, '0') + '-' +
-                String(date.getDate()).padStart(2, '0');
-        }
 
-        var todayUTC = new Date();
-        var todayThailand = new Date(todayUTC.getTime() + (7 * 60 * 60 * 1000));
-        document.getElementById('reservation_date').value = convertToBuddhistDate(todayThailand);
-
-        // ฟังก์ชันเพื่ออัปเดตจำนวนผู้ร่วมเดินทาง
-        function updateCompanionCount() {
-            var companionText = document.getElementById('companion_name').value;
-            // แยกชื่อด้วยทั้งการขึ้นบรรทัดใหม่และเครื่องหมายจุลภาค จากนั้นกรองค่าที่ว่างออก
-            var names = companionText.split(/\n|,\s*/).filter(function (name) {
-                return name.trim().length > 0;
-            });
-            document.getElementById('sum_companion').value = names.length || 0; // ตั้งค่าเป็น 0 หากไม่มีชื่อ
-        }
-
-        // แนบฟังก์ชัน `updateCompanionCount` กับเหตุการณ์ `input` ของพื้นที่กรอกข้อมูล
-        document.getElementById('companion_name').addEventListener('input', updateCompanionCount);
-
-        // ตั้งค่าเริ่มต้น `sum_companion` เป็น 0 เมื่อหน้าโหลด
-        updateCompanionCount();
-    });
-</script>
 
 
 <script type="text/javascript">

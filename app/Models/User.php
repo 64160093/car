@@ -19,7 +19,7 @@ class User extends Authenticatable
         'phonenumber',
         'signature_name',
         'is_admin',
-        'division_id',   //เก็บค่าเข้าตาราง users
+        'division_id', 
         'department_id',
         'position_id',
         'role_id',
@@ -56,6 +56,8 @@ class User extends Authenticatable
         }
         return "https://api.dicebear.com/6.x/fun-emoji/svg?seed={$this->name}";
     }
+    
+    
     public function division()
     {
         return $this->belongsTo(Division::class, 'division_id', 'division_id');
@@ -65,8 +67,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Department::class, 'department_id', 'department_id');
     }
+
     public function reqDocuments()
     {
-        return $this->hasMany(ReqDocument::class, 'user_id');
+        return $this->belongsToMany(ReqDocument::class, 'req_document_user', 'user_id', 'req_document_id');
     }
+    public function isAdmin()
+    {
+        return $this->is_admin == 1; // หรือใช้ค่าที่เหมาะสมตามที่คุณใช้
+    }
+
 }

@@ -86,9 +86,13 @@
                                         class="lni lni-users"></i><span>{{ __('จัดการข้อมูลผู้ใช้') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('store.vehicle') }}" class="sidebar-link"><i
                                         class="lni lni-car"></i><span>{{ __('แสดงข้อมูลรถ') }}</span></a></li>
+                            <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
+                                        class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาตทั้งหมด') }}</span></a></li> <!-- เพิ่มปุ่มสำหรับเอกสารทั้งหมด -->
                         @else
                             <li class="sidebar-item"><a href="{{ route('home') }}" class="sidebar-link"><i
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
+                            <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
+                                        class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li> <!-- เพิ่มปุ่มสำหรับเอกสารทั้งหมด -->
                         @endif
                     @endauth
 

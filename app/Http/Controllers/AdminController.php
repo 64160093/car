@@ -11,7 +11,7 @@ use App\Models\Division;
 use App\Models\Department;
 use App\Models\Position;
 use App\Models\Role;
-
+use Illuminate\Support\Facades\Crypt;
 
 class AdminController extends Controller
 {
@@ -101,7 +101,8 @@ class AdminController extends Controller
     //------------------------- ส่วนแก้ไขข้อมูลผู้ใช้ -------------------------
     public function index()
     {
-        $users = User::all(); 
+        // $users = User::all(); 
+        $users = User::paginate(10); // ดึงข้อมูลผู้ใช้ 10 รายการต่อหน้า
         $divisions = Division::all();
         $departments = Department::all();
         $positions = Position::all(); 
@@ -109,8 +110,10 @@ class AdminController extends Controller
         return view('admin.users.index', compact('users', 'divisions', 'departments', 'positions', 'roles'));
     }
 
-    public function editUser($id)
+
+    public function editUser($encryptedId)
     {
+        $id = Crypt::decryptString($encryptedId);
         $user = User::findOrFail($id);
         $departments = Department::all();
         $divisions = Division::all();
@@ -157,6 +160,32 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
         $user->delete(); // ลบข้อมูลผู้ใช้
-        return redirect()->route('admin.users')->with('success', 'User deleted successfully.');
+        return redirect()->route('admin.users')->with('success', 'ลบข้อมูลบุคลากรสำเร็จ.');
     }
+    
+    public function searchUsers(Request $request)
+    {
+        $q = $request->input('q');
+        
+        if ($q != '') {
+            // การเชื่อมตาราง users กับ position และการค้นหาชื่อ, นามสกุล หรือชื่อตำแหน่ง
+            $users = User::join('position', 'users.position_id', '=', 'position.position_id')
+                        ->where('users.name', 'LIKE', '%'.$q.'%')
+                        ->orWhere('users.lname', 'LIKE', '%'.$q.'%')
+                        ->orWhere('position.position_name', 'LIKE', '%'.$q.'%') // ค้นหาตำแหน่ง
+                        ->select('users.*', 'position.position_name') // ดึงข้อมูลจากทั้งสองตาราง
+                        ->paginate(5);
+
+            $users->appends(['q' => $q]);
+            $departments = Department::all();
+            $divisions = Division::all();
+            $positions = Position::all();
+            $roles = Role::all();
+
+            return view('admin.users.index', compact('users', 'divisions', 'departments', 'positions', 'roles'));
+        }
+
+        return redirect()->route('admin.users');
+    }
+
 }
