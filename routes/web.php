@@ -19,7 +19,7 @@ use App\Http\Controllers\ReqDocumentController;
 // เส้นทางหลักของแอปพลิเคชัน
 Route::get('/', function () {
     return view('welcome');
-});
+})->name(name: 'welcome');
 
 // เส้นทางสำหรับการยืนยันตัวตน
 Auth::routes();
