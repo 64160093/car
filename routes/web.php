@@ -15,7 +15,7 @@ use App\Models\User;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReqDocumentController;
-
+use App\Http\Controllers\StatusAllowController;
 
 // เส้นทางหลักของแอปพลิเคชัน
 Route::get('/', function () {
@@ -113,3 +113,5 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'updateUser'])-
 Route::post('/admin/users/delete/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.delete');
 Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name('admin.users.search')
     ->middleware(IsAdmin::class);
+
+Route::put('/status/{id}', [StatusAllowController::class, 'updateStatus'])->name('updateStatus');

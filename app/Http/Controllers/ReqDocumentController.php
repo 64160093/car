@@ -17,7 +17,7 @@ class ReqDocumentController extends Controller
     public function index()
     {
         $user = auth()->user(); // ตรวจสอบว่าคุณได้รับวัตถุผู้ใช้หรือไม่
-    
+
         // ตรวจสอบว่าวัตถุผู้ใช้มีการกำหนดค่า is_admin
         if ($user && $user->is_admin) {
             // หากผู้ใช้เป็นแอดมิน ให้ดึงเอกสารทั้งหมด
@@ -25,15 +25,15 @@ class ReqDocumentController extends Controller
             $users = User::all(); // ดึงข้อมูลผู้ใช้ทั้งหมดถ้าต้องการ
         } else {
             // หากไม่ใช่แอดมิน ให้ดึงเอกสารที่เกี่ยวข้องกับผู้ใช้
-            $documents = ReqDocument::whereHas('users', function($query) use ($user) {
+            $documents = ReqDocument::whereHas('users', function ($query) use ($user) {
                 $query->where('user_id', $user->id); // ใช้ user_id ของผู้ใช้ปัจจุบัน
             })->get();
             $users = []; // หรือไม่กำหนดค่าอะไรเลย
         }
-    
+
         return view('document', compact('documents', 'users'));
     }
-    
+
 
     public function create()
     {
@@ -93,6 +93,30 @@ class ReqDocumentController extends Controller
             'district_id' => $request->district_id,
             'work_id' => $request->work_id,
         ]);
+
+        // ตรวจสอบ division_id และเลือกผู้ใช้ตาม role_id ที่เกี่ยวข้อง
+        $user = Auth::user();
+        $roleUsers = [];
+
+        if ($user->division_id == 1) {
+            $roleUsers = User::where('role_id', 4)->get();
+        } elseif ($user->division_id == 3) {
+            $roleUsers = User::where('role_id', 6)->get();
+        } elseif ($user->division_id == 4) {
+            $roleUsers = User::where('role_id', 7)->get();
+        } elseif ($user->division_id == 5) {
+            $roleUsers = User::where('role_id', 8)->get();
+        } elseif ($user->division_id == 6) {
+            $roleUsers = User::where('role_id', 9)->get();
+        } elseif ($user->division_id == 7) {
+            $roleUsers = User::where('role_id', 10)->get();
+        }
+
+        // ส่งฟอร์มไปให้ผู้ใช้ที่มี role_id ที่เกี่ยวข้อง
+        foreach ($roleUsers as $roleUser) {
+            // คุณสามารถเพิ่มโลจิกการส่งข้อมูลหรือการแจ้งเตือนได้ที่นี่
+            // เช่น การส่งอีเมล แจ้งเตือน หรืออื่น ๆ
+        }
 
         // บันทึกความสัมพันธ์ระหว่างผู้ใช้และเอกสารในตาราง req_document_user
         $document->users()->attach(Auth::user()->id, [
