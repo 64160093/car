@@ -16,6 +16,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReqDocumentController;
 use App\Http\Controllers\StatusAllowController;
+use App\Http\Controllers\DocumentController;
+
 
 // เส้นทางหลักของแอปพลิเคชัน
 Route::get('/', function () {
@@ -28,7 +30,7 @@ Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home')
-    ->middleware(IsUsers::class); 
+    ->middleware(IsUsers::class);
 
 
 // เส้นทางสำหรับหน้าแรกของผู้ดูแลระบบ
@@ -114,4 +116,7 @@ Route::post('/admin/users/delete/{id}', [AdminController::class, 'destroyUser'])
 Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name('admin.users.search')
     ->middleware(IsAdmin::class);
 
-Route::put('/status/{id}', [StatusAllowController::class, 'updateStatus'])->name('updateStatus');
+Route::get('/documents/{id}/review', [DocumentController::class, 'sendForReview'])->name('documents.review');
+
+Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('reviewform');
+

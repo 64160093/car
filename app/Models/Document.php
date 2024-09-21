@@ -28,7 +28,7 @@ class Document extends Model
     // ความสัมพันธ์กับโมเดล User
     public function users()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
     }
 
     // ความสัมพันธ์กับโมเดล Province
@@ -54,4 +54,11 @@ class Document extends Model
     {
         return $this->belongsTo(CarIcon::class, 'icon_id');
     }
+    public function reqDocumentUsers()
+    {
+        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
+    }
+
+    public $timestamps = true; // เปิดใช้ timestamp (ค่าเริ่มต้นคือ true)
+
 }

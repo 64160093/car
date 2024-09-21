@@ -94,30 +94,7 @@ class ReqDocumentController extends Controller
             'work_id' => $request->work_id,
         ]);
 
-        // ตรวจสอบ division_id และเลือกผู้ใช้ตาม role_id ที่เกี่ยวข้อง
-        $user = Auth::user();
-        $roleUsers = [];
-
-        if ($user->division_id == 1) {
-            $roleUsers = User::where('role_id', 4)->get();
-        } elseif ($user->division_id == 3) {
-            $roleUsers = User::where('role_id', 6)->get();
-        } elseif ($user->division_id == 4) {
-            $roleUsers = User::where('role_id', 7)->get();
-        } elseif ($user->division_id == 5) {
-            $roleUsers = User::where('role_id', 8)->get();
-        } elseif ($user->division_id == 6) {
-            $roleUsers = User::where('role_id', 9)->get();
-        } elseif ($user->division_id == 7) {
-            $roleUsers = User::where('role_id', 10)->get();
-        }
-
-        // ส่งฟอร์มไปให้ผู้ใช้ที่มี role_id ที่เกี่ยวข้อง
-        foreach ($roleUsers as $roleUser) {
-            // คุณสามารถเพิ่มโลจิกการส่งข้อมูลหรือการแจ้งเตือนได้ที่นี่
-            // เช่น การส่งอีเมล แจ้งเตือน หรืออื่น ๆ
-        }
-
+     
         // บันทึกความสัมพันธ์ระหว่างผู้ใช้และเอกสารในตาราง req_document_user
         $document->users()->attach(Auth::user()->id, [
             'name' => Auth::user()->name,

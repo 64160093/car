@@ -28,7 +28,7 @@ class ReqDocument extends Model
         'work_id',
 
     ];
-    
+
 
     public function province()
     {
@@ -44,30 +44,31 @@ class ReqDocument extends Model
     {
         return $this->belongsTo(District::class, 'district_id', 'district_id');
     }
-    
+
     public function workType()
     {
         return $this->belongsTo(WorkType::class, 'work_id');
     }
-    
+
     public function division()
     {
         return $this->belongsTo(Division::class, 'division_id');
     }
-    
+
     public function department()
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
-    
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
     }
-    
+
     public function reqDocumentUsers()
     {
-        return $this->hasMany(ReqDocumentUser::class, 'req_document_id');
+        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id')
+                    ->withTimestamps();
     }
 
     public $timestamps = true;  // ใช้ timestamps ที่มีในตาราง
