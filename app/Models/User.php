@@ -73,6 +73,10 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
     }
 
+    public function reqDocuments()
+    {
+        return $this->belongsToMany(ReqDocument::class, 'req_document_user', 'user_id', 'req_document_id');
+    }
     public function isAdmin()
     {
         return $this->is_admin == 1; // หรือใช้ค่าที่เหมาะสมตามที่คุณใช้

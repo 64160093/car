@@ -116,7 +116,6 @@ Route::post('/admin/users/delete/{id}', [AdminController::class, 'destroyUser'])
 Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name('admin.users.search')
     ->middleware(IsAdmin::class);
 
-Route::get('/documents/{id}/review', [DocumentController::class, 'sendForReview'])->name('documents.review');
 
-Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('reviewform');
+    Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
 

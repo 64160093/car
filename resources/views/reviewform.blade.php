@@ -21,7 +21,6 @@
                     </p>
                 </div>
                 <div class="card-body">
-
                     <!-- ข้อมูลผู้ขอ -->
                     <div class="card mb-3">
                         <div class="card-header bg-light">
@@ -29,29 +28,29 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                @php
+                                    $requester = $document->reqDocumentUsers->first();
+                                @endphp
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><strong>{{ __('ชื่อผู้ขอ') }}</strong></label>
-                                    <p class="form-control-static">{{ $document->reqDocumentUsers->first()->name ?? 'N/A' }} {{ $document->reqDocumentUsers->first()->lname ?? 'N/A' }}</p>
+                                    <p class="form-control-static">{{ $requester->name ?? 'N/A' }}
+                                        {{ $requester->lname ?? 'N/A' }}</p>
                                 </div>
-
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><strong>{{ __('ลงชื่อผู้ขอ') }}</strong></label>
-                                    <p class="form-control-static">{{ $document->reqDocumentUsers->first()->signature_name ?? 'N/A' }}</p>
+                                    <p class="form-control-static">{{ $requester->signature_name ?? 'N/A' }}</p>
                                 </div>
-
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><strong>{{ __('ส่วนงาน') }}</strong></label>
-                                    <p class="form-control-static">{{ $document->reqDocumentUsers->first()->division->division_name ?? 'N/A' }}</p>
+                                    <p class="form-control-static">{{ $requester->division->division_name ?? 'N/A' }}</p>
                                 </div>
-
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><strong>{{ __('ฝ่ายงาน') }}</strong></label>
-                                    <p class="form-control-static">{{ $document->reqDocumentUsers->first()->department->department_name ?? 'N/A' }}</p>
+                                    <p class="form-control-static">{{ $requester->department->department_name ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <!-- ข้อมูลการเดินทาง -->
                     <div class="card mb-3">
                         <div class="card-header bg-light">

@@ -8,6 +8,7 @@ class Document extends Model
 {
     // กำหนดชื่อเทเบิล
     protected $table = 'req_document';
+    protected $primaryKey = 'document_id'; // หากใช้ document_id เป็นคีย์หลัก
 
     // กำหนดคอลัมน์ที่สามารถ fill ได้
     protected $fillable = [
@@ -58,7 +59,10 @@ class Document extends Model
     {
         return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
     }
-
+    public function reqDocuments()
+    {
+        return $this->belongsToMany(ReqDocument::class, 'req_document_user', 'user_id', 'req_document_id');
+    }
     public $timestamps = true; // เปิดใช้ timestamp (ค่าเริ่มต้นคือ true)
 
 }

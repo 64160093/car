@@ -94,7 +94,7 @@
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
-                            <li class="sidebar-item"><a href="{{ route('reviewform') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('documents.review') }}" class="sidebar-link"><i
                                         class="lni lni-checkmark"></i><span>{{ __('ตรวจสอบอนุมัติคำขอ') }}</span></a></li>
 
 
