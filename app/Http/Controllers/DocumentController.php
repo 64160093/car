@@ -4,105 +4,161 @@ namespace App\Http\Controllers;
 
 use App\Models\ReqDocument;
 use App\Models\ReqDocumentUser;
-use App\Models\Document; // เรียกใช้ Model Document
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
+    /**
+     *
+     *
+     * 
+     */
+    //------------------------- แสดงประวัติการขอของตนเอง -------------------------
     public function index()
     {
-        $user = auth()->user();
+        if (auth()->check()) {
+            $user = auth()->user();
 
-        if ($user->is_admin) {
-            // แสดงรายการทั้งหมดสำหรับ admin
-            $documents = Document::all();
-        } else {
-            // แสดงเฉพาะรายการที่ผู้ใช้คนนั้นเป็นผู้ส่ง
-            // ตรวจสอบให้แน่ใจว่าใช้ user_id ที่ถูกต้อง
-            $documents = Document::where('user_id', $user->id)->get(); // ใช้ user_id แทน id
-        }
-
-        return view('documents.index', compact('documents'));
-    }
-
-
-    public function store(Request $request)
-    {
-        // Validate and save the document data
-        $document = new Document();
-        $document->fill($request->all());
-        $document->user_id = auth()->id(); // บันทึก user_id ของผู้ส่ง
-        $document->save();
-
-        // ตรวจสอบ division_id ของผู้ใช้ที่ส่งฟอร์ม
-        $user = auth()->user();
-        $reviewers = [];
-
-        // กำหนดเงื่อนไขการส่งฟอร์มไปหาผู้ใช้ที่มี role_id ที่กำหนด
-        if ($user->division_id == 1) {
-            $reviewers = User::where('role_id', 4)->pluck('id')->toArray();
-        } elseif ($user->division_id == 3) {
-            $reviewers = User::where('role_id', 6)->pluck('id')->toArray();
-        } elseif ($user->division_id == 4) {
-            $reviewers = User::where('role_id', 7)->pluck('id')->toArray();
-        } elseif ($user->division_id == 5) {
-            $reviewers = User::where('role_id', 8)->pluck('id')->toArray();
-        } elseif ($user->division_id == 6) {
-            $reviewers = User::where('role_id', 9)->pluck('id')->toArray();
-        } elseif ($user->division_id == 7) {
-            $reviewers = User::where('role_id', 10)->pluck('id')->toArray();
-        }
-
-        // เชื่อมโยงผู้ตรวจสอบกับเอกสาร โดยบันทึกลงใน req_document_user
-        foreach ($reviewers as $reviewer) {
-            \DB::table('req_document_user')->insert([
-                'req_document_id' => $document->id,
-                'user_id' => $reviewer,
-            ]);
-        }
-
-        return redirect()->route('documents.index')->with('success', 'ฟอร์มถูกส่งแล้ว');
-    }
-
-    // ฟังก์ชันแสดงหน้าตรวจสอบ (reviewForm)
-    public function reviewForm()
-    {
-        $user = auth()->user();
-        
-        // ตรวจสอบว่าเป็นผู้ตรวจสอบหรือไม่ โดยดูจาก role_id
-        $isReviewer = in_array($user->role_id, [4, 6, 7, 8, 9, 10]);
-
-        if ($isReviewer) {
-            // ผู้ใช้เป็นผู้ตรวจสอบ แสดงเฉพาะฟอร์มที่ต้องตรวจสอบตาม division_id
             $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
-                $query->where('req_document_user.user_id', '!=', $user->id) // ไม่แสดงฟอร์มที่ผู้ใช้ส่งเอง
-                    ->where(function ($query) use ($user) {
-                        // เงื่อนไขการแสดงฟอร์มตาม division_id และ role_id
-                        if ($user->role_id == 4) {
-                            $query->where('req_document_user.division_id', 1);
-                        } elseif ($user->role_id == 6) {
-                            $query->where('req_document_user.division_id', 3);
-                        } elseif ($user->role_id == 7) {
-                            $query->where('req_document_user.division_id', 4);
-                        } elseif ($user->role_id == 8) {
-                            $query->where('req_document_user.division_id', 5);
-                        } elseif ($user->role_id == 9) {
-                            $query->where('req_document_user.division_id', 6);
-                        } elseif ($user->role_id == 10) {
-                            $query->where('req_document_user.division_id', 7);
-                        }
+                $query->where('user_id', $user->id);
+            })->get();
+
+            return view('document-history', compact('documents'));
+        } else {
+            return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
+        }
+    }
+
+    public function reviewForm(Request $request)
+    {
+        $id = $request->input('id');
+        if (!$id) {
+            return redirect()->route('documents.history')->with('error', 'ไม่พบข้อมูลเอกสาร');
+        }
+
+        $document = ReqDocument::with(['reqDocumentUsers', 'workType', 'province', 'amphoe', 'district'])->findOrFail($id);
+
+        return view('reviewform', compact('document'));
+    }
+
+
+
+    /**
+     *
+     *
+     * 
+     */
+    //------------------------- แสดงรายการคำขอที่รออนุมัติ -------------------------
+    public function permission()
+    {
+        if (auth()->check()) {
+            $user = auth()->user();
+            $isReviewer = in_array($user->role_id, [4, 6, 7, 8, 9, 10, 13, 14, 15, 16]);
+
+            $userDocuments = ReqDocument::with(['reqDocumentUsers.user.division','reqDocumentUsers.user.department', 'reqDocumentUsers.user.position']) // เพิ่มความสัมพันธ์ที่นี่
+                ->whereHas('reqDocumentUsers', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+
+            if ($isReviewer) {
+                $reviewDocuments = ReqDocument::with(['reqDocumentUsers.user.division','reqDocumentUsers.user.department', 'reqDocumentUsers.user.position']) // เพิ่มความสัมพันธ์ที่นี่
+                    ->whereHas('reqDocumentUsers', function ($query) use ($user) {
+                        $query->where('user_id', '!=', $user->id)
+                            ->where(function ($query) use ($user) {
+                                $this->applyDivisionRoleFilter($query, $user->role_id);
+                            });
                     });
-            })->orderBy('created_at', 'desc')->get();
-        } else {
-            // ผู้ใช้เป็นผู้ส่งฟอร์มเอง แสดงเฉพาะฟอร์มของตัวเอง
-            $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
-                $query->where('req_document_user.user_id', $user->id); // ดึงฟอร์มที่ผู้ใช้เป็นคนส่ง
-            })->orderBy('created_at', 'desc')->get();
-        }
 
-        return view('reviewform', compact('documents'));
+                $documents = $userDocuments->union($reviewDocuments)->orderBy('created_at', 'asc')->get();
+            } else {
+                $documents = $userDocuments->orderBy('created_at', 'asc')->get();
+            }
+            return view('permission-form', compact('documents'));
+        } else {
+            return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
+        }
     }
+
+
+
+    // ฟังก์ชันช่วยเพื่อแยกเงื่อนไขการกรองตาม role และ division
+    private function applyDivisionRoleFilter($query, $roleId)
+    {
+        if ($roleId == 4) {
+            $query->where('req_document_user.division_id', 1);
+        } elseif ($roleId == 6) {
+            $query->where('req_document_user.division_id', 3);
+        } elseif ($roleId == 7) {
+            $query->where('req_document_user.division_id', 4);
+        } elseif ($roleId == 8) {
+            $query->where('req_document_user.division_id', 5);
+        } elseif ($roleId == 9) {
+            $query->where('req_document_user.division_id', 6);
+        } elseif ($roleId == 10) {
+            $query->where('req_document_user.division_id', 7);
+
+        } elseif ($roleId == 13) {
+            $query->where('req_document_user.division_id', 2)
+                ->where('req_document_user.department_id', 1);
+        } elseif ($roleId == 14) {
+            $query->where('req_document_user.division_id', 2)
+                ->where('req_document_user.department_id', 2);
+        } elseif ($roleId == 15) {
+            $query->where('req_document_user.division_id', 2)
+                ->where('req_document_user.department_id', 3);
+        } elseif ($roleId == 16) {
+            $query->where('req_document_user.division_id', 2)
+                ->where('req_document_user.department_id', 4);
+        }
+    }
+
+
+    public function show(Request $request)
+    {
+        $id = $request->input('id'); // รับค่า id ของเอกสารที่ส่งเข้ามา
+
+        $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($id) {
+            $query->where('document_id', $id);
+        })->get();
+
+        return view('permission-form-allow', compact('documents'));
+    }
+
+    /**
+     * "updateStatus"
+     *
+     * 
+     */
+    public function updateStatus(Request $request)
+    {
+        $documentId = $request->input('document_id');
+        $statusdivision = $request->input('statusdivision');
+        $statusdepartment = $request->input('statusdepartment');
+
+        $document = ReqDocument::where('document_id', $documentId)->first();
+
+        if ($document) {
+            if ($statusdivision) {
+                $document->allow_division = $statusdivision;
+            }
+
+            if ($statusdepartment) {
+                $document->allow_department = $statusdepartment;
+            }
+
+            $document->save();
+
+            return redirect()->route('documents.index')
+                ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
+        } else {
+            return redirect()->route('documents.show')
+                ->with('error', 'ไม่พบเอกสาร');
+        }
+    }
+
+
+
 
 
 

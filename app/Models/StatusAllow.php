@@ -1,14 +1,10 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
-
 class StatusAllow extends Model
 {
     protected $table = 'status_allow';
     protected $primaryKey = 'status_id';
-
     protected $fillable = [
         'allow_department',
         'allow_division',

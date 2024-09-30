@@ -1,46 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
 ::after,
 ::before {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
-
 a {
     text-decoration: none;
 }
-
 li {
     list-style: none;
 }
-
 h1 {
     font-weight: 600;
     font-size: 1.5rem;
 }
-
 body {
     font-family: 'Poppins', sans-serif;
 }
-
 .wrapper {
     display: flex;
 }
-
 .main {
     margin-left: 70px; /* ระยะห่างจาก Sidebar */
     min-height: 100vh;
     width: calc(100% - 70px);
     transition: margin-left 0.35s ease-in-out;
-    background-color: #ffffffa4;
+    background-color: #fafbfe;
 }
-
 .main.expanded {
     margin-left: 260px;
     width: calc(100% - 260px);
 }
-
 #sidebar {
     width: 70px;
     min-width: 70px;
@@ -50,7 +41,7 @@ body {
     left: 0;
     height: 100%; /* Sidebar ครอบคลุมทั้งความสูงของหน้าจอ */
     transition: width 0.35s ease-in-out;
-    background-color: #3740EE;
+    background-color: #0d6efd;
     display: flex;
     flex-direction: column;
 }
@@ -61,67 +52,54 @@ body {
 #sidebar.expand + .main {
     margin-left: 260px; /* ระยะห่างเมื่อ Sidebar เปิด */
 }
-
 .sidebar-open .navbar {
     margin-left: 250px; /* ปรับระยะห่างตามขนาดของ Sidebar */
 }
-
 .toggle-btn {
     background-color: transparent;
     cursor: pointer;
     border: 0;
     padding: 1rem 1.5rem;
 }
-
 .toggle-btn i {
     font-size: 1.5rem;
-    color: #ffffff;
+    color: #FFF;
 }
-
 .sidebar-logo {
     margin: auto 0;
 }
-
 .sidebar-logo a {
     color: #FFF;
     font-size: 1.15rem;
     font-weight: 600;
 }
-
 #sidebar:not(.expand) .sidebar-logo,
 #sidebar:not(.expand) a.sidebar-link span {
     display: none;
 }
-
 .sidebar-nav {
     padding: 2rem 0;
     flex: 1 1 auto;
 }
-
 a.sidebar-link {
     padding: .625rem 1.625rem;
-    color: #ffffff;
+    color: #FFF;
     display: block;
     font-size: 0.9rem;
     white-space: nowrap;
     border-left: 3px solid transparent;
 }
-
 .sidebar-link i {
     font-size: 1.1rem;
     margin-right: .75rem;
 }
-
 a.sidebar-link:hover {
-    background-color: rgba(255, 255, 255, 0.096);
-    border-left: 3px solid #ffbb00;
-    color: #ffae00
+    background-color: rgba(255, 255, 255, .075);
+    border-left: 3px solid #3b7ddd;
 }
-
 .sidebar-item {
     position: relative;
 }
-
 #sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
     position: absolute;
     top: 0;
@@ -131,14 +109,12 @@ a.sidebar-link:hover {
     min-width: 15rem;
     display: none;
 }
-
 #sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
     display: block;
     max-height: 15em;
     width: 100%;
     opacity: 1;
 }
-
 #sidebar.expand .sidebar-link[data-bs-toggle="collapse"]::after {
     border: solid;
     border-width: 0 .075rem .075rem 0;
@@ -151,44 +127,36 @@ a.sidebar-link:hover {
     transform: rotate(-135deg);
     transition: all 0.35s ease-out;
 }
-
 #sidebar.expand .sidebar-link[data-bs-toggle="collapse"].collapsed::after {
     transform: rotate(45deg);
     transition: all 0.35s ease-out;
 }
-
-
-
 .navbar {
-    background-color: #3740EE !important;
+    background-color: #0d6efd !important;
     z-index: 1000; /* ค่า z-index ต่ำกว่า Sidebar */
     position: relative;
     transition: margin-left 0.35s ease-in-out;
     margin-left: 0; /* เริ่มต้นไม่มีระยะห่าง */
 }
-
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
     color: #ffc107 !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีเหลือง */
 }
-
 .nav-link {
     color: #ffffff !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีขาว */
     font-weight: bold;
     /* ทำตัวหนังสือหนา */
 }
-
 .nav-link:hover {
-    background-color: #ffbb00 !important;
+    background-color: #ffc107 !important;
     /* เปลี่ยนสีพื้นหลังเมื่อเอาเมาส์ชี้เป็นสีเหลือง */
-    color: #000000 !important;
+    color: #0d6efd !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีน้ำเงินเมื่อเอาเมาส์ชี้ */
     border-radius: 5px;
 }
-
 .dropdown-menu {
     border-radius: 10px;
 }

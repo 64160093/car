@@ -15,8 +15,9 @@ use App\Models\User;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReqDocumentController;
-use App\Http\Controllers\StatusAllowController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DriverScheduleController;
+
 
 
 // เส้นทางหลักของแอปพลิเคชัน
@@ -42,12 +43,6 @@ Route::get('/profile/edit', [UserController::class, 'edit'])->name('profile.edit
 Route::put('/profile', [UserController::class, 'update'])->name('profile.update');
 
 
-// // เพิ่มรถ
-// Route::get('/add-vehicle', [HomeController::class, 'AddVehicleForm'])
-//     ->name('add.vehicle')    
-//     ->middleware(IsAdmin::class);
-// Route::post('/vehicles', [HomeController::class, 'storeVehicle'])->name('store.vehicle');
-
 
 //แสดงข้อมูลรถ เปลี่ยนสถานะ ลบค่า
 Route::get('/vehicles', [AdminController::class, 'showVehicles'])->name('show.vehicles')
@@ -62,23 +57,6 @@ Route::post('/reqdocument', [ReqDocumentController::class, 'store'])->name('reqd
 Route::get('/get-amphoes/{provinceId}', [ReqDocumentController::class, 'getAmphoes']);
 Route::get('/get-districts/{amphoeId}', [ReqDocumentController::class, 'getDistricts']);
 
-Route::get('/documents', [ReqDocumentController::class, 'index'])->name('documents.index');
-Route::get('/documents/create', [ReqDocumentController::class, 'create'])->name('documents.create');
-Route::post('/documents', [ReqDocumentController::class, 'store'])->name('documents.store');
-
-// // loginแล้วเข้าถึงได้
-// use Illuminate\Support\Facades\Storage;
-// use Illuminate\Support\Facades\Response;
-
-// Route::get('/signatures/{filename}', function ($filename) {
-//     $path = 'signatures/' . $filename;
-
-//     if (!Storage::exists($path)) {
-//         abort(404);
-//     }
-
-//     return Response::file(storage_path('app/' . $path));
-// })->middleware('auth'); // คุณสามารถเพิ่ม middleware อื่นๆ ตามต้องการ
 
 
 use Illuminate\Support\Facades\Storage;
@@ -106,7 +84,7 @@ Route::get('/signatures/{filename}', function ($filename) {
 
 
 
-//แอดมินแก้ไขข้อมูลผู้ใช้
+//แอดมินแก้ไขข้อมูลผู้ใช้ ค้นหา ดูรายละเอียดคำขออนญาต
 Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.users')
     ->middleware(IsAdmin::class);
 Route::get('/admin/users/edit/{id}', [AdminController::class, 'editUser'])->name('admin.users.edit')
@@ -115,7 +93,22 @@ Route::post('/admin/users/update/{id}', [AdminController::class, 'updateUser'])-
 Route::post('/admin/users/delete/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.delete');
 Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name('admin.users.search')
     ->middleware(IsAdmin::class);
+Route::get('/admin/users/form', [AdminController::class, 'showform'])->name('admin.users.form')
+    ->middleware(IsAdmin::class);
+
+//แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
+Route::get('/document-history', [DocumentController::class, 'index'])->name('documents.history');
+Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
 
 
-    Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
+Route::get('/permission-form', [DocumentController::class, 'permission'])->name('documents.index');
+Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name('documents.show');
+Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name('documents.updateStatus');
 
+
+
+Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+Route::get('/permission/{reqDocumentUser}', [PermissionController::class, 'show'])->name('permission.show');
+Route::put('/permission/{reqDocumentUser}/status', [PermissionController::class, 'updateStatus'])->name('permission.updateStatus');
+
+Route::get('/driver/schedule', [DriverScheduleController::class, 'index'])->name('driver.schedule')->middleware('auth');

@@ -29,7 +29,7 @@
                 <div class="container-fluid mt-2">
                     <form class="d-flex" method="GET" action="{{ route('admin.users.search') }}">
                         <input type="search" id="searchName" name="q" class="form-control me-2" 
-                            placeholder="ค้นหารายชื่อบุคลากร หรือ ตำแหน่ง" aria-label="Search" value="{{ request()->get('q') }}">
+                            placeholder="ค้นหาข้อมูล" aria-label="Search" value="{{ request()->get('q') }}">
                         <button type="submit" class="btn btn-primary">ค้นหา</button>
                         <a href="{{ route('register') }}" class="btn btn btn-primary ms-2">
                                 <i class="bi bi-plus-circle"></i>

@@ -8,12 +8,17 @@ class ReqDocumentUser extends Model
 {
     protected $table = 'req_document_user';
 
-    // Define relationship to User model if needed
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
-    }
+    protected $fillable = [
+        'req_document_id',
+        'user_id',
+        // ฟิลด์อื่นๆ
+    ];
 
+    // Define relationship to User model if needed
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function division()
     {
@@ -25,9 +30,10 @@ class ReqDocumentUser extends Model
     {
         return $this->belongsTo(Department::class, 'department_id');
     }
+
     public function reqDocument()
     {
-        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id')
-            ->withTimestamps();
+        return $this->belongsTo(ReqDocument::class, 'req_document_id', 'document_id');
     }
+    
 }

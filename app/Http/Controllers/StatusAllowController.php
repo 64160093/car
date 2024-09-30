@@ -1,17 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\StatusAllow;
-
 class StatusAllowController extends Controller
 {
     public function updateStatus(Request $request, $id)
     {
         // รับข้อมูล status จากฐานข้อมูล
         $status = StatusAllow::findOrFail($id);
-
         // อัปเดตสถานะที่ส่งมาจากฟอร์ม
         $status->update([
             'allow_department' => $request->input('allow_department'),
@@ -24,7 +20,6 @@ class StatusAllowController extends Controller
             'status_driver' => $request->input('status_driver'),
         
         ]);
-
         return redirect()->back()->with('success', 'Status updated successfully.');
     }
 }

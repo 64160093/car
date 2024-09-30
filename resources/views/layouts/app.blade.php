@@ -72,32 +72,42 @@
                         <i class="lni lni-grid-alt"></i>
                     </button>
                     <div class="sidebar-logo">
-                        <a href="{{ route('welcome') }}">ขออนุญาตใช้ยานรถ</a>
+                        <a href="{{ route('welcome') }}">ขออนุญาตใช้ยานยนต์</a>
                     </div>
                 </div>
                 <!-- Sidebar Navigation -->
                 <ul class="sidebar-nav">
                     <!-- แสดงเมนูของผู้ใช้ -->
                     @auth
+                        <!-- navdar admin -->
                         @if (auth()->user()->is_admin == 1)
                             <li class="sidebar-item"><a href="{{ route('admin.home') }}" class="sidebar-link"><i
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('admin.users') }}" class="sidebar-link"><i
                                         class="lni lni-users"></i><span>{{ __('จัดการข้อมูลผู้ใช้') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('store.vehicle') }}" class="sidebar-link"><i
-                                        class="lni lni-car"></i><span>{{ __('แสดงข้อมูลรถ') }}</span></a></li>
-                            <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
+                                        class="lni lni-car"></i><span>{{ __('จัดการข้อมูลรถ') }}</span></a></li>
+                            <li class="sidebar-item"><a href="{{ route('admin.users.form') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาตทั้งหมด') }}</span></a></li>
 
+                            <!-- navdar พนักงาน -->
+                        @elseif ((auth()->user()->role_id == 1))
+                            <li class="sidebar-item"><a href="{{ route('home') }}" class="sidebar-link"><i
+                                        class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
+                            <li class="sidebar-item"><a href="{{ route('documents.history') }}" class="sidebar-link"><i
+                                        class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
+                            <!-- เมนูสำหรับคนขับรถ -->
+                        @elseif (auth()->user()->role_id == 11)
+                            <li class="sidebar-item"><a href="{{ route('driver.schedule') }}" class="sidebar-link"><i
+                                        class="lni lni-calendar"></i><span>{{ __('แผนงานการปฏิบัติหน้าที่') }}</span></a></li>
+                            <!-- navdar คนอนุมัติ -->
                         @else
                             <li class="sidebar-item"><a href="{{ route('home') }}" class="sidebar-link"><i
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
-                            <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('documents.history') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
-                            <li class="sidebar-item"><a href="{{ route('documents.review') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
                                         class="lni lni-checkmark"></i><span>{{ __('ตรวจสอบอนุมัติคำขอ') }}</span></a></li>
-
-
 
                         @endif
                     @endauth

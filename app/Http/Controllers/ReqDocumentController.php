@@ -16,22 +16,7 @@ class ReqDocumentController extends Controller
 {
     public function index()
     {
-        $user = auth()->user(); // ตรวจสอบว่าคุณได้รับวัตถุผู้ใช้หรือไม่
-
-        // ตรวจสอบว่าวัตถุผู้ใช้มีการกำหนดค่า is_admin
-        if ($user && $user->is_admin) {
-            // หากผู้ใช้เป็นแอดมิน ให้ดึงเอกสารทั้งหมด
-            $documents = ReqDocument::all();
-            $users = User::all(); // ดึงข้อมูลผู้ใช้ทั้งหมดถ้าต้องการ
-        } else {
-            // หากไม่ใช่แอดมิน ให้ดึงเอกสารที่เกี่ยวข้องกับผู้ใช้
-            $documents = ReqDocument::whereHas('users', function ($query) use ($user) {
-                $query->where('user_id', $user->id); // ใช้ user_id ของผู้ใช้ปัจจุบัน
-            })->get();
-            $users = []; // หรือไม่กำหนดค่าอะไรเลย
-        }
-
-        return view('document', compact('documents', 'users'));
+        //
     }
 
 
@@ -106,7 +91,7 @@ class ReqDocumentController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect('/documents')->with('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
+        return redirect('/document-history')->with('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
     }
 
 
