@@ -79,7 +79,7 @@ class ReqDocumentController extends Controller
             'work_id' => $request->work_id,
         ]);
 
-     
+        
         // บันทึกความสัมพันธ์ระหว่างผู้ใช้และเอกสารในตาราง req_document_user
         $document->users()->attach(Auth::user()->id, [
             'name' => Auth::user()->name,

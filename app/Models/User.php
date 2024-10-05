@@ -81,8 +81,5 @@ class User extends Authenticatable
     {
         return $this->is_admin == 1; // หรือใช้ค่าที่เหมาะสมตามที่คุณใช้
     }
-    public function position()
-    {
-        return $this->belongsTo(Position::class, 'position_id' , 'position_id');
-    }
+
 }

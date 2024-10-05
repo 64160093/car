@@ -99,6 +99,7 @@ Route::get('/admin/users/form', [AdminController::class, 'showform'])->name('adm
 //แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
 Route::get('/document-history', [DocumentController::class, 'index'])->name('documents.history');
 Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
+Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('documents.status');
 
 
 Route::get('/permission-form', [DocumentController::class, 'permission'])->name('documents.index');
@@ -106,9 +107,5 @@ Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name(
 Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name('documents.updateStatus');
 
 
-
-Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
-Route::get('/permission/{reqDocumentUser}', [PermissionController::class, 'show'])->name('permission.show');
-Route::put('/permission/{reqDocumentUser}/status', [PermissionController::class, 'updateStatus'])->name('permission.updateStatus');
-
-Route::get('/driver/schedule', [DriverScheduleController::class, 'index'])->name('driver.schedule')->middleware('auth');
+Route::get('/driver/schedule', [DriverScheduleController::class, 'index'])->name('driver.schedule')
+    ->middleware('auth');

@@ -72,7 +72,7 @@
                         <i class="lni lni-grid-alt"></i>
                     </button>
                     <div class="sidebar-logo">
-                        <a href="{{ route('welcome') }}" onclick="checkAccess()">ขออนุญาตใช้ยานยนต์</a>
+                        <a href="{{ route('welcome') }}">ขออนุญาตใช้ยานยนต์</a>
                     </div>
                 </div>
                 <!-- Sidebar Navigation -->
@@ -96,9 +96,10 @@
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('documents.history') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
+
                             <!-- เมนูสำหรับคนขับรถ -->
                         @elseif (auth()->user()->role_id == 11)
-                            <li class="sidebar-item"><a href="{{ route('driver.schedule') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
                                         class="lni lni-calendar"></i><span>{{ __('แผนงานการปฏิบัติหน้าที่') }}</span></a></li>
                             <!-- navdar คนอนุมัติ -->
                         @else
@@ -125,18 +126,6 @@
         </div>
     </div>
 
-    <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div id="accessToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto">แจ้งเตือน</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                ไม่มีสิทธิ
-            </div>
-        </div>
-    </div>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ho+yCg0tSgPZnFbx1bBLycLnlr7/+bJ8CsxrjW+4ylpVjmhi9z/HRX1ADdbaz8Wt"
@@ -156,16 +145,7 @@
                 });
             });
         });
-        function checkAccess() {
-            // ตรวจสอบว่า role_id เป็น 11 หรือไม่
-            @auth
-                @if (auth()->user()->role_id == 11)
-                    alert('ไม่มีสิทธิ');
-                @else
-                    window.location.href = '{{ route('welcome') }}';
-                @endif
-            @endauth
-        }
+
     </script>
 </body>
 

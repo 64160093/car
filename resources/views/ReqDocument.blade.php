@@ -12,7 +12,6 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 
 
-
 @endsection
 
 @section('content')
@@ -63,8 +62,7 @@
                     <div class="col-md-4 text-right">
                         <div class="form-group">
                             <label for="reservation_date">{{ __('วันที่ทำเรื่อง') }}</label>
-                            <input type="date"
-                                class="form-control no-border text-center @error('reservation_date') is-invalid @enderror"
+                            <input type="date" class="form-control no-border text-center @error('reservation_date') is-invalid @enderror"
                                 id="reservation_date" name="reservation_date" value="{{ old('reservation_date') }}"
                                 readonly required>
                             @error('reservation_date')
@@ -179,8 +177,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="end_date">{{ __('วันที่กลับ') }}</label>
-                            <input type="date"
-                                class="form-control text-center datepicker @error('end_date') is-invalid @enderror"
+                            <input type="date" class="form-control text-center datepicker @error('end_date') is-invalid @enderror"
                                 id="end_date" name="end_date" value="{{ old('end_date') }}" required>
                             @error('end_date')
                                 <span class="invalid-feedback" role="alert">
@@ -197,8 +194,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="start_time">{{ __('เวลาไป') }}</label>
-                            <input type="time"
-                                class="form-control text-center @error('start_time') is-invalid @enderror"
+                            <input type="time" class="form-control text-center @error('start_time') is-invalid @enderror"
                                 id="start_time" name="start_time" value="{{ old('start_time') }}" required>
                             @error('start_time')
                                 <span class="invalid-feedback" role="alert">
@@ -239,8 +235,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="provinces_id">{{ __('จังหวัด') }}</label>
-                            <select id="provinces_id"
-                                class="form-control text-center @error('provinces_id') is-invalid @enderror"
+                            <select id="provinces_id" class="form-control text-center @error('provinces_id') is-invalid @enderror"
                                 name="provinces_id" required>
                                 <option value="" disabled selected>{{ __('เลือกจังหวัด') }}</option>
                                 @foreach($provinces as $province)
@@ -260,8 +255,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="amphoe_id">{{ __('อำเภอ') }}</label>
-                            <select id="amphoe_id"
-                                class="form-control text-center @error('amphoe_id') is-invalid @enderror"
+                            <select id="amphoe_id" class="form-control text-center @error('amphoe_id') is-invalid @enderror"
                                 name="amphoe_id" required>
                                 <option value="" disabled selected>{{ __('เลือกอำเภอ') }}</option>
                                 <!-- Load amphoes dynamically based on province selection -->
@@ -284,8 +278,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="district_id">{{ __('ตำบล') }}</label>
-                            <select id="district_id"
-                                class="form-control text-center @error('district_id') is-invalid @enderror"
+                            <select id="district_id" class="form-control text-center @error('district_id') is-invalid @enderror"
                                 name="district_id" required>
                                 <option value="" disabled selected>{{ __('เลือกตำบล') }}</option>
                                 <!-- Load districts dynamically based on amphoe selection -->
@@ -309,8 +302,7 @@
                 <!-- ประเภทรถยนต์ -->
                 <div class="form-group mb-4">
                     <label for="car_type">{{ __('ประเภทของรถยนต์') }}</label>
-                    <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type"
-                        required>
+                    <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type" required>
                         <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
                         <option value="รถกระบะ">{{ __('รถกระบะ') }}</option>
                         <option value="รถตู้">{{ __('รถตู้') }}</option>

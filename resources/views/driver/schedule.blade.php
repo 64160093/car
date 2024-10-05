@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h1 class="text-center">แผนงานในการปฏิบัติหน้าที่ของคนขับรถ</h1>
+    <h1 class="text text-center">แผนงานในการปฏิบัติหน้าที่ของคนขับรถ</h1>
 
     @if (session('error'))
         <div class="alert alert-danger">
@@ -10,45 +10,60 @@
         </div>
     @endif
 
-    @if(empty($schedules))
+    <!-- ตรวจสอบว่ามีแผนงานหรือไม่ -->
+    @if($documents->isEmpty())
         <div class="alert alert-info">
-            {{ __('ไม่มีแผนงานสำหรับการปฏิบัติหน้าที่') }}
+            {{ __('ไม่มีฟอร์มสำหรับการตรวจสอบ') }}
         </div>
     @else
-        <table class="table table-hover table-bordered">
+        <!-- แสดงข้อมูลแผนงาน -->
+        <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th class="text-center">#</th>
-                    <th class="text-center">วันที่</th>
-                    <th class="text-center">เวลาที่เริ่ม</th>
-                    <th class="text-center">เวลาที่สิ้นสุด</th>
-                    <th class="text-center">รายละเอียด</th>
-                    <th class="text-center">สถานะ</th>
-                    <th class="text-center">การกระทำ</th>
+                    <th>วันที่</th>
+                    <th>เวลา</th>
+                    <th>รายละเอียด</th>
+                    <th>สถานะ</th>
+                    <th>รายละเอียด</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($schedules as $schedule)
-                    <tr>
-                        <td class="text-center">{{ $schedule->id }}</td>
-                        <td class="text-center">{{ $schedule->date }}</td>
-                        <td class="text-center">{{ $schedule->start_time }}</td>
-                        <td class="text-center">{{ $schedule->end_time }}</td>
-                        <td class="text-center">{{ $schedule->details }}</td>
-                        <td class="text-center">
-                            @if($schedule->status == 'approved')
-                                <span class="badge bg-success">อนุมัติ</span>
-                            @elseif($schedule->status == 'pending')
-                                <span class="badge bg-warning">รอดำเนินการ</span>
-                            @else
-                                <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                            @endif
-                        </td>
-                        <td class="text-center">
-                            <a href="{{ route('schedule.show', ['id' => $schedule->id]) }}" class="btn btn-primary">ดูรายละเอียด</a>
-                        </td>
-                    </tr>
-                @endforeach
+            @foreach($documents as $document)
+                <tr>
+                    <!-- วันที่ -->
+                    <td>{{ \Carbon\Carbon::parse($document->date)->format('d F Y') }}</td>
+                    
+                    <!-- เวลา -->
+                    <td>{{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }}</td>
+
+                    <!-- รายละเอียด -->
+                    <td>{{ $document->objective }}</td>
+
+                    <!-- สถานะ -->
+                    <td>
+                        @if ($document->status == 'approved')
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle"></i> อนุมัติ
+                            </span>
+                        @elseif ($document->status == 'pending')
+                            <span class="badge bg-warning">
+                                <i class="fas fa-clock"></i> รอดำเนินการ
+                            </span>
+                        @else
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle"></i> ถูกปฏิเสธ
+                            </span>
+                        @endif
+                    </td>
+
+                    <!-- รายละเอียดเพิ่มเติม -->
+                    <td>
+                        <a href="{{ route('documents.show', ['id' => $document->document_id]) }}" class="btn btn-primary">
+                            <i class="fas fa-info-circle"></i> รายละเอียด
+                        </a>
+                    </td>
+                </tr>
+            @endforeach
             </tbody>
         </table>
     @endif
