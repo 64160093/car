@@ -109,3 +109,8 @@ Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name
 
 Route::get('/driver/schedule', [DriverScheduleController::class, 'index'])->name('driver.schedule')
     ->middleware('auth');
+
+Route::get('/reportdocument', function () {
+    return view('driver.reportdocument');
+})->name('report');
+Route::post('/report/submit', [ReportDocumentController::class, 'submit'])->name('report.submit');
