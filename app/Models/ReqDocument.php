@@ -30,6 +30,8 @@ class ReqDocument extends Model
         'amphoe_id',
         'district_id',
         'work_id',
+        'car_id',
+        'carman',
 
     ];
 
@@ -79,4 +81,9 @@ class ReqDocument extends Model
         return empty($this->content);
     }
 
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class, 'car_id');
+    }
+    
 }

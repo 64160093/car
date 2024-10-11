@@ -31,7 +31,7 @@
             @foreach($documents as $document)
                 <tr>
                     <!-- วันที่ -->
-                    <td>{{ \Carbon\Carbon::parse($document->date)->format('d F Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($document->start_date)->format('d F Y') }}</td>
                     
                     <!-- เวลา -->
                     <td>{{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }}</td>

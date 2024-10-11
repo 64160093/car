@@ -5,8 +5,10 @@
     <h2>ประวัติการยื่นขอ</h2>
 
     {{-- ปุ่มสำหรับเลือกการกรอง --}}
+
     <div class="mb-4 d-flex justify-content-end">
         <div class="d-flex align-items-center">
+
             <div class="btn-group" role="group">
                 <a href="{{ route('documents.history', ['filter' => 'reservation']) }}"
                     class="btn {{ request('filter') == 'reservation' || !request('filter') ? 'btn-primary' : 'btn-outline-primary' }}">
@@ -28,12 +30,9 @@
         {{-- จัดกลุ่มเอกสารตามประเภทที่เลือก --}}
         @php
             $groupedBy = request('filter') == 'travel' ? 'start_date' : 'reservation_date';
-
-            // เรียงเอกสารตาม reservation_date ใหม่ที่สุด
-            $sortedDocuments = $documents->sortByDesc($groupedBy);
         @endphp
 
-        @foreach($sortedDocuments->groupBy(function ($date) use ($groupedBy) {
+        @foreach($documents->groupBy(function ($date) use ($groupedBy) {
                 return \Carbon\Carbon::parse($date->$groupedBy)->format('F Y');
             }) as $month => $groupedDocuments)
             <div class="card mb-3">
@@ -60,10 +59,22 @@
                                     </div>
                                     <div>
                                         {{-- ปุ่มเพื่อดูรายละเอียดของเอกสาร --}}
-                                        <a href="{{ route('documents.status') }}?id={{ $document->document_id }}"
-                                            class="btn btn-outline-primary">ดูสถานะ</a>
-                                        <a href="{{ route('documents.review') }}?id={{ $document->document_id }}"
-                                            class="btn btn-primary">ดูรายละเอียด</a>
+                                        <!-- @foreach($document->reqDocumentUsers as $docUser)
+                                            @if ($docUser->division_id == 2)
+                                                {{-- ตรวจสอบ allow_department เมื่อ division_id == 2 --}}
+                                                @if ($document->allow_department == 'pending')
+                                                    <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
+                                                @elseif ($document->allow_department == 'approved')
+                                                    @include('partials.allow_status', ['document' => $document])
+                                                @else
+                                                    <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
+                                                @endif
+                                            @else
+                                                {{-- ข้ามการตรวจสอบ allow_department --}}
+                                                @include('partials.allow_status', ['document' => $document])
+                                            @endif
+                                        @endforeach -->
+                                        <a href="{{ route('documents.review') }}?id={{ $document->document_id }}" class="btn btn-primary">ดูรายละเอียด</a>
                                     </div>
                                 </div>
                             </div>

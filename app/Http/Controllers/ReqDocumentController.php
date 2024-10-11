@@ -11,6 +11,8 @@ use App\Models\Amphoe;
 use App\Models\District;
 use App\Models\WorkType;
 use App\Models\User;
+use App\Models\Vehicle;
+
 
 class ReqDocumentController extends Controller
 {
@@ -27,7 +29,8 @@ class ReqDocumentController extends Controller
         $amphoe = Amphoe::all();
         $district = District::all();
         $work_type = WorkType::all();
-        return view('reqdocument', compact('provinces', 'amphoe', 'district', 'work_type', 'user'));
+        $vehicles = Vehicle::all();
+        return view('reqdocument', compact('provinces', 'amphoe', 'district', 'work_type', 'user','vehicles'));
     }
 
 
@@ -51,14 +54,21 @@ class ReqDocumentController extends Controller
             'amphoe_id' => 'required|exists:amphoe,amphoe_id',
             'district_id' => 'required|exists:district,district_id',
             'work_id' => 'required|exists:work_type,work_id',
+            'car_id' => 'nullable|exists:vehicles,car_id',
+            'carman' => 'nullable|exists:user,id',
         ]);
-
+    
         // จัดการการอัปโหลดไฟล์
         $filePath = null;
         if ($request->hasFile('related_project')) {
             $filePath = $request->file('related_project')->store('projects');
         }
+    
+        // ตรวจสอบ role_id ว่าเป็น 12 หรือไม่ เพื่อบันทึกค่า car_id
+        $carId = auth()->user()->role_id == 12 ? $request->input('car_id') : null;
+        $carMan = auth()->user()->role_id == 12 ? $request->input('carman') : null;
 
+    
         // บันทึกข้อมูลลงในตาราง req_document
         $document = ReqDocument::create([
             'companion_name' => $request->companion_name,
@@ -77,9 +87,11 @@ class ReqDocumentController extends Controller
             'amphoe_id' => $request->amphoe_id,
             'district_id' => $request->district_id,
             'work_id' => $request->work_id,
+            'car_id' => $carId, // บันทึก car_id เฉพาะ role_id == 12 เท่านั้น
+            'carman' => $carMan,
         ]);
 
-        
+    
         // บันทึกความสัมพันธ์ระหว่างผู้ใช้และเอกสารในตาราง req_document_user
         $document->users()->attach(Auth::user()->id, [
             'name' => Auth::user()->name,
@@ -90,7 +102,7 @@ class ReqDocumentController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
+    
         return redirect('/document-history')->with('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
     }
 

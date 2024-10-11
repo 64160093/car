@@ -6,10 +6,11 @@ use App\Models\ReqDocument;
 use App\Models\ReqDocumentUser;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\Vehicle;
 
 class DocumentController extends Controller
 {
-    /**
+        /**
      *
      *
      * 
@@ -20,20 +21,16 @@ class DocumentController extends Controller
         if (auth()->check()) {
             $user = auth()->user();
 
-            // ดึงเอกสารที่ผู้ใช้เกี่ยวข้องและเรียงตามวันที่ล่าสุด
             $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })
-                ->orderBy('created_at', 'desc') // เรียงลำดับตามวันที่สร้างล่าสุด
-                ->get();
+            })->get();
 
             return view('document-history', compact('documents'));
         } else {
-            return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
+            return redirect()->route('login');
         }
     }
-
-
+      
     public function reviewForm(Request $request)
     {
         $id = $request->input('id');
@@ -57,10 +54,10 @@ class DocumentController extends Controller
 
         return view('reviewstatus', compact('document'));
     }
+    
 
 
-
-    /**
+        /**
      *
      *
      * 
@@ -78,7 +75,7 @@ class DocumentController extends Controller
                     ->where(function ($query) use ($user) {
                         $this->applyDivisionRoleFilter($query, $user->role_id);
                     });
-            });
+            })->orderBy('document_id', 'desc'); // เรียงลำดับจากมากไปน้อย
 
             // ดึงเอกสารที่มี allow_division = 'approved'
             $approvedDivision = ReqDocument::where('allow_division', 'approved');
@@ -86,8 +83,9 @@ class DocumentController extends Controller
             $approvedOfficer = ReqDocument::where('allow_officer', 'approved');
             $approvedDirector = ReqDocument::where('allow_director', 'approved');
 
+            // ตรวจสอบเอกสารตาม role_id และเงื่อนไข division_id = 2
             if ($isReviewer) {
-                // ดึงเอกสารที่ต้องตรวจสอบและผ่านเงื่อนไข
+                // เอกสารที่ต้องตรวจสอบ (นอกเหนือจากที่ผู้ใช้ส่งเอง)
                 $reviewDocuments = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
                     $query->where('req_document_user.user_id', '!=', $user->id)
                         ->where(function ($query) use ($user) {
@@ -97,38 +95,46 @@ class DocumentController extends Controller
 
                 $documents = $userDocuments->get()
                     ->merge($reviewDocuments->get())
-                    ->sortBy('document_id');
+                    ->sortByDesc('document_id'); // เรียงจากมากไปน้อย
 
-            } elseif ($user->role_id == 12) {
+            } elseif ($user->role_id == 12) {        //คนสั่งรถ
+                // เอกสารที่ต้องส่งไปยัง role_id = 12
                 $documents = $approvedDivision
-                    ->orderBy('document_id', 'asc')
+                    ->orderBy('document_id', 'desc') 
                     ->get();
 
-            } elseif ($user->role_id == 2) {
+            } elseif ($user->role_id == 2) {        //หัวหน้าสำนักงาน
                 $documents = $approvedOpcar
-                    ->orderBy('document_id', 'asc')
+                    ->orderBy('document_id', 'desc') 
                     ->get();
 
-            } elseif ($user->role_id == 3) {
+            } elseif ($user->role_id == 3) {        //ผู้อำนวยการ
                 $documents = $approvedOfficer
-                    ->orderBy('document_id', 'asc')
+                    ->orderBy('document_id', 'desc') 
                     ->get();
 
-            } elseif ($user->role_id == 11) {
+            } elseif ($user->role_id == 11) { // คนขับรถ
                 $documents = $approvedDirector
-                    ->orderBy('document_id', 'asc')
+                    ->where('carman', $user->id) // กรองเอกสารที่มี carman เท่ากับ user id
+                    ->orderBy('document_id', 'desc')
                     ->get();
                 return view('driver.schedule', compact('documents'));
+
+            } elseif ($user->role_id == 5) {        //หัวหน้าฝ่ายวิจัยวิทยาศาสตร์ทางทะเล
+                $documents = ReqDocument::where('allow_department', 'approved')
+                    ->whereHas('reqDocumentUsers', function ($query) {
+                        $query->where('req_document_user.division_id', 2);
+                    })
+                    ->orderBy('document_id', 'desc')
+                    ->get();
             }
 
             return view('permission-form', compact('documents'));
 
         } else {
-            return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
+            return redirect()->route('login');
         }
     }
-
-
 
     private function applyDivisionRoleFilter($query, $roleId)
     {
@@ -168,127 +174,106 @@ class DocumentController extends Controller
                     ->where('req_document_user.department_id', 4);
                 break;
             default:
-                break;      //roleId ไม่ตรงกับเงื่อนไข
+                    break;      //roleId ไม่ตรงกับเงื่อนไข
 
         }
     }
 
-    // public function permission()
-    // {
-    //     if (auth()->check()) {
-
-    //         $user = auth()->user();
-    //         $isReviewer = in_array($user->role_id, [4, 6, 7, 8, 9, 10, 13, 14, 15, 16]);
-
-    //         $userDocuments = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
-    //             $query->where('req_document_user.user_id', $user->id); // เอกสารที่ผู้ใช้ส่งเอง
-    //         });
-
-    //         if ($isReviewer) {
-    //             // ดึงเอกสารที่ต้องตรวจสอบ
-    //             $reviewDocuments = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
-    //                 $query->where('req_document_user.user_id', '!=', $user->id) // ไม่ดึงเอกสารที่ผู้ใช้ส่งเอง
-    //                     ->where(function ($query) use ($user) {
-    //                         // ฟังก์ชันกรองเอกสารตาม division_id และ role_id
-    //                         $this->applyDivisionRoleFilter($query, $user->role_id);
-    //                     });
-    //             });
-
-    //             // รวมเอกสารที่ผู้ใช้ส่งเองกับเอกสารที่ต้องตรวจสอบ
-    //             $documents = $userDocuments->union($reviewDocuments)->orderBy('created_at', 'asc')->get();
-    //         } else {
-    //             $documents = $userDocuments->orderBy('created_at', 'asc')->get();
-    //         }
-    //         return view('permission-form', compact('documents'));
-
-    //     } else {
-    //         return redirect()->route('login')->with('error', 'Session expired. Please log in again.');
-    //     }
-    // }
-
-
-    // ฟังก์ชันช่วยเพื่อแยกเงื่อนไขการกรองตาม role และ division
-    // private function applyDivisionRoleFilter($query, $roleId)
-    // {
-    //     if ($roleId == 4) {
-    //         $query->where('req_document_user.division_id', 1);
-    //     } elseif ($roleId == 6) {
-    //         $query->where('req_document_user.division_id', 3);
-    //     } elseif ($roleId == 7) {
-    //         $query->where('req_document_user.division_id', 4);
-    //     } elseif ($roleId == 8) {
-    //         $query->where('req_document_user.division_id', 5);
-    //     } elseif ($roleId == 9) {
-    //         $query->where('req_document_user.division_id', 6);
-    //     } elseif ($roleId == 10) {
-    //         $query->where('req_document_user.division_id', 7);
-
-    //     } elseif ($roleId == 13) {
-    //         $query->where('req_document_user.division_id', 2)
-    //             ->where('req_document_user.department_id', 1);
-    //     } elseif ($roleId == 14) {
-    //         $query->where('req_document_user.division_id', 2)
-    //             ->where('req_document_user.department_id', 2);
-    //     } elseif ($roleId == 15) {
-    //         $query->where('req_document_user.division_id', 2)
-    //             ->where('req_document_user.department_id', 3);
-    //     } elseif ($roleId == 16) {
-    //         $query->where('req_document_user.division_id', 2)
-    //             ->where('req_document_user.department_id', 4);
-    //     }
-    // }
-
-
     public function show(Request $request)
     {
+        $vehicles = Vehicle::all(); 
+        $users = User::all();
         $id = $request->input('id'); // รับค่า id ของเอกสารที่ส่งเข้ามา
-
+    
         $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($id) {
             $query->where('document_id', $id);
         })->get();
-
-        return view('permission-form-allow', compact('documents'));
+    
+        return view('permission-form-allow', compact('documents', 'vehicles','users'));
     }
-
+    
     /**
-     * "updateStatus"
+     * "updateStatus" "SelectDriver" "SelectCar"
      *
      * 
      */
     public function updateStatus(Request $request)
     {
+
+        // รับข้อมูลจากฟอร์ม
         $documentId = $request->input('document_id');
         $statusdivision = $request->input('statusdivision');
         $statusdepartment = $request->input('statusdepartment');
         $statusopcar = $request->input('statusopcar');
         $statusofficer = $request->input('statusofficer');
         $statusdirector = $request->input('statusdirector');
+        $notallowedReason = $request->input('notallowed_reason'); // เพิ่มการรับค่าเหตุผล
 
+        // ค้นหาเอกสารตาม document_id
         $document = ReqDocument::where('document_id', $documentId)->first();
 
         if ($document) {
+            // อัปเดตสถานะต่าง ๆ
             if ($statusdivision) {
                 $document->allow_division = $statusdivision;
+                if ($statusdivision == 'rejected' && $request->input('notallowed_reason_division')) {
+                    $document->notallowed_reason = $request->input('notallowed_reason_division');
+                } else {
+                    $document->notallowed_reason = null;
+                }
             }
+
             if ($statusdepartment) {
                 $document->allow_department = $statusdepartment;
+                if ($statusdepartment == 'rejected' && $request->input('notallowed_reason_department')) {
+                    $document->notallowed_reason = $request->input('notallowed_reason_department');
+                } else {
+                    $document->notallowed_reason = null;
+                }
             }
+
             if ($statusopcar) {
                 $document->allow_opcar = $statusopcar;
+                if ($statusopcar == 'rejected' && $notallowedReason) {
+                    $document->notallowed_reason = $notallowedReason;
+                } else {
+                    $document->notallowed_reason = null; 
+                }
             }
+            
             if ($statusofficer) {
                 $document->allow_officer = $statusofficer;
+                if ($statusofficer == 'rejected' && $request->input('notallowed_reason_officer')) {
+                    $document->notallowed_reason = $request->input('notallowed_reason_officer');
+                } else {
+                    $document->notallowed_reason = null;
+                }
             }
+
             if ($statusdirector) {
                 $document->allow_director = $statusdirector;
+                if ($statusdirector == 'rejected' && $request->input('notallowed_reason_director')) {
+                    $document->notallowed_reason = $request->input('notallowed_reason_director');
+                } else {
+                    $document->notallowed_reason = null;
+                }
             }
+
+            // เพิ่ม car_id เฉพาะผู้ใช้ที่มี role_id = 12 เท่านั้น
+            if (auth()->user()->role_id == 12) {
+                $document->car_id = $request->input('car_id');
+                $document->carman = $request->input('carman');
+
+            }
+
+            // บันทึกข้อมูล
             $document->save();
 
             return redirect()->route('documents.index')
-                ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
+                            ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
         } else {
             return redirect()->route('documents.show')
-                ->with('error', 'ไม่พบเอกสาร');
+                            ->with('error', 'ไม่พบเอกสาร');
         }
     }
 

@@ -62,7 +62,8 @@
                     <div class="col-md-4 text-right">
                         <div class="form-group">
                             <label for="reservation_date">{{ __('วันที่ทำเรื่อง') }}</label>
-                            <input type="date" class="form-control no-border text-center @error('reservation_date') is-invalid @enderror"
+                            <input type="date"
+                                class="form-control no-border text-center @error('reservation_date') is-invalid @enderror"
                                 id="reservation_date" name="reservation_date" value="{{ old('reservation_date') }}"
                                 readonly required>
                             @error('reservation_date')
@@ -76,29 +77,37 @@
                 </div>
 
 
-                <!-- ผู้ร่วมเดินทาง และ จำนวนผู้ร่วมเดินทาง -->
+                <!-- Dropdown เลือกรายชื่อพนักงาน -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="employee">{{ __('เลือกผู้ร่วมเดินทาง') }}</label>
+                            <select class="form-control" id="employee_select">
+                                <option value="">{{ __('เลือกผู้ร่วมเดินทาง') }}</option>
+                                @foreach ($user as $users)
+                                    <option value="{{ $users->name }} {{ $users->lname }}">
+                                        {{ $users->name }} {{ $users->lname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ฟิลด์ผู้ร่วมเดินทาง -->
                 <div class="row mb-4">
                     <div class="col-md-8">
                         <div class="form-group">
                             <label for="companion_name">{{ __('ผู้ร่วมเดินทาง') }}</label>
-                            <textarea class="form-control @error('companion_name') is-invalid @enderror"
-                                id="companion_name" name="companion_name" rows="3"
-                                required>{{ old('companion_name') }}</textarea>
-                            @error('companion_name')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
+                            <div class="form-control" id="companion_name" style="min-height: 100px;"></div>
                         </div>
                     </div>
-
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="sum_companion">{{ __('จำนวนผู้ร่วมเดินทาง') }}</label>
                             <input type="number"
                                 class="form-control text-center @error('sum_companion') is-invalid @enderror"
-                                id="sum_companion" name="sum_companion" value="{{ old('sum_companion') }}" required
-                                readonly>
+                                id="sum_companion" name="sum_companion" value="0" required readonly>
                             @error('sum_companion')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -107,6 +116,22 @@
                         </div>
                     </div>
                 </div>
+                <input type="hidden" id="companions_hidden" name="companion_name">
+
+                <!-- ผู้ควบคุมรถ -->
+                <div class="form-group mb-4">
+                    <label for="car_controller">{{ __('ผู้ควบคุมรถ') }}</label>
+                    <select id="car_controller" class="form-control @error('car_controller') is-invalid @enderror"
+                        name="car_controller" required>
+                        <option value="" disabled selected>{{ __('เลือกผู้ควบคุมรถ') }}</option>
+                    </select>
+                    @error('car_controller')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
 
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
@@ -177,7 +202,8 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="end_date">{{ __('วันที่กลับ') }}</label>
-                            <input type="date" class="form-control text-center datepicker @error('end_date') is-invalid @enderror"
+                            <input type="date"
+                                class="form-control text-center datepicker @error('end_date') is-invalid @enderror"
                                 id="end_date" name="end_date" value="{{ old('end_date') }}" required>
                             @error('end_date')
                                 <span class="invalid-feedback" role="alert">
@@ -194,7 +220,8 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="start_time">{{ __('เวลาไป') }}</label>
-                            <input type="time" class="form-control text-center @error('start_time') is-invalid @enderror"
+                            <input type="time"
+                                class="form-control text-center @error('start_time') is-invalid @enderror"
                                 id="start_time" name="start_time" value="{{ old('start_time') }}" required>
                             @error('start_time')
                                 <span class="invalid-feedback" role="alert">
@@ -235,7 +262,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="provinces_id">{{ __('จังหวัด') }}</label>
-                            <select id="provinces_id" class="form-control text-center @error('provinces_id') is-invalid @enderror"
+                            <select id="provinces_id"
+                                class="form-control text-center @error('provinces_id') is-invalid @enderror"
                                 name="provinces_id" required>
                                 <option value="" disabled selected>{{ __('เลือกจังหวัด') }}</option>
                                 @foreach($provinces as $province)
@@ -255,7 +283,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="amphoe_id">{{ __('อำเภอ') }}</label>
-                            <select id="amphoe_id" class="form-control text-center @error('amphoe_id') is-invalid @enderror"
+                            <select id="amphoe_id"
+                                class="form-control text-center @error('amphoe_id') is-invalid @enderror"
                                 name="amphoe_id" required>
                                 <option value="" disabled selected>{{ __('เลือกอำเภอ') }}</option>
                                 <!-- Load amphoes dynamically based on province selection -->
@@ -278,7 +307,8 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="district_id">{{ __('ตำบล') }}</label>
-                            <select id="district_id" class="form-control text-center @error('district_id') is-invalid @enderror"
+                            <select id="district_id"
+                                class="form-control text-center @error('district_id') is-invalid @enderror"
                                 name="district_id" required>
                                 <option value="" disabled selected>{{ __('เลือกตำบล') }}</option>
                                 <!-- Load districts dynamically based on amphoe selection -->
@@ -302,7 +332,8 @@
                 <!-- ประเภทรถยนต์ -->
                 <div class="form-group mb-4">
                     <label for="car_type">{{ __('ประเภทของรถยนต์') }}</label>
-                    <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type" required>
+                    <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type"
+                        required>
                         <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
                         <option value="รถกระบะ">{{ __('รถกระบะ') }}</option>
                         <option value="รถตู้">{{ __('รถตู้') }}</option>
@@ -350,6 +381,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 
 
@@ -431,17 +463,6 @@
             }
         });
 
-        // ฟังก์ชันเพื่ออัปเดตจำนวนผู้ร่วมเดินทาง
-        function updateCompanionCount() {
-            var companionText = document.getElementById('companion_name').value;
-            var names = companionText.split(/\n|,\s*/).filter(function (name) {
-                return name.trim().length > 0;
-            });
-            document.getElementById('sum_companion').value = names.length || 0; // ตั้งค่าเป็น 0 หากไม่มีชื่อ
-        }
-        // แนบฟังก์ชัน `updateCompanionCount` กับเหตุการณ์ `input` ของพื้นที่กรอกข้อมูล
-        document.getElementById('companion_name').addEventListener('input', updateCompanionCount);
-        updateCompanionCount(); // ตั้งค่าเริ่มต้น `sum_companion` เป็น 0 เมื่อหน้าโหลด
         // ฟังก์ชันเพื่อให้วันที่ไปและวันที่กลับไม่สามารถเลือกวันย้อนหลัง
         function setMinDates() {
             const today = new Date();
@@ -451,6 +472,103 @@
         }
         setMinDates(); // เรียกฟังก์ชันเมื่อโหลดหน้า
     });
+
+    $(document).ready(function () {
+        // เก็บค่าชื่อผู้ใช้ที่ล็อกอินอยู่
+        var loggedInUser = "{{ Auth::user()->name }} {{ Auth::user()->lname }} (ผู้ขอ)";
+
+        // เพิ่มชื่อผู้ใช้ที่ล็อกอินใน dropdown เริ่มต้น
+        var carController = $('#car_controller');
+        carController.append('<option value="' + loggedInUser + '">' + loggedInUser + '</option>');
+
+        // เก็บรายชื่อผู้ร่วมเดินทาง
+        let companions = [];
+
+        // ฟังก์ชันเพื่ออัปเดตจำนวนผู้ร่วมเดินทาง
+        function updateCompanionCount() {
+            var companionItems = document.querySelectorAll('.companion-item');
+            document.getElementById('sum_companion').value = companionItems.length || 0;
+            // อัปเดตค่าที่ซ่อนเพื่อเก็บ JSON
+            document.getElementById('companions_hidden').value = JSON.stringify(companions);
+        }
+
+        // ฟังก์ชันเพื่อเพิ่มชื่อกลับไปใน dropdown
+        function addNameBackToDropdown(name) {
+            var dropdown = document.getElementById('employee_select');
+            var option = document.createElement('option');
+            option.value = name;
+            option.text = name;
+            dropdown.add(option);
+        }
+
+        // ฟังก์ชันอัปเดตรายชื่อผู้ควบคุมรถแบบเรียลไทม์
+        function updateCarControllerDropdown() {
+            var companionNames = companions; // ใช้ companions แทน
+            // ล้างตัวเลือกที่มีอยู่ทั้งหมด ยกเว้นชื่อผู้ขอ
+            carController.find('option:not(:first)').remove();
+            // เพิ่มชื่อผู้ขอกลับเข้าไปใหม่
+            carController.append('<option value="' + loggedInUser + '">' + loggedInUser + '</option>');
+            // เพิ่มรายชื่อผู้ร่วมเดินทางลงใน dropdown ผู้ควบคุมรถ
+            companionNames.forEach(function (name) {
+                carController.append('<option value="' + name + '">' + name + '</option>');
+            });
+        }
+
+        // เพิ่มชื่อพนักงานที่เลือกจาก dropdown ไปยังฟิลด์ผู้ร่วมเดินทาง
+        document.getElementById('employee_select').addEventListener('change', function () {
+            var selectedName = this.value;
+            var companionName = document.getElementById('companion_name');
+
+            // ถ้ามีการเลือกพนักงาน ให้เพิ่มลงไปในฟิลด์ผู้ร่วมเดินทาง
+            if (selectedName) {
+                companions.push(selectedName); // เพิ่มชื่อในอาเรย์
+                var newCompanion = document.createElement('span');
+                newCompanion.classList.add('companion-item');
+                newCompanion.style.display = 'flex'; // ใช้ flexbox เพื่อจัดตำแหน่ง
+                newCompanion.style.justifyContent = 'space-between'; // ชื่ออยู่ซ้าย ไอคอนอยู่ขวา
+                newCompanion.style.alignItems = 'center';
+                newCompanion.style.margin = '5px 0'; // เพิ่มระยะห่างระหว่างบรรทัด
+                newCompanion.style.padding = '5px 10px';
+                newCompanion.style.border = '1px solid #ccc';
+                newCompanion.style.borderRadius = '4px';
+                newCompanion.textContent = selectedName;
+
+                // สร้างไอคอนลบ
+                var removeIcon = document.createElement('i');
+                removeIcon.classList.add('fas', 'fa-times'); // ใช้ไอคอนกากบาทจาก Font Awesome
+                removeIcon.style.color = 'red';
+                removeIcon.style.cursor = 'pointer';
+
+                // ฟังก์ชันเมื่อคลิกไอคอนลบ
+                removeIcon.addEventListener('click', function () {
+                    // นำชื่อกลับไปยัง dropdown
+                    addNameBackToDropdown(selectedName);
+
+                    // ลบชื่อพนักงานจากรายการ
+                    companionName.removeChild(newCompanion);
+                    companions = companions.filter(name => name !== selectedName); // ลบชื่อออกจากอาเรย์
+                    updateCompanionCount(); // อัปเดตจำนวนผู้ร่วมเดินทาง
+                    updateCarControllerDropdown(); // อัปเดตรายชื่อใน dropdown ผู้ควบคุมรถ
+                });
+
+                // เพิ่มไอคอนลบเข้าไปในชื่อพนักงาน
+                newCompanion.appendChild(removeIcon);
+
+                // เพิ่มชื่อพนักงานลงใน companion_name
+                companionName.appendChild(newCompanion);
+                updateCompanionCount(); // อัปเดตจำนวนผู้ร่วมเดินทาง
+                updateCarControllerDropdown(); // อัปเดตรายชื่อใน dropdown ผู้ควบคุมรถ
+
+                // ลบตัวเลือกที่เลือกแล้วออกจาก dropdown
+                var selectedOption = this.options[this.selectedIndex];
+                selectedOption.parentNode.removeChild(selectedOption);
+            }
+
+            // ล้าง dropdown หลังจากเลือก
+            this.value = '';
+        });
+    });
+
 </script>
 
 

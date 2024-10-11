@@ -103,12 +103,9 @@ Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('
 
 
 Route::get('/permission-form', [DocumentController::class, 'permission'])->name('documents.index');
-Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name('documents.show');
+Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name('documents.show')->middleware('auth');
 Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name('documents.updateStatus');
 
-
-Route::get('/driver/schedule', [DriverScheduleController::class, 'index'])->name('driver.schedule')
-    ->middleware('auth');
 
 Route::get('/reportdocument', function () {
     return view('driver.reportdocument');

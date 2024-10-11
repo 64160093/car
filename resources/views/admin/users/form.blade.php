@@ -26,6 +26,7 @@
                     <th>คนสั่งรถ</th>
                     <th>หัวหน้าสำนักงาน</th>
                     <th>ผู้อำนวยการ</th>
+                    <th>สถานะ</th>
                     <th>PDF</th>
                 </tr>
             </thead>
@@ -93,6 +94,9 @@
                             @else
                                 <span class="badge bg-danger">ถูกปฏิเสธ</span>
                             @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('documents.status') }}?id={{ $document->document_id }}" class="btn btn-outline-primary">สถานะ</a>
                         </td>
                         <td>
                         </td> <!-- ปุ่มดาวน์โหลด PDF -->

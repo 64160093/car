@@ -96,12 +96,11 @@
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('documents.history') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
-
                             <!-- เมนูสำหรับคนขับรถ -->
-                        @elseif (auth()->user()->role_id == 11)
+                        @elseif ((auth()->user()->role_id == 11))
                             <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
                                         class="lni lni-calendar"></i><span>{{ __('แผนงานการปฏิบัติหน้าที่') }}</span></a></li>
-                            
+                        
                             <!-- navdar คนอนุมัติ -->
                         @else
                             <li class="sidebar-item"><a href="{{ route('home') }}" class="sidebar-link"><i
