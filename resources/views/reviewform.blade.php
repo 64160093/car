@@ -49,30 +49,30 @@
                         <tr>
                             <td><strong>{{ __('ผู้ร่วมเดินทาง') }}:</strong>
                                 <ul class="list-unstyled">
-                                    <!-- ใช้ preg_split() เพื่อแยกชื่อผู้ร่วมเดินทาง -->
                                     @php
-                                        $names = preg_split('/[\s,]+/', $document->companion_name);
+                                        // แยกชื่อผู้ร่วมเดินทางโดยใช้การขึ้นบรรทัดใหม่เป็นตัวแบ่ง
+                                        $companions = $document->companion_name ? explode("\n", $document->companion_name) : [];
                                         $visibleCount = 3; // จำนวนชื่อที่ต้องการแสดง
                                     @endphp
 
-                                    @foreach($names as $index => $name)
+                                    @foreach($companions as $index => $companion)
                                         @if($index < $visibleCount)
-                                            <li>{{ trim($name) }}</li>
+                                            <li>{{ trim($companion) }}</li> <!-- แสดงชื่อในบรรทัดเดียวกัน -->
                                         @endif
                                     @endforeach
 
-                                    @if(count($names) > $visibleCount)
+                                    @if(count($companions) > $visibleCount)
                                         <li>
                                             <a data-bs-toggle="collapse" href="#moreCompanions" role="button"
                                                 aria-expanded="false" aria-controls="moreCompanions">
-                                                {{ __('ดูเพิ่มเติม') }} ({{ count($names) - $visibleCount }}
+                                                {{ __('ดูเพิ่มเติม') }} ({{ count($companions) - $visibleCount }}
                                                 {{ __('คนเพิ่มเติม') }})
                                             </a>
                                             <div class="collapse" id="moreCompanions">
                                                 <ul class="list-unstyled mt-2">
-                                                    @foreach($names as $index => $name)
+                                                    @foreach($companions as $index => $companion)
                                                         @if($index >= $visibleCount)
-                                                            <li>{{ trim($name) }}</li>
+                                                            <li>{{ trim($companion) }}</li> <!-- แสดงชื่อในบรรทัดเดียวกัน -->
                                                         @endif
                                                     @endforeach
                                                 </ul>
@@ -81,7 +81,8 @@
                                     @endif
                                 </ul>
                             </td>
-                            <td><strong>{{ __('ผู้ร่วมเดินทางทั้งหมด') }}:</strong> {{ $document->sum_companion }}</td>
+                            <td><strong>{{ __('ผู้ร่วมเดินทางทั้งหมด') }}:</strong> {{ count($companions) }}</td>
+                            <!-- นับจำนวนผู้ร่วมเดินทาง -->
                         </tr>
                         <tr>
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
@@ -95,6 +96,8 @@
                         </tr>
                     </table>
                 </div>
+
+
 
                 <!-- ข้อมูลสถานที่ -->
                 <div class="mb-3 border p-3">

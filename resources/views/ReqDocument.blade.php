@@ -76,7 +76,6 @@
                     </div>
                 </div>
 
-
                 <!-- Dropdown เลือกรายชื่อพนักงาน -->
                 <div class="row mb-4">
                     <div class="col-md-4">
@@ -85,7 +84,7 @@
                             <select class="form-control" id="employee_select">
                                 <option value="">{{ __('เลือกผู้ร่วมเดินทาง') }}</option>
                                 @foreach ($user as $users)
-                                    <option value="{{ $users->name }} {{ $users->lname }}">
+                                    <option value="{{ $users->name }} {{ $users->lname }}" data-id="{{ $users->id }}">
                                         {{ $users->name }} {{ $users->lname }}
                                     </option>
                                 @endforeach
@@ -131,6 +130,7 @@
                         </span>
                     @enderror
                 </div>
+
 
 
                 <!-- วัตถุประสงค์ -->
@@ -481,34 +481,37 @@
         var carController = $('#car_controller');
         carController.append('<option value="' + loggedInUser + '">' + loggedInUser + '</option>');
 
-        // เก็บรายชื่อผู้ร่วมเดินทาง
-        let companions = [];
+        // เก็บรายชื่อผู้ร่วมเดินทางในรูปแบบ JSON object
+        let companions = {};
 
         // ฟังก์ชันเพื่ออัปเดตจำนวนผู้ร่วมเดินทาง
         function updateCompanionCount() {
             var companionItems = document.querySelectorAll('.companion-item');
             document.getElementById('sum_companion').value = companionItems.length || 0;
-            // อัปเดตค่าที่ซ่อนเพื่อเก็บ JSON
-            document.getElementById('companions_hidden').value = JSON.stringify(companions);
+
+            // แปลง JSON object ของ companions ให้เป็นสตริงที่แยกด้วยบรรทัดใหม่
+            let companionsArray = Object.values(companions); // เอาเฉพาะค่าจาก object
+            let companionString = companionsArray.join('\n'); // ใช้บรรทัดใหม่แยกชื่อผู้ร่วมเดินทาง
+
+            // อัปเดตค่าที่ซ่อนเพื่อเก็บข้อมูลแบบไม่มีวงเล็บหรือเครื่องหมายจุลภาค
+            document.getElementById('companions_hidden').value = companionString;
         }
 
         // ฟังก์ชันเพื่อเพิ่มชื่อกลับไปใน dropdown
-        function addNameBackToDropdown(name) {
+        function addNameBackToDropdown(name, id) {
             var dropdown = document.getElementById('employee_select');
             var option = document.createElement('option');
             option.value = name;
             option.text = name;
+            option.setAttribute('data-id', id);
             dropdown.add(option);
         }
 
         // ฟังก์ชันอัปเดตรายชื่อผู้ควบคุมรถแบบเรียลไทม์
         function updateCarControllerDropdown() {
-            var companionNames = companions; // ใช้ companions แทน
-            // ล้างตัวเลือกที่มีอยู่ทั้งหมด ยกเว้นชื่อผู้ขอ
+            var companionNames = Object.values(companions); // ใช้ values จาก object companions
             carController.find('option:not(:first)').remove();
-            // เพิ่มชื่อผู้ขอกลับเข้าไปใหม่
             carController.append('<option value="' + loggedInUser + '">' + loggedInUser + '</option>');
-            // เพิ่มรายชื่อผู้ร่วมเดินทางลงใน dropdown ผู้ควบคุมรถ
             companionNames.forEach(function (name) {
                 carController.append('<option value="' + name + '">' + name + '</option>');
             });
@@ -517,47 +520,41 @@
         // เพิ่มชื่อพนักงานที่เลือกจาก dropdown ไปยังฟิลด์ผู้ร่วมเดินทาง
         document.getElementById('employee_select').addEventListener('change', function () {
             var selectedName = this.value;
+            var selectedId = this.options[this.selectedIndex].getAttribute('data-id'); // ใช้ id ของพนักงาน
             var companionName = document.getElementById('companion_name');
 
-            // ถ้ามีการเลือกพนักงาน ให้เพิ่มลงไปในฟิลด์ผู้ร่วมเดินทาง
             if (selectedName) {
-                companions.push(selectedName); // เพิ่มชื่อในอาเรย์
+                companions[selectedId] = selectedName; // เก็บชื่อโดยใช้ id เป็น key
                 var newCompanion = document.createElement('span');
                 newCompanion.classList.add('companion-item');
-                newCompanion.style.display = 'flex'; // ใช้ flexbox เพื่อจัดตำแหน่ง
-                newCompanion.style.justifyContent = 'space-between'; // ชื่ออยู่ซ้าย ไอคอนอยู่ขวา
+                newCompanion.style.display = 'flex';
+                newCompanion.style.justifyContent = 'space-between';
                 newCompanion.style.alignItems = 'center';
-                newCompanion.style.margin = '5px 0'; // เพิ่มระยะห่างระหว่างบรรทัด
+                newCompanion.style.margin = '5px 0';
                 newCompanion.style.padding = '5px 10px';
                 newCompanion.style.border = '1px solid #ccc';
                 newCompanion.style.borderRadius = '4px';
-                newCompanion.textContent = selectedName;
+                newCompanion.textContent = selectedName; // ใช้ชื่อเต็มในบรรทัดเดียวกัน
 
                 // สร้างไอคอนลบ
                 var removeIcon = document.createElement('i');
-                removeIcon.classList.add('fas', 'fa-times'); // ใช้ไอคอนกากบาทจาก Font Awesome
+                removeIcon.classList.add('fas', 'fa-times');
                 removeIcon.style.color = 'red';
                 removeIcon.style.cursor = 'pointer';
 
                 // ฟังก์ชันเมื่อคลิกไอคอนลบ
                 removeIcon.addEventListener('click', function () {
-                    // นำชื่อกลับไปยัง dropdown
-                    addNameBackToDropdown(selectedName);
-
-                    // ลบชื่อพนักงานจากรายการ
+                    addNameBackToDropdown(selectedName, selectedId);
                     companionName.removeChild(newCompanion);
-                    companions = companions.filter(name => name !== selectedName); // ลบชื่อออกจากอาเรย์
-                    updateCompanionCount(); // อัปเดตจำนวนผู้ร่วมเดินทาง
-                    updateCarControllerDropdown(); // อัปเดตรายชื่อใน dropdown ผู้ควบคุมรถ
+                    delete companions[selectedId]; // ลบชื่อออกจาก object
+                    updateCompanionCount();
+                    updateCarControllerDropdown();
                 });
 
-                // เพิ่มไอคอนลบเข้าไปในชื่อพนักงาน
                 newCompanion.appendChild(removeIcon);
-
-                // เพิ่มชื่อพนักงานลงใน companion_name
                 companionName.appendChild(newCompanion);
-                updateCompanionCount(); // อัปเดตจำนวนผู้ร่วมเดินทาง
-                updateCarControllerDropdown(); // อัปเดตรายชื่อใน dropdown ผู้ควบคุมรถ
+                updateCompanionCount();
+                updateCarControllerDropdown();
 
                 // ลบตัวเลือกที่เลือกแล้วออกจาก dropdown
                 var selectedOption = this.options[this.selectedIndex];
@@ -568,6 +565,9 @@
             this.value = '';
         });
     });
+
+
+
 
 </script>
 
