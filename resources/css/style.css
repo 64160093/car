@@ -1,105 +1,195 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
 ::after,
 ::before {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
+
 a {
     text-decoration: none;
 }
+
 li {
     list-style: none;
 }
+
 h1 {
     font-weight: 600;
     font-size: 1.5rem;
 }
+
 body {
     font-family: 'Poppins', sans-serif;
 }
+
 .wrapper {
     display: flex;
 }
+
 .main {
-    margin-left: 70px; /* ระยะห่างจาก Sidebar */
+    margin-left: 70px;
+    /* ระยะห่างจาก Sidebar */
     min-height: 100vh;
     width: calc(100% - 70px);
     transition: margin-left 0.35s ease-in-out;
     background-color: #fafbfe;
 }
+
 .main.expanded {
     margin-left: 260px;
     width: calc(100% - 260px);
 }
+
 #sidebar {
     width: 70px;
     min-width: 70px;
-    z-index: 1050; /* ค่า z-index สูงกว่า Navbar */
-    position: fixed; /* ทำให้ Sidebar เป็น Fixed Position */
+    z-index: 1050;
+    /* ค่า z-index สูงกว่า Navbar */
+    position: fixed;
+    /* ทำให้ Sidebar เป็น Fixed Position */
     top: 0;
     left: 0;
-    height: 100%; /* Sidebar ครอบคลุมทั้งความสูงของหน้าจอ */
+    height: 100%;
+    /* Sidebar ครอบคลุมทั้งความสูงของหน้าจอ */
     transition: width 0.35s ease-in-out;
-    background-color: #0d6efd;
+    background-color: #3740EE;
     display: flex;
     flex-direction: column;
 }
+
 #sidebar.expand {
     width: 250px;
-    min-width: 260px;
+    min-width: 280px;
 }
-#sidebar.expand + .main {
-    margin-left: 260px; /* ระยะห่างเมื่อ Sidebar เปิด */
+
+#sidebar.expand+.main {
+    margin-left: 260px;
+    /* ระยะห่างเมื่อ Sidebar เปิด */
 }
+
 .sidebar-open .navbar {
-    margin-left: 250px; /* ปรับระยะห่างตามขนาดของ Sidebar */
+    margin-left: 250px;
+    /* ปรับระยะห่างตามขนาดของ Sidebar */
 }
+
 .toggle-btn {
     background-color: transparent;
     cursor: pointer;
     border: 0;
     padding: 1rem 1.5rem;
 }
+
 .toggle-btn i {
     font-size: 1.5rem;
     color: #FFF;
 }
+
 .sidebar-logo {
     margin: auto 0;
 }
+
 .sidebar-logo a {
     color: #FFF;
     font-size: 1.15rem;
     font-weight: 600;
+    
 }
+/* ขยายโลโก้เมื่อ hover */
+.sidebar-logo a:hover {
+    transform: scale(1.1); /* ขยายโลโก้ */
+    transition: transform 0.3s ease; /* เพิ่มการเปลี่ยนแปลง */
+}
+
 #sidebar:not(.expand) .sidebar-logo,
 #sidebar:not(.expand) a.sidebar-link span {
     display: none;
 }
+
 .sidebar-nav {
     padding: 2rem 0;
     flex: 1 1 auto;
 }
+
+/* เพิ่มความสวยงามให้กับตัวหนังสือใน Sidebar */
 a.sidebar-link {
     padding: .625rem 1.625rem;
     color: #FFF;
     display: block;
     font-size: 0.9rem;
     white-space: nowrap;
-    border-left: 3px solid transparent;
+    position: relative;
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out; /* ปรับการเปลี่ยนแปลง */
+    text-decoration: none; /* เอาเส้นใต้ที่แสดงลิงก์ออก */
+
 }
+
+a.sidebar-link:hover {
+    background-color: rgb(255, 255, 255);
+    color: #ffbf00 !important;
+    transform: scale(1.1); /* ขยายตัวหนังสือ */
+    transition: transform 0.3s ease; /* เพิ่มการเปลี่ยนแปลง */
+}
+
+/* การเคลื่อนไหวของข้อความเมื่อ hover */
+a.sidebar-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%; /* อยู่กลาง */
+    width: 0;
+    height: 3px;
+    background-color: #ffc107;
+    transition: width 0.3s ease-in-out;
+    transform: translate(-50%, 0); /* จัดให้อยู่กลาง */
+}
+
+a.sidebar-link:hover::before {
+    width: 70%; 
+    transform: translate(-50%, 0); /* ทำให้เส้นอยู่ตรงกลาง */
+}
+
+.sidebar-item {
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-item:hover {
+    transform: translateX(0);
+}
+
+/* ปรับให้ตัวหนังสือมี gradient เมื่อ Sidebar ขยาย */
+#sidebar.expand a.sidebar-link {
+    -webkit-background-clip: text;
+    color: #FFF;
+}
+
 .sidebar-link i {
     font-size: 1.1rem;
     margin-right: .75rem;
 }
-a.sidebar-link:hover {
-    background-color: rgba(255, 255, 255, .075);
-    border-left: 3px solid #3b7ddd;
-}
+
+
+
 .sidebar-item {
     position: relative;
 }
+
+/* สำหรับสถานะ hover ใน Sidebar ที่ปิดอยู่ */
+#sidebar:not(.expand) a.sidebar-link {
+    transition: background-color 0.3s ease-in-out; /* กำหนดการเปลี่ยนแปลง */
+    transform: scale(1); /* ขนาดปกติ */
+    transition: transform 0.3s ease; /* การเปลี่ยนแปลง */
+}
+
+#sidebar:not(.expand) a.sidebar-link:hover {
+    background-color: transparent; /* ไม่ต้องเปลี่ยนสีพื้นหลัง */
+    color: #ffc107; /* สีข้อความเป็นสีเหลือง */
+    transform: scale(1.25); /* ขยายเมนู */
+    transition: transform 0.3s ease; /* เพิ่มการเปลี่ยนแปลง */
+}
+
 #sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
     position: absolute;
     top: 0;
@@ -109,12 +199,14 @@ a.sidebar-link:hover {
     min-width: 15rem;
     display: none;
 }
+
 #sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
     display: block;
     max-height: 15em;
     width: 100%;
     opacity: 1;
 }
+
 #sidebar.expand .sidebar-link[data-bs-toggle="collapse"]::after {
     border: solid;
     border-width: 0 .075rem .075rem 0;
@@ -127,36 +219,66 @@ a.sidebar-link:hover {
     transform: rotate(-135deg);
     transition: all 0.35s ease-out;
 }
+
 #sidebar.expand .sidebar-link[data-bs-toggle="collapse"].collapsed::after {
     transform: rotate(45deg);
     transition: all 0.35s ease-out;
 }
+
 .navbar {
     background-color: #0d6efd !important;
-    z-index: 1000; /* ค่า z-index ต่ำกว่า Sidebar */
+    z-index: 1000;
+    /* ค่า z-index ต่ำกว่า Sidebar */
     position: relative;
     transition: margin-left 0.35s ease-in-out;
-    margin-left: 0; /* เริ่มต้นไม่มีระยะห่าง */
+    margin-left: 0;
+    /* เริ่มต้นไม่มีระยะห่าง */
 }
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
     color: #ffc107 !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีเหลือง */
 }
+
 .nav-link {
     color: #ffffff !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีขาว */
     font-weight: bold;
     /* ทำตัวหนังสือหนา */
 }
+
 .nav-link:hover {
     background-color: #ffc107 !important;
     /* เปลี่ยนสีพื้นหลังเมื่อเอาเมาส์ชี้เป็นสีเหลือง */
-    color: #0d6efd !important;
+    color: #000000 !important;
     /* เปลี่ยนสีตัวหนังสือเป็นสีน้ำเงินเมื่อเอาเมาส์ชี้ */
     border-radius: 5px;
 }
+
 .dropdown-menu {
     border-radius: 10px;
+}
+
+.logo-link {
+    display: inline-block;
+    /* ทำให้กรอบพอดีกับขนาดของข้อความ */
+    padding: 2px 5px;
+    /* ลด padding เพื่อไม่ให้ล้น */
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.logo-link:hover {
+    border-color: #ffc107 !important;
+    /* กรอบจะเปลี่ยนเป็นสีเหลือง */
+    color: white;
+    /* ข้อความจะเปลี่ยนเป็นสีขาวเมื่อ hover */
+}
+
+.logo-text {
+    margin: 0;
+    line-height: 1.2;
+    /* ลด line-height ให้พอดีกับกรอบ */
 }

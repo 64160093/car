@@ -22,4 +22,5 @@ class StatusAllowController extends Controller
         ]);
         return redirect()->back()->with('success', 'Status updated successfully.');
     }
+    
 }

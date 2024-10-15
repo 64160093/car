@@ -72,7 +72,11 @@
                         <i class="lni lni-grid-alt"></i>
                     </button>
                     <div class="sidebar-logo">
-                        <a href="{{ route('welcome') }}">ขออนุญาตใช้ยานยนต์</a>
+                        <a href="{{ route('welcome') }}" class="text-decoration-none logo-link">
+                            <h5 class="mb-0 fw-bold text-white text-center logo-text">
+                                ขออนุญาตใช้ยานยนต์
+                            </h5>
+                        </a>
                     </div>
                 </div>
                 <!-- Sidebar Navigation -->
@@ -89,34 +93,25 @@
                                         class="lni lni-car"></i><span>{{ __('จัดการข้อมูลรถ') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('admin.users.form') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาตทั้งหมด') }}</span></a></li>
-
-                            <!-- navdar พนักงาน -->
                         @elseif ((auth()->user()->role_id == 1))
-                            <li class="sidebar-item"><a href="{{ route('home') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('welcome') }}" class="sidebar-link"><i
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('documents.history') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
-                            <!-- เมนูสำหรับคนขับรถ -->
                         @elseif ((auth()->user()->role_id == 11))
                             <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
                                         class="lni lni-calendar"></i><span>{{ __('แผนงานการปฏิบัติหน้าที่') }}</span></a></li>
-                        
-                            <!-- navdar คนอนุมัติ -->
                         @else
-                            <li class="sidebar-item"><a href="{{ route('home') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('welcome') }}" class="sidebar-link"><i
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('documents.history') }}" class="sidebar-link"><i
                                         class="lni lni-files"></i><span>{{ __('รายการคำขออนุญาต') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('documents.index') }}" class="sidebar-link"><i
                                         class="lni lni-checkmark"></i><span>{{ __('ตรวจสอบอนุมัติคำขอ') }}</span></a></li>
-
                         @endif
                     @endauth
-
-
                 </ul>
             </aside>
-
             <!-- Main Content -->
             <div class="main p-3">
                 <main class="py-4">
@@ -124,29 +119,29 @@
                 </main>
             </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ho+yCg0tSgPZnFbx1bBLycLnlr7/+bJ8CsxrjW+4ylpVjmhi9z/HRX1ADdbaz8Wt"
-        crossorigin="anonymous"></script>
 
-    <!-- Custom JavaScript -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var dropdowns = document.querySelectorAll('.dropdown-toggle');
-            var toggleButton = document.querySelector('.toggle-btn');
-            var sidebar = document.getElementById('sidebar');
-            var main = document.querySelector('.main');
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ho+yCg0tSgPZnFbx1bBLycLnlr7/+bJ8CsxrjW+4ylpVjmhi9z/HRX1ADdbaz8Wt"
+            crossorigin="anonymous"></script>
 
-            dropdowns.forEach(function (dropdown) {
-                dropdown.addEventListener('click', function () {
-                    this.classList.toggle('active');
+        <!-- Custom JavaScript -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var dropdowns = document.querySelectorAll('.dropdown-toggle');
+                var toggleButton = document.querySelector('.toggle-btn');
+                var sidebar = document.getElementById('sidebar');
+                var main = document.querySelector('.main');
+
+                dropdowns.forEach(function (dropdown) {
+                    dropdown.addEventListener('click', function () {
+                        this.classList.toggle('active');
+                    });
                 });
             });
-        });
 
-    </script>
+        </script>
 </body>
 
 </html>

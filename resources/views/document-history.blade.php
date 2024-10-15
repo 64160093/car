@@ -2,13 +2,11 @@
 
 @section('content')
 <div class="container">
-    <h2>ประวัติการยื่นขอ</h2>
+    <h2 class="text-center mb-4">ประวัติการยื่นขอ</h2>
 
     {{-- ปุ่มสำหรับเลือกการกรอง --}}
-
     <div class="mb-4 d-flex justify-content-end">
         <div class="d-flex align-items-center">
-
             <div class="btn-group" role="group">
                 <a href="{{ route('documents.history', ['filter' => 'reservation']) }}"
                     class="btn {{ request('filter') == 'reservation' || !request('filter') ? 'btn-primary' : 'btn-outline-primary' }}">
@@ -35,16 +33,27 @@
         @foreach($documents->groupBy(function ($date) use ($groupedBy) {
                 return \Carbon\Carbon::parse($date->$groupedBy)->format('F Y');
             }) as $month => $groupedDocuments)
-            <div class="card mb-3">
+            <div class="card mb-4">
                 {{-- Header ของการ์ดจะแสดงเดือน --}}
-                <div class="card-header">{{ $month }}</div>
+                <div class="card-header text-white bg-primary">{{ $month }}</div>
                 <div class="card-body">
                     {{-- Loop เอกสารแต่ละรายการในแต่ละเดือน --}}
                     @foreach($groupedDocuments as $document)
+                        @php
+                            // กำหนดสีของกรอบตามสถานะ
+                            $borderColor = '';
+                            if ($document->allow_department == 'approved') {
+                                $borderColor = 'border-success';
+                            } elseif ($document->allow_department == 'pending') {
+                                $borderColor = 'border-warning';
+                            } else {
+                                $borderColor = 'border-danger';
+                            }
+                        @endphp
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <div class="d-flex justify-content-between align-items-center"
-                                    style="background-color: #FFC107; padding: 10px;">
+                                <div class="d-flex justify-content-between align-items-center border p-3 rounded shadow-sm {{ $borderColor }}"
+                                     style="background-color: #f8f9fa;">
                                     <div>
                                         <strong>วัตถุประสงค์: {{ $document->objective }}</strong><br>
                                         สถานที่: {{ $document->location }}<br>
@@ -59,21 +68,6 @@
                                     </div>
                                     <div>
                                         {{-- ปุ่มเพื่อดูรายละเอียดของเอกสาร --}}
-                                        <!-- @foreach($document->reqDocumentUsers as $docUser)
-                                            @if ($docUser->division_id == 2)
-                                                {{-- ตรวจสอบ allow_department เมื่อ division_id == 2 --}}
-                                                @if ($document->allow_department == 'pending')
-                                                    <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
-                                                @elseif ($document->allow_department == 'approved')
-                                                    @include('partials.allow_status', ['document' => $document])
-                                                @else
-                                                    <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
-                                                @endif
-                                            @else
-                                                {{-- ข้ามการตรวจสอบ allow_department --}}
-                                                @include('partials.allow_status', ['document' => $document])
-                                            @endif
-                                        @endforeach -->
                                         <a href="{{ route('documents.review') }}?id={{ $document->document_id }}" class="btn btn-primary">ดูรายละเอียด</a>
                                     </div>
                                 </div>
@@ -85,4 +79,15 @@
         @endforeach
     @endif
 </div>
+
+<style>
+    .card-header {
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+</style>
 @endsection
