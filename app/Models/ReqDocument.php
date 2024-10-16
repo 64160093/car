@@ -86,4 +86,15 @@ class ReqDocument extends Model
         return $this->belongsTo(Vehicle::class, 'car_id');
     }
     
+    public function carmanUser()
+    {
+        return $this->belongsTo(User::class, 'carman');
+    }
+
+    public function reportFormance()
+{
+    return $this->hasOne(ReportFormance::class, 'req_document_id', 'document_id');
+}
+
+
 }

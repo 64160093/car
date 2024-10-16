@@ -16,7 +16,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReqDocumentController;
 use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\DriverScheduleController;
+// use App\Http\Controllers\DriverScheduleController;
+use App\Http\Controllers\ReportDocumentController;
 
 
 
@@ -107,7 +108,18 @@ Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name(
 Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name('documents.updateStatus');
 
 
-Route::get('/reportdocument', function () {
-    return view('driver.reportdocument');
-})->name('report');
-Route::post('/report/submit', [ReportDocumentController::class, 'submit'])->name('report.submit');
+Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('report.index');
+Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
+Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
+
+
+
+
+
+
+  
+
+  
+use App\Http\Controllers\PDFController;
+    
+Route::get('generate-pdf', [PDFController::class, 'generatePDF']);

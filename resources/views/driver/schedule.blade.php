@@ -1,6 +1,9 @@
+
 @extends('layouts.app')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 @section('content')
+
 <div class="container">
     <h1 class="text text-center">แผนงานในการปฏิบัติหน้าที่ของคนขับรถ</h1>
 
@@ -23,8 +26,9 @@
                     <th>วันที่</th>
                     <th>เวลา</th>
                     <th>รายละเอียด</th>
-                    <th>สถานะ</th>
+                    <!-- <th>สถานะ</th> -->
                     <th>รายละเอียด</th>
+                    <th>รายงาน</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,7 +44,7 @@
                     <td>{{ $document->objective }}</td>
 
                     <!-- สถานะ -->
-                    <td>
+                    <!-- <td>
                         @if ($document->status == 'approved')
                             <span class="badge bg-success">
                                 <i class="fas fa-check-circle"></i> อนุมัติ
@@ -54,13 +58,20 @@
                                 <i class="fas fa-times-circle"></i> ถูกปฏิเสธ
                             </span>
                         @endif
-                    </td>
+                    </td> -->
 
                     <!-- รายละเอียดเพิ่มเติม -->
                     <td>
                         <a href="{{ route('documents.show', ['id' => $document->document_id]) }}" class="btn btn-primary">
                             <i class="fas fa-info-circle"></i> รายละเอียด
                         </a>
+                    </td>
+                    <td>
+                        <a href="{{ route('report.index', ['id' => $document->document_id]) }}" class="btn btn-warning">
+                            <i class="bi bi-file-text-fill"></i> รายงาน
+                        </a>
+
+                        
                     </td>
                 </tr>
             @endforeach

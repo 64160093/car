@@ -53,7 +53,7 @@
                         <div class="row mb-3">
                             <div class="col-md-12">
                                 <div class="d-flex justify-content-between align-items-center border p-3 rounded shadow-sm {{ $borderColor }}"
-                                     style="background-color: #f8f9fa;">
+                                    style="background-color: #f8f9fa;">
                                     <div>
                                         <strong>วัตถุประสงค์: {{ $document->objective }}</strong><br>
                                         สถานที่: {{ $document->location }}<br>
@@ -66,9 +66,27 @@
                                         เวลาไป: {{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} น.<br>
                                         เวลากลับ: {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }} น.<br>
                                     </div>
+
                                     <div>
+                                        @foreach($document->reqDocumentUsers as $docUser)
+                                            @if ($docUser->division_id == 2)
+                                                @if ($document->allow_department == 'pending')
+                                                    <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
+                                                @elseif ($document->allow_department == 'approved')
+                                                    @include('partials.allow_status', ['document' => $document])
+                                                @else
+                                                    <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
+                                                    @if ($document->notallowed_reason)
+                                                        <br><span>เหตุผล: {{ $document->notallowed_reason }}</span>
+                                                    @endif
+                                                @endif
+                                            @else
+                                                @include('partials.allow_status', ['document' => $document])
+                                            @endif
+                                        @endforeach
                                         {{-- ปุ่มเพื่อดูรายละเอียดของเอกสาร --}}
-                                        <a href="{{ route('documents.review') }}?id={{ $document->document_id }}" class="btn btn-primary">ดูรายละเอียด</a>
+                                        <a href="{{ route('documents.review') }}?id={{ $document->document_id }}"
+                                            class="btn btn-primary">ดูรายละเอียด</a>
                                     </div>
                                 </div>
                             </div>
