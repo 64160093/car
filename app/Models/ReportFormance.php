@@ -41,8 +41,20 @@ class ReportFormance extends Model
     // }
 
     public function reqDocument()
-{
-    return $this->belongsTo(ReqDocument::class, 'req_document_id', 'document_id');
-}
+    {
+        return $this->belongsTo(ReqDocument::class, 'req_document_id', 'document_id');
+    }
+    public function vehicle()
+    {
+        return $this->belongsTo(Vehicle::class, 'car_id');
+    }
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'provinces_id', 'provinces_id');
+    }
+    public function carmanUser()
+    {
+        return $this->belongsTo(User::class, 'carman');
+    }
 
 }

@@ -18,6 +18,7 @@ use App\Http\Controllers\ReqDocumentController;
 use App\Http\Controllers\DocumentController;
 // use App\Http\Controllers\DriverScheduleController;
 use App\Http\Controllers\ReportDocumentController;
+use App\Http\Controllers\PDFController;
 
 
 
@@ -96,6 +97,9 @@ Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name
     ->middleware(IsAdmin::class);
 Route::get('/admin/users/form', [AdminController::class, 'showform'])->name('admin.users.form')
     ->middleware(IsAdmin::class);
+    
+    Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
+
 
 //แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
 Route::get('/document-history', [DocumentController::class, 'index'])->name('documents.history');
@@ -112,15 +116,6 @@ Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('rep
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
-Route::post('/driver-schedule/{id}/acknowledge', [DriverScheduleController::class, 'acknowledge'])->name('driver.schedule.acknowledge');
+Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
 
-
-
-
-
-  
-
-  
-use App\Http\Controllers\PDFController;
-    
-Route::get('generate-pdf', [PDFController::class, 'generatePDF']);
+Route::get('/report/pdf/{id}', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
