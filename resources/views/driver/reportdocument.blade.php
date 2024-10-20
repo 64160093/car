@@ -37,7 +37,8 @@
     @endif
 
     <div class="card shadow-sm">
-        <form action="{{ route('report.submit') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('report.submit') }}" method="POST" enctype="multipart/form-data"
+            onsubmit="removeCommasBeforeSubmit()">
             @csrf
             <input type="hidden" name="document_id" value="{{ $documents->document_id }}">
 
@@ -269,6 +270,34 @@
                     totalCost = gasolineCost + expresswayToll + parkingFee + anotherCost;
                     document.getElementById('total_cost').value = formatNumber(totalCost.toFixed(2)); // Format total cost
                 }
+
+                // Add this function to remove commas before form submission
+                function removeCommasBeforeSubmit() {
+                    // Function to validate numeric input fields
+                    function isNumeric(value) {
+                        return !isNaN(value) && !isNaN(parseFloat(value));
+                    }
+
+                    const gasolineCostInput = document.getElementById('gasoline_cost_input');
+                    const expresswayTollInput = document.getElementById('expressway_toll_input');
+                    const parkingFeeInput = document.getElementById('parking_fee_input');
+                    const anotherCostInput = document.getElementById('another_cost_input');
+
+                    // Remove commas and trim spaces
+                    gasolineCostInput.value = gasolineCostInput.value.replace(/,/g, '').trim();
+                    expresswayTollInput.value = expresswayTollInput.value.replace(/,/g, '').trim();
+                    parkingFeeInput.value = parkingFeeInput.value.replace(/,/g, '').trim();
+                    anotherCostInput.value = anotherCostInput.value.replace(/,/g, '').trim();
+
+                    // Validate that the inputs are numbers
+                    if (!isNumeric(gasolineCostInput.value) || !isNumeric(expresswayTollInput.value) ||
+                        !isNumeric(parkingFeeInput.value) || !isNumeric(anotherCostInput.value)) {
+                        alert("Please enter valid numbers in all cost fields.");
+                        return false; // Prevent form submission
+                    }
+
+                    return true; // Proceed with form submission
+                }
             </script>
 
             <!-- ความเรียบร้อยในการปฏิบัติงาน -->
@@ -325,20 +354,24 @@
 
             <!-- Signature -->
             <div class="card mb-4">
-
+                <div class="card-header">
+                    ลายเซ็นผู้ส่ง
+                </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <label for="signature" class="col-sm-3 col-form-label text-right">ลายเซ็นผู้ส่ง :</label>
+                        <label for="signature" class="col-sm-3 col-form-label text-right">ลายเซ็น:</label>
                         <div class="col-sm-9">
-
-
+                            @if(Auth::user()->signature)
+                                <img src="{{ asset('storage/signatures/' . Auth::user()->signature) }}" alt="Signature"
+                                    class="img-fluid" style="max-width: 200px;">
+                            @else
+                                <p>ไม่มีลายเซ็น</p>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end mb-3">
-                <button type="submit" class="btn btn-warning">ส่ง</button>
-            </div>
+
 
         </form>
     </div>

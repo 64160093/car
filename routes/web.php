@@ -112,6 +112,7 @@ Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('rep
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
+Route::post('/driver-schedule/{id}/acknowledge', [DriverScheduleController::class, 'acknowledge'])->name('driver.schedule.acknowledge');
 
 
 

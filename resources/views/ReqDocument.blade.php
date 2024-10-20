@@ -84,14 +84,18 @@
                             <select class="form-control" id="employee_select">
                                 <option value="">{{ __('เลือกผู้ร่วมเดินทาง') }}</option>
                                 @foreach ($user as $users)
-                                    <option value="{{ $users->name }} {{ $users->lname }}" data-id="{{ $users->id }}">
-                                        {{ $users->name }} {{ $users->lname }}
-                                    </option>
+                                    @if ($users->id !== Auth::user()->id && !$users->isAdmin() && !in_array($users->role_id, [11, 12]))
+                                        <!-- ใช้ isAdmin() ในการตรวจสอบ และเช็ค role_id -->
+                                        <option value="{{ $users->id }}" data-id="{{ $users->id }}">
+                                            {{ $users->name }} {{ $users->lname }}
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- ฟิลด์ผู้ร่วมเดินทาง -->
                 <div class="row mb-4">
@@ -130,8 +134,6 @@
                         </span>
                     @enderror
                 </div>
-
-
 
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
@@ -475,11 +477,12 @@
 
     $(document).ready(function () {
         // เก็บค่าชื่อผู้ใช้ที่ล็อกอินอยู่
-        var loggedInUser = "{{ Auth::user()->name }} {{ Auth::user()->lname }} (ผู้ขอ)";
+        var loggedInUserId = "{{ Auth::user()->id }}"; // รับ ID ของผู้ใช้ที่ล็อกอินอยู่
+        var loggedInUserName = "{{ Auth::user()->name }} {{ Auth::user()->lname }} (ผู้ขอ)"; // ชื่อผู้ใช้ที่ล็อกอินอยู่
 
         // เพิ่มชื่อผู้ใช้ที่ล็อกอินใน dropdown เริ่มต้น
         var carController = $('#car_controller');
-        carController.append('<option value="' + loggedInUser + '">' + loggedInUser + '</option>');
+        carController.append('<option value="' + loggedInUserId + '">' + loggedInUserName + '</option>');
 
         // เก็บรายชื่อผู้ร่วมเดินทางในรูปแบบ JSON object
         let companions = {};
@@ -489,9 +492,9 @@
             var companionItems = document.querySelectorAll('.companion-item');
             document.getElementById('sum_companion').value = companionItems.length || 0;
 
-            // แปลง JSON object ของ companions ให้เป็นสตริงที่แยกด้วยบรรทัดใหม่
-            let companionsArray = Object.values(companions); // เอาเฉพาะค่าจาก object
-            let companionString = companionsArray.join('\n'); // ใช้บรรทัดใหม่แยกชื่อผู้ร่วมเดินทาง
+            // แปลง JSON object ของ companions ให้เป็นสตริงที่แยกด้วยเครื่องหมายจุลภาค
+            let companionsArray = Object.keys(companions); // ใช้ key ของ object ซึ่งคือ ID
+            let companionString = companionsArray.join(','); // ใช้เครื่องหมายจุลภาคแยก ID
 
             // อัปเดตค่าที่ซ่อนเพื่อเก็บข้อมูลแบบไม่มีวงเล็บหรือเครื่องหมายจุลภาค
             document.getElementById('companions_hidden').value = companionString;
@@ -501,7 +504,7 @@
         function addNameBackToDropdown(name, id) {
             var dropdown = document.getElementById('employee_select');
             var option = document.createElement('option');
-            option.value = name;
+            option.value = id; // ใช้ id เป็น value
             option.text = name;
             option.setAttribute('data-id', id);
             dropdown.add(option);
@@ -509,22 +512,23 @@
 
         // ฟังก์ชันอัปเดตรายชื่อผู้ควบคุมรถแบบเรียลไทม์
         function updateCarControllerDropdown() {
-            var companionNames = Object.values(companions); // ใช้ values จาก object companions
+            var companionNames = Object.values(companions);
             carController.find('option:not(:first)').remove();
-            carController.append('<option value="' + loggedInUser + '">' + loggedInUser + '</option>');
+            carController.append('<option value="' + loggedInUserId + '">' + loggedInUserName + '</option>');
             companionNames.forEach(function (name) {
-                carController.append('<option value="' + name + '">' + name + '</option>');
+                var id = Object.keys(companions).find(key => companions[key] === name);
+                carController.append('<option value="' + id + '">' + name + '</option>'); // ใช้ ID แทนชื่อ
             });
         }
 
         // เพิ่มชื่อพนักงานที่เลือกจาก dropdown ไปยังฟิลด์ผู้ร่วมเดินทาง
         document.getElementById('employee_select').addEventListener('change', function () {
-            var selectedName = this.value;
-            var selectedId = this.options[this.selectedIndex].getAttribute('data-id'); // ใช้ id ของพนักงาน
+            var selectedId = this.value; // ใช้ ID ของพนักงาน
+            var selectedName = this.options[this.selectedIndex].text; // ใช้ชื่อเต็ม
             var companionName = document.getElementById('companion_name');
 
-            if (selectedName) {
-                companions[selectedId] = selectedName; // เก็บชื่อโดยใช้ id เป็น key
+            if (selectedId) {
+                companions[selectedId] = selectedName; // เก็บชื่อโดยใช้ ID เป็น key
                 var newCompanion = document.createElement('span');
                 newCompanion.classList.add('companion-item');
                 newCompanion.style.display = 'flex';

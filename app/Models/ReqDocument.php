@@ -8,8 +8,8 @@ class ReqDocument extends Model
     protected $table = 'req_document';
 
     protected $primaryKey = 'document_id';
-    public $incrementing = true; 
-    protected $keyType = 'int'; 
+    public $incrementing = true;
+    protected $keyType = 'int';
     public $timestamps = true;  // ใช้ timestamps ที่มีในตาราง
 
 
@@ -32,6 +32,7 @@ class ReqDocument extends Model
         'work_id',
         'car_id',
         'carman',
+        'car_controller',  // เพิ่มฟิลด์นี้
 
     ];
 
@@ -73,8 +74,9 @@ class ReqDocument extends Model
 
     public function reqDocumentUsers()
     {
-        return $this->hasMany(ReqDocumentUser::class, 'req_document_id', 'document_id');
+        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
     }
+
 
     public function isEmpty()
     {
@@ -85,16 +87,24 @@ class ReqDocument extends Model
     {
         return $this->belongsTo(Vehicle::class, 'car_id');
     }
-    
+
     public function carmanUser()
     {
         return $this->belongsTo(User::class, 'carman');
     }
 
     public function reportFormance()
-{
-    return $this->hasOne(ReportFormance::class, 'req_document_id', 'document_id');
-}
+    {
+        return $this->hasOne(ReportFormance::class, 'req_document_id', 'document_id');
+    }
 
+    public function carController()
+    {
+        return $this->belongsTo(User::class, 'car_controller'); // 'car_controller' คือชื่อฟิลด์ที่เก็บ ID ของผู้ควบคุมรถ
+    }
+    public function companions()
+    {
+        return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id'); // กำหนดชื่อของตารางเชื่อม
+    }
 
 }

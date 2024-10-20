@@ -10,7 +10,7 @@ use App\Models\Vehicle;
 
 class DocumentController extends Controller
 {
-        /**
+    /**
      *
      *
      * 
@@ -30,7 +30,7 @@ class DocumentController extends Controller
             return redirect()->route('login');
         }
     }
-      
+
     public function reviewForm(Request $request)
     {
         $id = $request->input('id');
@@ -54,10 +54,10 @@ class DocumentController extends Controller
 
         return view('reviewstatus', compact('document'));
     }
-    
 
 
-        /**
+
+    /**
      *
      *
      * 
@@ -100,17 +100,17 @@ class DocumentController extends Controller
             } elseif ($user->role_id == 12) {        //คนสั่งรถ
                 // เอกสารที่ต้องส่งไปยัง role_id = 12
                 $documents = $approvedDivision
-                    ->orderBy('document_id', 'desc') 
+                    ->orderBy('document_id', 'desc')
                     ->get();
 
             } elseif ($user->role_id == 2) {        //หัวหน้าสำนักงาน
                 $documents = $approvedOpcar
-                    ->orderBy('document_id', 'desc') 
+                    ->orderBy('document_id', 'desc')
                     ->get();
 
             } elseif ($user->role_id == 3) {        //ผู้อำนวยการ
                 $documents = $approvedOfficer
-                    ->orderBy('document_id', 'desc') 
+                    ->orderBy('document_id', 'desc')
                     ->get();
 
             } elseif ($user->role_id == 11) { // คนขับรถ
@@ -174,24 +174,24 @@ class DocumentController extends Controller
                     ->where('req_document_user.department_id', 4);
                 break;
             default:
-                    break;      //roleId ไม่ตรงกับเงื่อนไข
+                break;      //roleId ไม่ตรงกับเงื่อนไข
 
         }
     }
 
     public function show(Request $request)
     {
-        $vehicles = Vehicle::all(); 
+        $vehicles = Vehicle::all();
         $users = User::all();
         $id = $request->input('id'); // รับค่า id ของเอกสารที่ส่งเข้ามา
-    
+
         $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($id) {
             $query->where('document_id', $id);
         })->get();
-    
-        return view('permission-form-allow', compact('documents', 'vehicles','users'));
+
+        return view('permission-form-allow', compact('documents', 'vehicles', 'users'));
     }
-    
+
     /**
      * "updateStatus" "SelectDriver" "SelectCar"
      *
@@ -208,6 +208,7 @@ class DocumentController extends Controller
         $statusofficer = $request->input('statusofficer');
         $statusdirector = $request->input('statusdirector');
         $notallowedReason = $request->input('notallowed_reason'); // เพิ่มการรับค่าเหตุผล
+        $carController = $request->input('car_controller'); // เพิ่มการรับค่าผู้ควบคุมรถ
 
         // ค้นหาเอกสารตาม document_id
         $document = ReqDocument::where('document_id', $documentId)->first();
@@ -237,10 +238,10 @@ class DocumentController extends Controller
                 if ($statusopcar == 'rejected' && $notallowedReason) {
                     $document->notallowed_reason = $notallowedReason;
                 } else {
-                    $document->notallowed_reason = null; 
+                    $document->notallowed_reason = null;
                 }
             }
-            
+
             if ($statusofficer) {
                 $document->allow_officer = $statusofficer;
                 if ($statusofficer == 'rejected' && $request->input('notallowed_reason_officer')) {
@@ -265,15 +266,18 @@ class DocumentController extends Controller
                 $document->carman = $request->input('carman');
 
             }
-
+            // อัปเดต car_controller
+            if ($carController) {
+                $document->car_controller = $carController; // บันทึกผู้ควบคุมรถ
+            }
             // บันทึกข้อมูล
             $document->save();
 
             return redirect()->route('documents.index')
-                            ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
+                ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
         } else {
             return redirect()->route('documents.show')
-                            ->with('error', 'ไม่พบเอกสาร');
+                ->with('error', 'ไม่พบเอกสาร');
         }
     }
 

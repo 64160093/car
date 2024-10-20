@@ -27,21 +27,19 @@
                                 {{ $document->reqDocumentUsers->first()->name ?? 'N/A' }}
                                 {{ $document->reqDocumentUsers->first()->lname ?? 'N/A' }}
                             </td>
-
                         </tr>
                         <tr>
                             <td><strong>{{ __('ส่วนงาน') }}:</strong>
                                 {{ $document->reqDocumentUsers->first()->division->division_name ?? 'N/A' }}</td>
                             <td><strong>{{ __('ฝ่ายงาน') }}:</strong>
                                 {{ $document->reqDocumentUsers->first()->department->department_name ?? 'N/A' }}</td>
-
                         </tr>
                     </table>
                 </div>
 
                 <!-- ข้อมูลการเดินทาง -->
+                <h6 class="text-muted">{{ __('ข้อมูลการเดินทาง') }}</h6>
                 <div class="mb-3 border p-3">
-                    <h6 class="text-muted">{{ __('ข้อมูลการเดินทาง') }}</h6>
                     <table class="table table-borderless">
                         <tr>
                             <td><strong>{{ __('วัตถุประสงค์') }}:</strong> {{ $document->objective }}</td>
@@ -50,58 +48,44 @@
                             <td><strong>{{ __('ผู้ร่วมเดินทาง') }}:</strong>
                                 <ul class="list-unstyled">
                                     @php
-                                        // แยกชื่อผู้ร่วมเดินทางโดยใช้การขึ้นบรรทัดใหม่เป็นตัวแบ่ง
-                                        $companions = $document->companion_name ? explode("\n", $document->companion_name) : [];
-                                        $visibleCount = 3; // จำนวนชื่อที่ต้องการแสดง
+                                        // ดึง ID ของผู้ร่วมเดินทาง
+                                        $companionIds = explode(',', $document->companion_name);
+                                        // ดึงข้อมูลผู้ใช้จากฐานข้อมูลตาม ID ที่ได้
+                                        $companions = \App\Models\User::whereIn('id', $companionIds)->get(); 
                                     @endphp
 
-                                    @foreach($companions as $index => $companion)
-                                        @if($index < $visibleCount)
-                                            <li>{{ trim($companion) }}</li> <!-- แสดงชื่อในบรรทัดเดียวกัน -->
-                                        @endif
-                                    @endforeach
-
-                                    @if(count($companions) > $visibleCount)
-                                        <li>
-                                            <a data-bs-toggle="collapse" href="#moreCompanions" role="button"
-                                                aria-expanded="false" aria-controls="moreCompanions">
-                                                {{ __('ดูเพิ่มเติม') }} ({{ count($companions) - $visibleCount }}
-                                                {{ __('คนเพิ่มเติม') }})
-                                            </a>
-                                            <div class="collapse" id="moreCompanions">
-                                                <ul class="list-unstyled mt-2">
-                                                    @foreach($companions as $index => $companion)
-                                                        @if($index >= $visibleCount)
-                                                            <li>{{ trim($companion) }}</li> <!-- แสดงชื่อในบรรทัดเดียวกัน -->
-                                                        @endif
-                                                    @endforeach
-                                                </ul>
-                                            </div>
-                                        </li>
+                                    @if($companions->isEmpty())
+                                        <li>{{ __('ไม่มีผู้ร่วมเดินทาง') }}</li>
+                                    @else
+                                        @foreach($companions as $companion)
+                                            <li>{{ $companion->name }} {{ $companion->lname }}</li>
+                                        @endforeach
                                     @endif
                                 </ul>
                             </td>
-                            <td><strong>{{ __('ผู้ร่วมเดินทางทั้งหมด') }}:</strong> {{ count($companions) }}</td>
-                            <!-- นับจำนวนผู้ร่วมเดินทาง -->
+                            <td><strong>{{ __('ผู้ร่วมเดินทางทั้งหมด') }}:</strong> {{ count($companions) }} คน</td>
                         </tr>
                         <tr>
+                            <td><strong>{{ __('ผู้ควบคุมรถ') }}:</strong>
+                                {{ $document->carController->name ?? 'N/A' }} {{ $document->carController->lname ?? 'N/A' }}
+                            </td>
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
                                 {{ \Carbon\Carbon::parse($document->start_date)->format('d-m-Y') }}</td>
-                            <td><strong>{{ __('วันที่กลับ') }}:</strong>
-                                {{ \Carbon\Carbon::parse($document->end_date)->format('d-m-Y') }}</td>
                         </tr>
                         <tr>
+                            <td><strong>{{ __('วันที่กลับ') }}:</strong>
+                                {{ \Carbon\Carbon::parse($document->end_date)->format('d-m-Y') }}</td>
                             <td><strong>{{ __('เวลาไป') }}:</strong> {{ $document->start_time }}</td>
+                        </tr>
+                        <tr>
                             <td><strong>{{ __('เวลากลับ') }}:</strong> {{ $document->end_time }}</td>
                         </tr>
                     </table>
                 </div>
 
-
-
                 <!-- ข้อมูลสถานที่ -->
+                <h6 class="text-muted">{{ __('ข้อมูลสถานที่') }}</h6>
                 <div class="mb-3 border p-3">
-                    <h6 class="text-muted">{{ __('ข้อมูลสถานที่') }}</h6>
                     <table class="table table-borderless">
                         <tr>
                             <td><strong>{{ __('สถานที่') }}:</strong> {{ $document->location }}</td>
@@ -116,8 +100,8 @@
                 </div>
 
                 <!-- โครงการที่เกี่ยวข้อง -->
+                <h6 class="text-muted">{{ __('โครงการที่เกี่ยวข้อง') }}</h6>
                 <div class="mt-4 border p-3">
-                    <h6 class="text-muted">{{ __('โครงการที่เกี่ยวข้อง') }}</h6>
                     <p class="form-control-static">
                         @if($document->related_project)
                             <a href="{{ Storage::url($document->related_project) }}" target="_blank"

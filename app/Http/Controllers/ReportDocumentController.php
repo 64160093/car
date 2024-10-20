@@ -47,6 +47,7 @@ class ReportDocumentController extends Controller
         $total_cost = ($request->gasoline_cost ?? 0) + ($request->expressway_toll ?? 0)
             + ($request->parking_fee ?? 0) + ($request->another_cost ?? 0);
 
+
         // บันทึกข้อมูลลงในฐานข้อมูล
         $report = ReportFormance::create([
             'req_document_id' => $request->document_id, // ใช้ req_document_id แทน document_id
@@ -75,8 +76,14 @@ class ReportDocumentController extends Controller
         // ดึงข้อมูลรายงานตาม ID
         $report = ReportFormance::findOrFail($id); // ใช้ findOrFail เพื่อดึงข้อมูลหรือแสดง 404 หากไม่พบ
 
-        return view('driver.showrepdoc', compact('report')); // ส่งข้อมูลไปยัง view ชื่อ reportdetails
+        // ดึงข้อมูลเอกสารที่เกี่ยวข้อง
+        $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle'])
+            ->where('document_id', $report->req_document_id) // ตรวจสอบว่ามีการเชื่อมโยง ID กับเอกสารที่เกี่ยวข้อง
+            ->first();
+
+        return view('driver.showrepdoc', compact('report', 'documents'));
     }
+
 
 
 }
