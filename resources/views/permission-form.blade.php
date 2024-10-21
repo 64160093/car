@@ -8,8 +8,8 @@
             <h5>รายการคำขออนุญาต สำหรับหัวหน้าฝ่าย</h5>                     
         @elseif (in_array(auth()->user()->role_id, [13, 14, 15, 16]))
             <h5>รายการคำขออนุญาต สำหรับหัวหน้างานวิจัย</h5>
-        @elseif (in_array(auth()->user()->role_id, [12]))
-            <h5>รายการคำขออนุญาต สำหรับคนสั่งรถ</h5>
+        <!-- @elseif (in_array(auth()->user()->role_id, [12]))
+            <h5>รายการคำขออนุญาต สำหรับคนสั่งรถ</h5> -->
         @elseif (in_array(auth()->user()->role_id, [2]))
             <h5>รายการคำขออนุญาต สำหรับหัวหน้าสำนักงาน</h5>
         @elseif (in_array(auth()->user()->role_id, [3]))
@@ -39,7 +39,7 @@
                         <td class="text-center">{{ $document->document_id }}</td>
                         <td class="text-center">
                             @foreach($document->reqDocumentUsers as $reqDocumentUser)
-                                {{ $reqDocumentUser->user->name }} {{ $reqDocumentUser->user->lname }}<br>
+                                {{ $reqDocumentUser->name }} {{ $reqDocumentUser->lname }}<br>
                             @endforeach
                         </td>
                         <td class="text-center">{{ $document->objective }}</td>
@@ -62,14 +62,14 @@
                                     <span class="badge bg-danger">ถูกปฏิเสธ</span>
                                 @endif 
 
-                            @elseif (in_array(auth()->user()->role_id, [12]))
+                            <!-- @elseif (in_array(auth()->user()->role_id, [12]))
                                 @if ($document->allow_opcar == 'approved')
                                     <span class="badge bg-success">อนุมัติ</span>
                                 @elseif ($document->allow_opcar	 == 'pending')
                                     <span class="badge bg-warning">รอดำเนินการ</span>
                                 @else
                                     <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                @endif 
+                                @endif  -->
 
                             @elseif (in_array(auth()->user()->role_id, [2]))
                                 @if ($document->allow_officer == 'approved')

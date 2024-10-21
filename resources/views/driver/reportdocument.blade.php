@@ -273,30 +273,35 @@
 
                 // Add this function to remove commas before form submission
                 function removeCommasBeforeSubmit() {
-                    // Function to validate numeric input fields
                     function isNumeric(value) {
                         return !isNaN(value) && !isNaN(parseFloat(value));
                     }
 
+                    // List of input fields that are associated with the checkboxes
                     const gasolineCostInput = document.getElementById('gasoline_cost_input');
                     const expresswayTollInput = document.getElementById('expressway_toll_input');
                     const parkingFeeInput = document.getElementById('parking_fee_input');
                     const anotherCostInput = document.getElementById('another_cost_input');
 
-                    // Remove commas and trim spaces
-                    gasolineCostInput.value = gasolineCostInput.value.replace(/,/g, '').trim();
-                    expresswayTollInput.value = expresswayTollInput.value.replace(/,/g, '').trim();
-                    parkingFeeInput.value = parkingFeeInput.value.replace(/,/g, '').trim();
-                    anotherCostInput.value = anotherCostInput.value.replace(/,/g, '').trim();
+                    // Array to store input fields
+                    const fields = [gasolineCostInput, expresswayTollInput, parkingFeeInput, anotherCostInput];
 
-                    // Validate that the inputs are numbers
-                    if (!isNumeric(gasolineCostInput.value) || !isNumeric(expresswayTollInput.value) ||
-                        !isNumeric(parkingFeeInput.value) || !isNumeric(anotherCostInput.value)) {
-                        alert("Please enter valid numbers in all cost fields.");
-                        return false; // Prevent form submission
+                    // Loop through each input field
+                    for (let field of fields) {
+                        // Only check fields that are not hidden and have a value
+                        if (!field.classList.contains('d-none') && field.value.trim() !== '') {
+                            // Remove commas for numeric validation
+                            field.value = field.value.replace(/,/g, '').trim();
+
+                            // Check if the value is a valid number
+                            if (!isNumeric(field.value)) {
+                                alert("Please enter valid numbers in all cost fields.");
+                                return false; // Prevent form submission if invalid
+                            }
+                        }
                     }
 
-                    return true; // Proceed with form submission
+                    return true; // Proceed with form submission if all fields are valid
                 }
             </script>
 
@@ -371,7 +376,9 @@
                     </div>
                 </div>
             </div>
-
+            <div class="d-flex justify-content-end mb-3">
+                <button type="submit" class="btn btn-warning">ส่ง</button>
+            </div>
 
         </form>
     </div>

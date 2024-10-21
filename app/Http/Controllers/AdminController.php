@@ -13,6 +13,7 @@ use App\Models\Position;
 use App\Models\Role;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\ReqDocument;
+use App\Models\Document;
 use App\Models\ReqDocumentUser;
 
 class AdminController extends Controller
@@ -212,6 +213,39 @@ class AdminController extends Controller
     
         // ส่งข้อมูลไปยัง view admin.user.form
         return view('admin.users.form', compact('documents'));
-    }
+    }    
+    // public function searchForm(Request $request)
+    // {
+    //     $q = $request->input('q');
+    //     $status = $request->input('status');
+        
+    //     if ($q != '' || $status != '') {
+    //         $users = ReqDocument::join('req_document_user', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+    //                     ->join('users', 'req_document_user.user_id', '=', 'users.id')
+    //                     ->where(function ($query) use ($q, $status) {
+    //                         if ($q != '') {
+    //                             $query->where('users.name', 'LIKE', '%'.$q.'%')
+    //                                 ->orWhere('users.lname', 'LIKE', '%'.$q.'%')
+    //                                 ->orWhere('req_document.objective', 'LIKE', '%'.$q.'%');
+    //                         }
+
+    //                         if ($status != '') {
+    //                             $query->where('req_document.allow_department', '=', $status);
+    //                         }
+    //                     })
+    //                     ->select('req_document.*', 'users.name', 'users.lname')
+    //                     ->paginate(10);
+    //     } else {
+    //         $users = ReqDocument::paginate(10);
+    //         $divisions = Division::all();
+    //     }
+
+    //     return view('admin.users.index', compact('users','divisions')); // เปลี่ยนเป็น compact('users')
+    // }
+
     
+
+    
+    
+
 }

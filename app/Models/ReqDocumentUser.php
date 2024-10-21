@@ -11,6 +11,7 @@ class ReqDocumentUser extends Model
     protected $fillable = [
         'req_document_id',
         'user_id',
+        'report_id',
         // ฟิลด์อื่นๆ
     ];
 
@@ -34,6 +35,11 @@ class ReqDocumentUser extends Model
     public function reqDocument()
     {
         return $this->belongsTo(ReqDocument::class, 'req_document_id', 'document_id');
+    }
+
+    public function report()
+    {
+        return $this->belongsTo(ReportFormance::class);
     }
     
 }

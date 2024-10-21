@@ -82,7 +82,7 @@
                             <!-- ดู PDF -->
                             <td class="align-middle">
                                 @if($report)
-                                    <a href="{{ route('report.showRepDoc.pdf', ['id' => $report->report_id]) }}" class="btn btn-info"
+                                    <a href="{{ route('report.showRepDoc.pdf', ['id' => $report->report_id]) }}" class="btn btn-info" 
                                         target="_blank">
                                         ดู PDF
                                     </a>

@@ -135,6 +135,8 @@
                     @enderror
                 </div>
 
+                
+
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
                     <label for="objective">{{ __('วัตถุประสงค์') }}</label>
@@ -337,9 +339,33 @@
                     <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type"
                         required>
                         <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
-                        <option value="รถกระบะ">{{ __('รถกระบะ') }}</option>
-                        <option value="รถตู้">{{ __('รถตู้') }}</option>
-                        <option value="เรือ">{{ __('เรือ') }}</option>
+
+                        @php
+                            $hasDisplayedPickupTruck = false;
+                            $hasDisplayedVan = false;
+                        @endphp
+
+                        @foreach($vehicles as $vehicle)
+                                            @if(in_array($vehicle->icon_id, [1, 2, 3]) && !$hasDisplayedPickupTruck)
+                                                <option value="รถกระบะ" {{ old('car_type') == 'รถกระบะ' ? 'selected' : '' }}>
+                                                    {{ __('รถกระบะ') }}
+                                                </option>
+                                                @php
+                                                    $hasDisplayedPickupTruck = true; // แสดง "รถกระบะ" เพียงครั้งเดียว
+                                                @endphp
+                                            @elseif(in_array($vehicle->icon_id, [4, 5, 6]) && !$hasDisplayedVan)
+                                                <option value="รถตู้" {{ old('car_type') == 'รถตู้' ? 'selected' : '' }}>
+                                                    {{ __('รถตู้') }}
+                                                </option>
+                                                @php
+                                                    $hasDisplayedVan = true; // แสดง "รถตู้" เพียงครั้งเดียว
+                                                @endphp
+                                            @elseif(in_array($vehicle->icon_id, [7, 8, 9]))
+                                                <option value="เรือ" {{ old('car_type') == 'เรือ' ? 'selected' : '' }}>
+                                                    {{ __('เรือ') }}
+                                                </option>
+                                            @endif
+                        @endforeach
                     </select>
                     @error('car_type')
                         <span class="invalid-feedback" role="alert">
@@ -347,6 +373,7 @@
                         </span>
                     @enderror
                 </div>
+
 
 
                 <!-- เอกสารที่แนบ -->

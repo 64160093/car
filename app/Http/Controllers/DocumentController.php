@@ -7,10 +7,14 @@ use App\Models\ReqDocumentUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Vehicle;
+use App\Models\Province;
+use App\Models\Amphoe;
+use App\Models\District;
+use App\Models\Document;
 
 class DocumentController extends Controller
 {
-    /**
+        /**
      *
      *
      * 
@@ -20,17 +24,17 @@ class DocumentController extends Controller
     {
         if (auth()->check()) {
             $user = auth()->user();
-
+    
             $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
-            })->get();
-
+            })->orderBy('created_at', 'desc')->get();
+    
             return view('document-history', compact('documents'));
         } else {
             return redirect()->route('login');
         }
     }
-
+      
     public function reviewForm(Request $request)
     {
         $id = $request->input('id');
@@ -54,10 +58,10 @@ class DocumentController extends Controller
 
         return view('reviewstatus', compact('document'));
     }
+    
 
 
-
-    /**
+        /**
      *
      *
      * 
@@ -100,17 +104,19 @@ class DocumentController extends Controller
             } elseif ($user->role_id == 12) {        //คนสั่งรถ
                 // เอกสารที่ต้องส่งไปยัง role_id = 12
                 $documents = $approvedDivision
-                    ->orderBy('document_id', 'desc')
+                    ->orderBy('document_id', 'desc') 
                     ->get();
+                return view('opcar.op_permission-form', compact('documents'));
+                
 
             } elseif ($user->role_id == 2) {        //หัวหน้าสำนักงาน
                 $documents = $approvedOpcar
-                    ->orderBy('document_id', 'desc')
+                    ->orderBy('document_id', 'desc') 
                     ->get();
 
             } elseif ($user->role_id == 3) {        //ผู้อำนวยการ
                 $documents = $approvedOfficer
-                    ->orderBy('document_id', 'desc')
+                    ->orderBy('document_id', 'desc') 
                     ->get();
 
             } elseif ($user->role_id == 11) { // คนขับรถ
@@ -174,32 +180,31 @@ class DocumentController extends Controller
                     ->where('req_document_user.department_id', 4);
                 break;
             default:
-                break;      //roleId ไม่ตรงกับเงื่อนไข
+                    break;      //roleId ไม่ตรงกับเงื่อนไข
 
         }
     }
 
     public function show(Request $request)
     {
-        $vehicles = Vehicle::all();
+        $vehicles = Vehicle::all(); 
         $users = User::all();
         $id = $request->input('id'); // รับค่า id ของเอกสารที่ส่งเข้ามา
-
+    
         $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($id) {
             $query->where('document_id', $id);
         })->get();
-
-        return view('permission-form-allow', compact('documents', 'vehicles', 'users'));
+    
+        return view('permission-form-allow', compact('documents', 'vehicles','users'));
     }
-
+    
     /**
-     * "updateStatus" "SelectDriver" "SelectCar"
+     * "updateStatus" "SelectDriver" "SelectCar" "ShowStatus"
      *
      * 
      */
     public function updateStatus(Request $request)
     {
-
         // รับข้อมูลจากฟอร์ม
         $documentId = $request->input('document_id');
         $statusdivision = $request->input('statusdivision');
@@ -208,15 +213,17 @@ class DocumentController extends Controller
         $statusofficer = $request->input('statusofficer');
         $statusdirector = $request->input('statusdirector');
         $notallowedReason = $request->input('notallowed_reason'); // เพิ่มการรับค่าเหตุผล
-        $carController = $request->input('car_controller'); // เพิ่มการรับค่าผู้ควบคุมรถ
+        $statuscarman = $request->input('statuscarman');
+        $carmanReason = $request->input('carman_reason'); // เพิ่มการรับค่าเหตุผล
 
         // ค้นหาเอกสารตาม document_id
         $document = ReqDocument::where('document_id', $documentId)->first();
 
         if ($document) {
-            // อัปเดตสถานะต่าง ๆ
+            // อัปเดตสถานะต่าง ๆ พร้อมบันทึกผู้อนุญาต
             if ($statusdivision) {
                 $document->allow_division = $statusdivision;
+                $document->approved_by_division = auth()->user()->id; // เก็บค่าผู้อนุญาต
                 if ($statusdivision == 'rejected' && $request->input('notallowed_reason_division')) {
                     $document->notallowed_reason = $request->input('notallowed_reason_division');
                 } else {
@@ -226,6 +233,7 @@ class DocumentController extends Controller
 
             if ($statusdepartment) {
                 $document->allow_department = $statusdepartment;
+                $document->approved_by_department = auth()->user()->id; // เก็บค่าผู้อนุญาต
                 if ($statusdepartment == 'rejected' && $request->input('notallowed_reason_department')) {
                     $document->notallowed_reason = $request->input('notallowed_reason_department');
                 } else {
@@ -235,15 +243,17 @@ class DocumentController extends Controller
 
             if ($statusopcar) {
                 $document->allow_opcar = $statusopcar;
+                $document->approved_by_opcar = auth()->user()->id; // เก็บค่าผู้อนุญาต
                 if ($statusopcar == 'rejected' && $notallowedReason) {
                     $document->notallowed_reason = $notallowedReason;
                 } else {
-                    $document->notallowed_reason = null;
+                    $document->notallowed_reason = null; 
                 }
             }
 
             if ($statusofficer) {
                 $document->allow_officer = $statusofficer;
+                $document->approved_by_officer = auth()->user()->id; // เก็บค่าผู้อนุญาต
                 if ($statusofficer == 'rejected' && $request->input('notallowed_reason_officer')) {
                     $document->notallowed_reason = $request->input('notallowed_reason_officer');
                 } else {
@@ -253,6 +263,7 @@ class DocumentController extends Controller
 
             if ($statusdirector) {
                 $document->allow_director = $statusdirector;
+                $document->approved_by_director = auth()->user()->id; // เก็บค่าผู้อนุญาต
                 if ($statusdirector == 'rejected' && $request->input('notallowed_reason_director')) {
                     $document->notallowed_reason = $request->input('notallowed_reason_director');
                 } else {
@@ -260,25 +271,94 @@ class DocumentController extends Controller
                 }
             }
 
+            if ($statuscarman) {
+                $document->allow_carman = $statuscarman;
+                $document->approved_by_carman = auth()->user()->id; // เก็บค่าผู้อนุญาต
+                if ($statuscarman == 'rejected' && $carmanReason) {
+                    $document->carman_reason = $carmanReason;
+                } else {
+                    $document->carman_reason = null;
+                }
+            }
+
             // เพิ่ม car_id เฉพาะผู้ใช้ที่มี role_id = 12 เท่านั้น
             if (auth()->user()->role_id == 12) {
                 $document->car_id = $request->input('car_id');
                 $document->carman = $request->input('carman');
+            }
 
-            }
-            // อัปเดต car_controller
-            if ($carController) {
-                $document->car_controller = $carController; // บันทึกผู้ควบคุมรถ
-            }
             // บันทึกข้อมูล
             $document->save();
 
             return redirect()->route('documents.index')
-                ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
+                            ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
         } else {
             return redirect()->route('documents.show')
-                ->with('error', 'ไม่พบเอกสาร');
+                            ->with('error', 'ไม่พบเอกสาร');
         }
+    }
+
+
+    /**
+     * Edit Document
+     *
+     * 
+     */
+    public function edit(Request $request)
+{
+    $id = $request->query('id'); // รับค่า id จาก query string
+    
+    if (!$id) {
+        return redirect()->route('documents.history')->with('error', 'ไม่พบข้อมูลเอกสาร');
+    }
+
+    $document = ReqDocument::with(['reqDocumentUsers', 'workType', 'province', 'amphoe', 'district'])->findOrFail($id);
+
+    return view('editDocument', compact('document'));
+}
+
+    
+
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'objective' => 'required|string|max:255',
+            'companion_name' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'location' => 'required|string|max:255',
+            'car_type' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
+            'amphoe' => 'required|string|max:255',
+            'district' => 'required|string|max:255',
+        ]);
+
+        $document = ReqDocument::find($id);
+
+        if (!$document) {
+            return redirect()->route('documents.history')->with('error', 'ไม่พบเอกสาร');
+        }
+
+        // อัพเดตข้อมูลเอกสาร
+        $document->objective = $request->input('objective');
+        $document->companion_name = $request->input('companion_name');
+        $document->start_date = $request->input('start_date');
+        $document->end_date = $request->input('end_date');
+        $document->start_time = $request->input('start_time');
+        $document->end_time = $request->input('end_time');
+        $document->location = $request->input('location');
+        $document->car_type = $request->input('car_type');
+        // อัพเดตข้อมูลจังหวัด อำเภอ และตำบล
+        // $document->province_id = Province::where('name_th', $request->input('province'))->first()->id ?? null;
+        // $document->amphoe_id = Amphoe::where('name_th', $request->input('amphoe'))->first()->id ?? null;
+        // $document->district_id = District::where('name_th', $request->input('district'))->first()->id ?? null;
+
+        $document->save();
+
+        return redirect()->route('documents.history')->with('success', 'บันทึกการแก้ไขสำเร็จ');
     }
 
 

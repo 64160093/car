@@ -13,7 +13,7 @@ use PDF;
 class PDFController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * บันทึกคำร้อง
      *
      * @return \Illuminate\Http\Response
      */
@@ -32,21 +32,24 @@ class PDFController extends Controller
         ];
 
         // สร้าง PDF จาก view 'myPDF' โดยส่ง $data
-        $pdf = PDF::loadView('myPDF', $data);
+        $pdf = PDF::loadView('myPDF', $data)
+            ->setPaper('A4', 'portrait');
 
         // แสดง PDF ในเบราว์เซอร์
         return $pdf->stream('document_report.pdf');
     }
+
+    /**
+     * รายงานคนขับรถ
+     *
+     * 
+     */
     public function generateReportPDF(Request $request)
     {
-        // รับค่า id จาก request
         $id = $request->input('id');
-
-        // ดึงข้อมูลรายงานที่เกี่ยวข้องด้วย findOrFail และความสัมพันธ์ต่างๆ
         $report = ReportFormance::with(['vehicle', 'province', 'carmanUser']) // ปรับให้เข้ากับโครงสร้างโมเดลของคุณ
             ->findOrFail($id);
 
-        // ดึงข้อมูล ReqDocument ที่เกี่ยวข้องกับรายงานนี้
         $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle', 'carmanUser', 'DivisionAllowBy'])
             ->findOrFail($report->req_document_id); // ใช้ req_document_id จาก $report
 
@@ -55,10 +58,10 @@ class PDFController extends Controller
             'documents' => $documents,  // ส่งข้อมูล $documents ไปที่ view
         ];
 
-        // สร้าง PDF จาก view 'driver.showrepdoc' โดยส่ง $data
-        $pdf = PDF::loadView('driver.showrepdoc', $data);
-
-        // แสดง PDF ในเบราว์เซอร์
+        $pdf = PDF::loadView('driver.PDFreport', $data)
+            ->setPaper('A4', 'portrait');
         return $pdf->stream('report_' . $report->report_id . '.pdf');
     }
+
+
 }

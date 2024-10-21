@@ -12,6 +12,7 @@ use App\Models\District;
 use App\Models\WorkType;
 use App\Models\User;
 use App\Models\Vehicle;
+use App\Models\CarIcon;
 
 
 class ReqDocumentController extends Controller
@@ -24,14 +25,15 @@ class ReqDocumentController extends Controller
 
     public function create()
     {
-
         $user = User::all();
         $provinces = Province::all();
         $amphoe = Amphoe::all();
         $district = District::all();
         $work_type = WorkType::all();
         $vehicles = Vehicle::all();
-        return view('reqdocument', compact('provinces', 'amphoe', 'district', 'work_type', 'user', 'vehicles'));
+        $caricon = CarIcon::all();
+        
+        return view('reqdocument', compact('provinces', 'amphoe', 'district', 'work_type', 'user','vehicles','caricon'));
     }
 
 
@@ -57,22 +59,21 @@ class ReqDocumentController extends Controller
             'work_id' => 'required|exists:work_type,work_id',
             'car_id' => 'nullable|exists:vehicles,car_id',
             'carman' => 'nullable|exists:user,id',
-            'car_controller' => 'required|exists:users,id', // ตรวจสอบว่า car_controller เป็นผู้ใช้ที่มีอยู่
-
+            'car_controller' => 'required|exists:users,id',
         ]);
         $companions = explode(',', $request->input('companions_hidden'));
-
+    
         // จัดการการอัปโหลดไฟล์
         $filePath = null;
         if ($request->hasFile('related_project')) {
             $filePath = $request->file('related_project')->store('projects');
         }
-
+    
         // ตรวจสอบ role_id ว่าเป็น 12 หรือไม่ เพื่อบันทึกค่า car_id
         $carId = auth()->user()->role_id == 12 ? $request->input('car_id') : null;
         $carMan = auth()->user()->role_id == 12 ? $request->input('carman') : null;
 
-
+    
         // บันทึกข้อมูลลงในตาราง req_document
         $document = ReqDocument::create([
             'companion_name' => $request->companion_name,
@@ -93,11 +94,10 @@ class ReqDocumentController extends Controller
             'work_id' => $request->work_id,
             'car_id' => $carId, // บันทึก car_id เฉพาะ role_id == 12 เท่านั้น
             'carman' => $carMan,
-            'car_controller' => $request->input('car_controller'), // ใช้ ID ของผู้ใช้ที่เลือก
-
+            'car_controller' => $request->input('car_controller'),
         ]);
 
-
+    
         // บันทึกความสัมพันธ์ระหว่างผู้ใช้และเอกสารในตาราง req_document_user
         $document->users()->attach(Auth::user()->id, [
             'name' => Auth::user()->name,
@@ -108,13 +108,14 @@ class ReqDocumentController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        // บันทึกข้อมูลผู้ร่วมเดินทาง
+        
         foreach ($companions as $companionId) {
             // ตรวจสอบว่า $companionId เป็นตัวเลขหรือไม่ (ป้องกันข้อผิดพลาดจากข้อมูลที่ไม่ถูกต้อง)
             if (is_numeric($companionId)) {
                 $document->companions()->attach($companionId);
             }
         }
+    
         return redirect('/document-history')->with('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
     }
 

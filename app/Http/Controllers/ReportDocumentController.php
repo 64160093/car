@@ -4,22 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ReqDocument;
+use Illuminate\Support\Facades\Auth;
 use App\Models\ReportFormance;
 use App\Models\User;
 
+
 class ReportDocumentController extends Controller
 {
+
     public function index(Request $request)
     {
-        $user = User::all();
+        $user = User::all();        
         $id = $request->input('id'); // รับค่า id จาก request
-
+        
         // ดึงข้อมูลเอกสารพร้อมกับความสัมพันธ์ที่เกี่ยวข้อง
-        $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle'])
-            ->findOrFail($id);
-
-        return view('driver.reportdocument', compact('documents', 'user'));
+        $documents = ReqDocument::with(['reqDocumentUsers','users', 'province', 'vehicle'])
+                                ->findOrFail($id);
+        
+        return view('driver.reportdocument', compact('documents','user'));
     }
+    
 
     public function store(Request $request)
     {
@@ -27,7 +31,7 @@ class ReportDocumentController extends Controller
         if (!$request->has('document_id')) {
             return redirect()->back()->withErrors(['document_id' => 'Document ID is required.']);
         }
-
+    
         $request->validate([
             'document_id' => 'required|exists:req_document,document_id',
             'stime' => 'required',
@@ -42,14 +46,13 @@ class ReportDocumentController extends Controller
             'performance_isgood' => 'required|in:Y,N',
             'comment_issue' => 'nullable|string',
         ]);
-
+    
         // คำนวณค่าใช้จ่ายรวม
-        $total_cost = ($request->gasoline_cost ?? 0) + ($request->expressway_toll ?? 0)
-            + ($request->parking_fee ?? 0) + ($request->another_cost ?? 0);
-
-
+        $total_cost = ($request->gasoline_cost ?? 0) + ($request->expressway_toll ?? 0) 
+                    + ($request->parking_fee ?? 0) + ($request->another_cost ?? 0);
+    
         // บันทึกข้อมูลลงในฐานข้อมูล
-        $report = ReportFormance::create([
+        $report = \App\Models\ReportFormance::create([
             'req_document_id' => $request->document_id, // ใช้ req_document_id แทน document_id
             'stime' => $request->stime,
             'etime' => $request->etime,
@@ -66,11 +69,12 @@ class ReportDocumentController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        // Redirect to the show view after storing the report
-        return redirect()->route('reportdoc.show', ['id' => $report->report_id])
-            ->with('success', 'เพิ่มข้อมูลรายงานสำเร็จ!');
+        
+        // สามารถเพิ่มบันทึกใน req_document_user ได้ถ้าต้องการ
+    
+        return redirect()->route('documents.index')->with('success', 'เพิ่มข้อมูลรายงานสำเร็จ!');
     }
+    
     public function show($id)
     {
         // ดึงข้อมูลรายงานตาม ID
@@ -83,7 +87,6 @@ class ReportDocumentController extends Controller
 
         return view('driver.showrepdoc', compact('report', 'documents'));
     }
-
 
 
 }

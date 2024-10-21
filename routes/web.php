@@ -106,16 +106,28 @@ Route::get('/document-history', [DocumentController::class, 'index'])->name('doc
 Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
 Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('documents.status');
 
-
+//รายการคำขอที่รอนุมัติ อนุมัติคำร้อง
 Route::get('/permission-form', [DocumentController::class, 'permission'])->name('documents.index');
 Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name('documents.show')->middleware('auth');
 Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name('documents.updateStatus');
 
-
+//รายงานคนขับรถ
 Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('report.index');
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
-Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
+ 
 
-Route::get('/report/pdf/{id}', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
+    
+Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
+Route::get('/report/showRepDoc/pdf', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
+
+
+
+    // หน้าแสดงรายการเอกสาร
+
+    // หน้าแก้ไขเอกสาร
+    Route::get('/documents/edit', [DocumentController::class, 'edit'])->name('documents.edit');
+
+    // การอัพเดตเอกสาร
+    Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('documents.update.edit');

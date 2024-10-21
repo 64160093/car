@@ -16,7 +16,7 @@
                     <th class="text-center">วัตถุประสงค์</th>
                     <th class="text-center">วันที่สร้าง</th>
                     <th class="text-center">สถานะ</th>
-                    <th class="text-center"></th>
+                    <th class="text-center">คนขับรับทราบงาน</th>
                     <th class="text-center">รายงานจากคนขับ</th>
                 </tr>
             </thead>
@@ -39,6 +39,17 @@
                                     <span class="badge bg-warning">รอดำเนินการ</span>
                                 @else
                                     <span class="badge bg-danger">ถูกปฏิเสธ</span>
+                                @endif 
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if (in_array(auth()->user()->role_id, [12]))
+                                @if ($document->allow_carman == 'approved')
+                                    <span class="badge bg-success">รับทราบ </span>
+                                @elseif ($document->allow_carman	 == 'pending')
+                                    <span class="badge bg-warning">รอดำเนินการ</span>
+                                @else
+                                    <span class="badge bg-danger">ไม่สามารถรับงานได้</span>
                                 @endif 
                             @endif
                         </td>
