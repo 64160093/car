@@ -32,24 +32,20 @@ class Document extends Model
         return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id');
     }
 
-    // ความสัมพันธ์กับโมเดล Province
     public function province()
     {
-        return $this->belongsTo(Province::class, 'province_id');
+        return $this->belongsTo(Province::class, 'provinces_id', 'provinces_id');
     }
 
-    // ความสัมพันธ์กับโมเดล Amphoe
     public function amphoe()
     {
-        return $this->belongsTo(Amphoe::class, 'amphoe_id');
+        return $this->belongsTo(Amphoe::class, 'amphoe_id', 'amphoe_id');
     }
 
-    // ความสัมพันธ์กับโมเดล District
     public function district()
     {
-        return $this->belongsTo(District::class, 'district_id');
+        return $this->belongsTo(District::class, 'district_id', 'district_id');
     }
-
     // ความสัมพันธ์กับโมเดล CarIcon
     public function carIcon()
     {

@@ -97,8 +97,8 @@ Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name
     ->middleware(IsAdmin::class);
 Route::get('/admin/users/form', [AdminController::class, 'showform'])->name('admin.users.form')
     ->middleware(IsAdmin::class);
-    
-    Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
+
+Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
 
 
 //แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
@@ -116,18 +116,18 @@ Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('rep
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
- 
 
-    
+
+
 Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
 Route::get('/report/showRepDoc/pdf', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
 
 
 
-    // หน้าแสดงรายการเอกสาร
+// หน้าแสดงรายการเอกสาร
 
-    // หน้าแก้ไขเอกสาร
-    Route::get('/documents/edit', [DocumentController::class, 'edit'])->name('documents.edit');
+// หน้าแก้ไขเอกสาร
+Route::get('/documents/edit', [DocumentController::class, 'edit'])->name('documents.edit');
 
-    // การอัพเดตเอกสาร
-    Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('documents.update.edit');
+// การอัพเดตเอกสาร
+Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('documents.update.edit');

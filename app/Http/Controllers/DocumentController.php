@@ -14,7 +14,7 @@ use App\Models\Document;
 
 class DocumentController extends Controller
 {
-        /**
+    /**
      *
      *
      * 
@@ -24,17 +24,17 @@ class DocumentController extends Controller
     {
         if (auth()->check()) {
             $user = auth()->user();
-    
+
             $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->orderBy('created_at', 'desc')->get();
-    
+
             return view('document-history', compact('documents'));
         } else {
             return redirect()->route('login');
         }
     }
-      
+
     public function reviewForm(Request $request)
     {
         $id = $request->input('id');
@@ -58,10 +58,10 @@ class DocumentController extends Controller
 
         return view('reviewstatus', compact('document'));
     }
-    
 
 
-        /**
+
+    /**
      *
      *
      * 
@@ -104,19 +104,19 @@ class DocumentController extends Controller
             } elseif ($user->role_id == 12) {        //คนสั่งรถ
                 // เอกสารที่ต้องส่งไปยัง role_id = 12
                 $documents = $approvedDivision
-                    ->orderBy('document_id', 'desc') 
+                    ->orderBy('document_id', 'desc')
                     ->get();
                 return view('opcar.op_permission-form', compact('documents'));
-                
+
 
             } elseif ($user->role_id == 2) {        //หัวหน้าสำนักงาน
                 $documents = $approvedOpcar
-                    ->orderBy('document_id', 'desc') 
+                    ->orderBy('document_id', 'desc')
                     ->get();
 
             } elseif ($user->role_id == 3) {        //ผู้อำนวยการ
                 $documents = $approvedOfficer
-                    ->orderBy('document_id', 'desc') 
+                    ->orderBy('document_id', 'desc')
                     ->get();
 
             } elseif ($user->role_id == 11) { // คนขับรถ
@@ -180,24 +180,26 @@ class DocumentController extends Controller
                     ->where('req_document_user.department_id', 4);
                 break;
             default:
-                    break;      //roleId ไม่ตรงกับเงื่อนไข
+                break;      //roleId ไม่ตรงกับเงื่อนไข
 
         }
     }
 
     public function show(Request $request)
     {
-        $vehicles = Vehicle::all(); 
+        $vehicles = Vehicle::all();
         $users = User::all();
-        $id = $request->input('id'); // รับค่า id ของเอกสารที่ส่งเข้ามา
-    
+        $id = $request->input('id'); // รับค่า id ของเอกสารที่ส่งเข้าม
+
         $documents = ReqDocument::whereHas('reqDocumentUsers', function ($query) use ($id) {
             $query->where('document_id', $id);
         })->get();
-    
-        return view('permission-form-allow', compact('documents', 'vehicles','users'));
+
+        $user = auth()->user(); // รับข้อมูลผู้ใช้ที่ล็อกอินอยู่
+
+        return view('permission-form-allow', compact('documents', 'vehicles', 'users', 'user'));
     }
-    
+
     /**
      * "updateStatus" "SelectDriver" "SelectCar" "ShowStatus"
      *
@@ -247,7 +249,7 @@ class DocumentController extends Controller
                 if ($statusopcar == 'rejected' && $notallowedReason) {
                     $document->notallowed_reason = $notallowedReason;
                 } else {
-                    $document->notallowed_reason = null; 
+                    $document->notallowed_reason = null;
                 }
             }
 
@@ -291,10 +293,10 @@ class DocumentController extends Controller
             $document->save();
 
             return redirect()->route('documents.index')
-                            ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
+                ->with('success', 'สถานะถูกอัปเดตเรียบร้อยแล้ว');
         } else {
             return redirect()->route('documents.show')
-                            ->with('error', 'ไม่พบเอกสาร');
+                ->with('error', 'ไม่พบเอกสาร');
         }
     }
 
@@ -305,42 +307,52 @@ class DocumentController extends Controller
      * 
      */
     public function edit(Request $request)
-{
-    $id = $request->query('id'); // รับค่า id จาก query string
-    
-    if (!$id) {
-        return redirect()->route('documents.history')->with('error', 'ไม่พบข้อมูลเอกสาร');
+    {
+        // รับค่า id จาก query string
+        $id = $request->query('id');
+
+        if (!$id) {
+            return redirect()->route('documents.history')->with('error', 'ไม่พบข้อมูลเอกสาร');
+        }
+
+        // ดึงข้อมูลเอกสารก่อน เพื่อที่จะใช้ในการดึง amphoe และ district
+        $document = ReqDocument::with(['reqDocumentUsers', 'workType', 'province', 'amphoe', 'district', 'users'])->findOrFail($id);
+
+        // ดึงข้อมูลอำเภอและตำบลที่สัมพันธ์กับจังหวัดและอำเภอที่อยู่ในเอกสาร
+        $provinces = Province::all();
+        $amphoe = Amphoe::where('provinces_id', $document->provinces_id)->get(); // ตรวจสอบที่นี่
+        $district = District::where('amphoe_id', $document->amphoe_id)->get(); // ตรวจสอบที่นี่
+
+        $users = User::all(); // ดึงข้อมูลผู้ใช้ทั้งหมด
+
+        // ดึง companions จากชื่อของผู้ติดตามที่แยกด้วยเครื่องหมายจุลภาค
+        $companions = User::whereIn('id', explode(',', $document->companion_name))->get();
+
+        $user = auth()->user(); // รับข้อมูลผู้ใช้ที่ล็อกอินอยู่
+
+        return view('editDocument', compact('document', 'companions', 'provinces', 'amphoe', 'district', 'users', 'user'));
     }
-
-    $document = ReqDocument::with(['reqDocumentUsers', 'workType', 'province', 'amphoe', 'district'])->findOrFail($id);
-
-    return view('editDocument', compact('document'));
-}
-
-    
 
 
     public function update(Request $request, $id)
     {
+        // Validation rule
         $request->validate([
             'objective' => 'required|string|max:255',
-            'companion_name' => 'nullable|string',
+            'companion_name' => 'nullable',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date', // แก้ให้ end_date ต้องไม่ก่อน start_date
             'start_time' => 'required',
             'end_time' => 'required',
             'location' => 'required|string|max:255',
-            'car_type' => 'required|string|max:255',
-            'province' => 'required|string|max:255',
-            'amphoe' => 'required|string|max:255',
-            'district' => 'required|string|max:255',
+            'car_type' => 'nullable|string|max:255',
+            'provinces_id' => 'required|integer',
+            'amphoe_id' => 'required|integer',
+            'district_id' => 'required|integer',
         ]);
 
-        $document = ReqDocument::find($id);
-
-        if (!$document) {
-            return redirect()->route('documents.history')->with('error', 'ไม่พบเอกสาร');
-        }
+        // ค้นหาเอกสาร
+        $document = ReqDocument::findOrFail($id);
 
         // อัพเดตข้อมูลเอกสาร
         $document->objective = $request->input('objective');
@@ -351,16 +363,29 @@ class DocumentController extends Controller
         $document->end_time = $request->input('end_time');
         $document->location = $request->input('location');
         $document->car_type = $request->input('car_type');
-        // อัพเดตข้อมูลจังหวัด อำเภอ และตำบล
-        // $document->province_id = Province::where('name_th', $request->input('province'))->first()->id ?? null;
-        // $document->amphoe_id = Amphoe::where('name_th', $request->input('amphoe'))->first()->id ?? null;
-        // $document->district_id = District::where('name_th', $request->input('district'))->first()->id ?? null;
 
+        // อัพเดตข้อมูลจังหวัด อำเภอ และตำบล
+        $document->provinces_id = $request->input('provinces_id');
+        $document->amphoe_id = $request->input('amphoe_id');
+        $document->district_id = $request->input('district_id');
+
+        // บันทึกการอัพเดตข้อมูล
         $document->save();
 
         return redirect()->route('documents.history')->with('success', 'บันทึกการแก้ไขสำเร็จ');
     }
+    public function getAmphoes($province_id)
+    {
+        // ตรวจสอบว่ามี province_id ที่ต้องการหรือไม่
+        $amphoes = Amphoe::where('provinces_id', $province_id)->get();
+        return response()->json(['amphoes' => $amphoes]);
+    }
 
-
+    public function getDistricts($amphoe_id)
+    {
+        // ตรวจสอบว่ามี amphoe_id ที่ต้องการหรือไม่
+        $districts = District::where('amphoe_id', $amphoe_id)->get();
+        return response()->json(['districts' => $districts]);
+    }
 
 }
