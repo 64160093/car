@@ -173,6 +173,7 @@
                                 </td>
                             </tr>
                         </table>
+                        <input type="hidden" name="car_type" value="{{ old('car_type', $document->car_type) }}">
 
                         <div class="row">
                             <div class="col-md-4">
