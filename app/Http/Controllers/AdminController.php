@@ -24,7 +24,7 @@ class AdminController extends Controller
      * Add Vehicle Form
      *
      * 
-     */   
+     */
     public function storeVehicle(Request $request)
     {
         // Validate the input
@@ -32,18 +32,18 @@ class AdminController extends Controller
             'icon_id' => ['required', 'exists:car_icon,icon_id'],
             'car_category' => 'required|string|max:3',                  //varchar(3)
             'car_regnumber' => 'required|integer|digits_between:1,4',   //int(4)
-            'car_province' => 'required|string|max:255',       
+            'car_province' => 'required|string|max:255',
         ]);
 
         // Store the data into the database (Assuming a Vehicle model exists)
         \App\Models\Vehicle::create([
-            'icon_id' => $request->icon_id, 
+            'icon_id' => $request->icon_id,
             'car_category' => $request->car_category,
             'car_regnumber' => $request->car_regnumber,
             'car_province' => $request->car_province,
 
         ]);
-        
+
         return redirect()->route('show.vehicles')->with('success', 'เพิ่มข้อมูลรถ สำเร็จ!!!');
     }
 
@@ -59,7 +59,7 @@ class AdminController extends Controller
         $car_icons = CarIcon::all();
         $selectedIcons = Vehicle::pluck('icon_id')->toArray();
         $availableCarIcons = CarIcon::whereNotIn('icon_id', $selectedIcons)->get();
- 
+
         // ส่งข้อมูลไปยัง View
         return view('vehicles.index', compact('vehicles', 'availableCarIcons', 'car_icons'));
     }
@@ -77,7 +77,7 @@ class AdminController extends Controller
                 $vehicle->car_reason = null;    // ล้างค่า car_reason ถ้ารถพร้อมใช้งาน
             }
             $vehicle->save();
-            
+
             return redirect()->route('show.vehicles')->with('success', 'อัปเดตสถานะเรียบร้อยแล้ว');
         }
 
@@ -108,7 +108,7 @@ class AdminController extends Controller
         $users = User::paginate(10); // ดึงข้อมูลผู้ใช้ 10 รายการต่อหน้า
         $divisions = Division::all();
         $departments = Department::all();
-        $positions = Position::all(); 
+        $positions = Position::all();
         $roles = Role::all();
         return view('admin.users.index', compact('users', 'divisions', 'departments', 'positions', 'roles'));
     }
@@ -122,7 +122,7 @@ class AdminController extends Controller
         $divisions = Division::all();
         $positions = Position::all();
         $roles = Role::all();
-        
+
         return view('admin.users.edit', compact('user', 'divisions', 'departments', 'positions', 'roles'));
     }
 
@@ -153,7 +153,7 @@ class AdminController extends Controller
         $user->division_id = $validatedData['division_id'];
         $user->position_id = $validatedData['position_id'];
         $user->role_id = $validatedData['role_id'];
-        
+
         $user->save();
 
         return redirect()->route('admin.users')->with('success', 'อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว.');
@@ -165,26 +165,26 @@ class AdminController extends Controller
         $user->delete(); // ลบข้อมูลผู้ใช้
         return redirect()->route('admin.users')->with('success', 'ลบข้อมูลบุคลากรสำเร็จ.');
     }
-    
+
     public function searchUsers(Request $request)
     {
         $q = $request->input('q');
-        
+
         if ($q != '') {
             // การเชื่อมตาราง users กับ position และการค้นหาชื่อ, นามสกุล หรือชื่อตำแหน่ง
             $users = User::join('position', 'users.position_id', '=', 'position.position_id')
-                            // ->join('department', 'users.department_id', '=', 'department.department_id')
-                            ->join('role', 'users.role_id', '=', 'role.role_id')
-                        ->where('users.name', 'LIKE', '%'.$q.'%')
-                        ->orWhere('users.lname', 'LIKE', '%'.$q.'%')
-                        ->orWhere('users.email', 'LIKE', '%'.$q.'%')
-                        ->orWhere('users.phonenumber', 'LIKE', '%'.$q.'%')
-                        ->orWhere('position.position_name', 'LIKE', '%'.$q.'%')
-                        // ->orWhere('department.department_name', 'LIKE', '%'.$q.'%')
-                        ->orWhere('role.role_name', 'LIKE', '%'.$q.'%')
-                        
-                        ->select('users.*', 'position.position_name', 'role.role_name')
-                        ->paginate(10);
+                // ->join('department', 'users.department_id', '=', 'department.department_id')
+                ->join('role', 'users.role_id', '=', 'role.role_id')
+                ->where('users.name', 'LIKE', '%' . $q . '%')
+                ->orWhere('users.lname', 'LIKE', '%' . $q . '%')
+                ->orWhere('users.email', 'LIKE', '%' . $q . '%')
+                ->orWhere('users.phonenumber', 'LIKE', '%' . $q . '%')
+                ->orWhere('position.position_name', 'LIKE', '%' . $q . '%')
+                // ->orWhere('department.department_name', 'LIKE', '%'.$q.'%')
+                ->orWhere('role.role_name', 'LIKE', '%' . $q . '%')
+
+                ->select('users.*', 'position.position_name', 'role.role_name')
+                ->paginate(10);
 
             $users->appends(['q' => $q]);
             $departments = Department::all();
@@ -197,10 +197,10 @@ class AdminController extends Controller
 
         return redirect()->route('admin.users');
     }
-    
 
 
-        /**
+
+    /**
      *
      *
      * 
@@ -209,43 +209,100 @@ class AdminController extends Controller
     public function showform()
     {
         $user = auth()->user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
-        $documents = ReqDocument::orderBy('document_id', 'desc')->get(); 
-    
+        $documents = ReqDocument::orderBy('document_id', 'desc')->get();
+
         // ส่งข้อมูลไปยัง view admin.user.form
         return view('admin.users.form', compact('documents'));
-    }    
-    // public function searchForm(Request $request)
-    // {
-    //     $q = $request->input('q');
-    //     $status = $request->input('status');
-        
-    //     if ($q != '' || $status != '') {
-    //         $users = ReqDocument::join('req_document_user', 'req_document.document_id', '=', 'req_document_user.req_document_id')
-    //                     ->join('users', 'req_document_user.user_id', '=', 'users.id')
-    //                     ->where(function ($query) use ($q, $status) {
-    //                         if ($q != '') {
-    //                             $query->where('users.name', 'LIKE', '%'.$q.'%')
-    //                                 ->orWhere('users.lname', 'LIKE', '%'.$q.'%')
-    //                                 ->orWhere('req_document.objective', 'LIKE', '%'.$q.'%');
-    //                         }
+    }
 
-    //                         if ($status != '') {
-    //                             $query->where('req_document.allow_department', '=', $status);
-    //                         }
-    //                     })
-    //                     ->select('req_document.*', 'users.name', 'users.lname')
-    //                     ->paginate(10);
-    //     } else {
-    //         $users = ReqDocument::paginate(10);
-    //         $divisions = Division::all();
-    //     }
 
-    //     return view('admin.users.index', compact('users','divisions')); // เปลี่ยนเป็น compact('users')
-    // }
+    public function searchForm(Request $request)
+    {
+        // ดึงข้อมูลการค้นหาจาก input
+        $q = $request->input('q');
+        $filter = $request->input('filter'); // รับค่าการกรองสถานะจาก request
 
-    
+        // เขียน Query เริ่มต้น
+        $query = ReqDocument::join('req_document_user', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+            ->join('users', 'req_document_user.user_id', '=', 'users.id')
+            ->select('req_document.*', 'users.name', 'users.lname')
+            ->orderBy('req_document.created_at', 'desc'); // จัดเรียงตามวันที่สร้าง (ล่าสุดขึ้นก่อน)
 
-    
-    
+        // ตรวจสอบว่ามีการค้นหาหรือไม่
+        if (!empty($q)) {
+            // ถ้ามีการค้นหาให้ทำการกรองข้อมูล
+            $keywords = explode(' ', $q);
+
+            $query->where(function ($subQuery) use ($keywords) {
+                if (count($keywords) == 2) {
+                    // กรณีที่กรอกชื่อและนามสกุล
+                    $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
+                        ->where('req_document_user.lname', 'LIKE', '%' . $keywords[1] . '%');
+                } else {
+                    // กรณีกรอกชื่อหรือคำนามเดียว
+                    $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
+                        ->orWhere('req_document_user.lname', 'LIKE', '%' . $keywords[0] . '%')
+                        ->orWhere('req_document.objective', 'LIKE', '%' . $keywords[0] . '%');
+                }
+            });
+        }
+
+        // เพิ่มการกรองสถานะถ้ามีการเลือก
+        if ($filter) {
+            switch ($filter) {
+                case 'completed':
+                    // กรองกรณีที่ approved ทั้งหมด ยกเว้น allow_department
+                    $query->where(function ($subQuery) {
+                        $subQuery->where('req_document.allow_division', 'approved')
+                            ->where('req_document.allow_opcar', 'approved')
+                            ->where('req_document.allow_officer', 'approved')
+                            ->where('req_document.allow_director', 'approved');
+                    });
+
+                    // หรือ allow_department อาจจะไม่ถูกกำหนด (null)
+                    $query->orWhereNull('req_document.allow_department');
+                    break;
+
+                case 'pending':
+                    // กรองเฉพาะเอกสารที่มีสถานะ pending และไม่รวมที่มี rejected
+                    $query->where(function ($subQuery) {
+                        $subQuery->where('req_document.allow_division', 'pending')
+                            ->orWhere('req_document.allow_opcar', 'pending')
+                            ->orWhere('req_document.allow_officer', 'pending')
+                            ->orWhere('req_document.allow_director', 'pending');
+                    });
+
+                    // กรองออกเอกสารที่มีสถานะ rejected ในทุกฟิลด์
+                    $query->where(function ($subQuery) {
+                        $subQuery->where('req_document.allow_department', '!=', 'rejected')
+                            ->where('req_document.allow_division', '!=', 'rejected')
+                            ->where('req_document.allow_opcar', '!=', 'rejected')
+                            ->where('req_document.allow_officer', '!=', 'rejected')
+                            ->where('req_document.allow_director', '!=', 'rejected');
+                    });
+                    break;
+
+                case 'cancelled':
+                    // ตรวจสอบสถานะให้รวมถึง rejected
+                    $query->where(function ($subQuery) {
+                        $subQuery->where('req_document.allow_department', 'rejected')
+                            ->orWhere('req_document.allow_division', 'rejected')
+                            ->orWhere('req_document.allow_opcar', 'rejected')
+                            ->orWhere('req_document.allow_officer', 'rejected')
+                            ->orWhere('req_document.allow_director', 'rejected');
+                    });
+                    // ข้าม allow_department หาก allow_department เป็น null
+                    $query->whereNotNull('req_document.allow_department');
+                    break;
+            }
+        }
+
+        // ดึงข้อมูลเอกสารและแบ่งหน้า
+        $documents = $query->paginate(10);
+
+        // ส่งข้อมูลไปยัง view
+        return view('admin.users.form', compact('documents'));
+    }
+
 
 }

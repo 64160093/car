@@ -72,7 +72,7 @@
                         <i class="lni lni-grid-alt"></i>
                     </button>
                     <div class="sidebar-logo">
-                        <a href="{{ route('welcome') }}" class="text-decoration-none logo-link">
+                        <a href="{{ route('reqdocument.create') }}" class="text-decoration-none logo-link">
                             <h5 class="mb-0 fw-bold text-white text-center logo-text">
                                 ขออนุญาตใช้ยานยนต์
                             </h5>
