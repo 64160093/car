@@ -135,4 +135,3 @@ Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('docu
 //ยกเลิกเอกสาร
 Route::post('/documents/cancel/{id}', [DocumentController::class, 'cancel'])->name('documents.cancel');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
