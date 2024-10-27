@@ -25,7 +25,7 @@
             margin-left: 0.5in;
             margin-right: 0.2in;
             /* ขอบขวา 1.5 เซนติเมตร */
-            line-height: 1.4;
+            line-height: 1.0;
             /* ปรับระยะห่างระหว่างบรรทัดให้ดูโปร่งขึ้น */
         }
 
@@ -40,7 +40,7 @@
         .content p {
             margin: 0;
             padding: 0;
-            line-height: 1.25;
+            line-height: 1.2;
             /* ปรับระยะห่างระหว่างบรรทัดของข้อความในเนื้อหา */
         }
 
@@ -48,19 +48,17 @@
             border-bottom: 1px dotted black;
             width: 245px;
             display: inline-block;
-            height: 20px;
+            height: 25px;
             padding-left: 30px;
         }
 
         .longline {
             border-bottom: 2px dotted black;
-            /* ปรับความหนาเป็น 2px */
             border-color: rgba(0, 0, 0, 0.8);
-            /* ทำให้สีดำเข้มขึ้น */
             width: 100%;
             display: inline-block;
-            height: 10px;
-            margin-bottom: 0.25in;
+            height: 5px;
+            margin-bottom: 0.15in;
 
         }
 
@@ -86,7 +84,15 @@
             border-bottom: 1px dotted black;
             width: 245px;
             display: inline-block;
-            height: 20px;
+            height: 25px;
+            padding-left: 0px;
+        }
+        .signature .line2 {
+            /* border-bottom: 1px dotted white; */
+            width: 245px;
+            width: 245px;
+            display: inline-block;
+            height: 25px;
             padding-left: 0px;
         }
 
@@ -101,6 +107,17 @@
             margin-top: 14px;
             vertical-align: middle;
         }
+        .checkbox2 {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 0.2px solid black;
+            margin-right: 3px;
+            margin-left: 25px;
+            margin-top: 14px;
+            vertical-align: middle;
+            background-color: lightblue; 
+        }
     </style>
 </head>
 
@@ -114,21 +131,38 @@
     <span class="longline"></span>
 
     <div class="content">
-        <p><span class="section-title">เรื่อง</span> <span>ขออนุญาตใช้รถยนต์สถาบันวิจัยทางทะเล</span></p>
+        <p><span class="section-title">เรื่อง</span><span style="margin-left: 8;">ขับรถยนต์ไปปฎิบัติงาน</span></p>
+        <p>
+            <span class="section-title ">ถึง</span><span class="line " style="width: 300px;">
+                {{ $documents->carmanUser->name }} {{ $documents->carmanUser->lname }}
+            </span>
+            <span>หมายเลขทะเบียน</span><span class="line" style="width: 164px;">
+                {{ $documents->vehicle->car_category }} {{ $documents->vehicle->car_regnumber }} {{ $documents->vehicle->car_province }}
+            </span>
+        </p>
 
-        <p><span class="section-title">ถึง</span><span class="line"></span><span>หมายเลขทะเบียน</span><span class="line"
-                style="width: 223px;"></span></p>
+        <p><span class="section-title" style="margin-left: 50; line-height: 30px">
+            ด้วยสถาบันวิทยาศาสตร์ทางทะเล มหาวิทยาลัยบูรพา ได้อนุมัติให้บุคลากรไปปฏิบัติงานวันที่
+            </span><span class="line" style="width: 61px;"></span></p>
 
-        <p><span class="section-title">ด้วยสถาบันวิทยาศาสตร์ทางทะเล มหาวิทยาลัยบูรพา
-                ได้อนุมัติให้บุคลากรไปปฏิบัติงานวันที่</span><span class="line" style="width: 132px;"></span></p>
+        <p>
+            <span class="line" style="width: 212px;">
+                {{ \Carbon\Carbon::parse($documents->reservation_date)->format('d') }}
+                {{ \Carbon\Carbon::parse($documents->reservation_date)->locale('th')->translatedFormat('F') }}
+                {{ \Carbon\Carbon::parse($documents->reservation_date)->format('Y') }}
+            </span>
+            <span class="section-title">จึงให้ขับรถไปรับบุคลากร เวลา</span>
+            <span class="line" style="width: 86px;">
+                {{  \Carbon\Carbon::parse($documents->start_time)->format('H:i') }} น.</span>
+            </span><span> เพื่อไปปฏิบัติงาน</span>
+        </p>ตามสถานที่ดังต่อไปนี้
 
-        <p><span class="section-title">จึงให้ขับรถไปรับบุคลากร เวลา</span><span class="line"
-                style="width: 132px;"></span><span> เพื่อไปปฏิบัติงานตามสถานที่ดังต่อไปนี้</span></p>
-
-        <p><span class="section-title">1. </span><span class="line" style="width: 452px;"></span><span>
-                จำนวน</span><span class="line" style="width: 50px;"></span>คน</p>
-        <p><span class="section-title" style="margin-left:25px;">รับที่</span><span class="line"></span><span>
-                เพื่อไปปฏิบัติงาน</span><span class="line" style="width: 188px;"></span></p>
+        <p><span class="section-title">1. </span><span class="line" style="width: 452px;">
+            {{ $documents->location }} {{ $documents->district->name_th }} {{ $documents->amphoe->name_th }} {{ $documents->province->name_th }}
+            </span><span>จำนวน</span>
+            <span class="line" style="width: 50px;">{{ $documents->sum_companion }}</span>คน</p>
+        <p><span class="section-title" style="margin-left:25px;">รับที่</span><span class="line">{{ $documents->car_pickup }}</span><span>
+                เพื่อไปปฏิบัติงาน</span><span class="line" style="width: 188px;">{{ $documents->objective }}</span></p>
 
         <p><span class="section-title">2. </span><span class="line" style="width: 452px;"></span><span>
                 จำนวน</span><span class="line" style="width: 50px;"></span>คน</p>
@@ -140,51 +174,78 @@
         <p><span class="section-title" style="margin-left:25px;">รับที่</span><span class="line"></span><span>
                 เพื่อไปปฏิบัติงาน</span><span class="line" style="width: 188px;"></span></p>
 
-        <p><span class="line" style="width: 188px; margin-left: 416px;margin-top: 30px;"></span></p>
+        <p><span class="line" style="width: 188px; margin-left: 416px; margin-top: 30px;"></span></p>
 
         <span class="longline" style="margin-top: 30px;"></span>
 
-        <p><span class="section-title" >เรื่อง</span> <span>รานงานผลการปฏิบัติ</span></p>
-        <p><span class="section-title">เรียน</span> <span>ผู้อำนวยการ</span></p>
+        <p><span class="section-title" >เรื่อง</span><span style="margin-left: 8; height: 0.5">รายงานผลการปฏิบัติ</span></p>
+        <p><span class="section-title">เรียน</span> <span style="margin-left: 5;">ผู้อำนวยการ</span></p>
 
-        <p><span class="section-title" style="margin-left:25px;">ตามที่สถาบันวิทยาศาสตร์ทางทะเล มหาวิทยาลัยบูรพา
-                อนุมัติให้ข้ามเจ้า</span><span class="line" style="width: 207px;"></span></p>
+        <p><span class="section-title" style="margin-left:70px; line-height: 30px">ตามที่สถาบันวิทยาศาสตร์ทางทะเล มหาวิทยาลัยบูรพา
+                อนุมัติให้ข้าพเจ้า</span><span class="line" style="padding-left: 15px; width: 150px; display: inline-block; white-space: nowrap; overflow: visible;">
+                {{ $documents->carmanUser->name }} {{ $documents->carmanUser->lname }}</span></p>
 
-        <p><span class="section-title">ขับรถยนต์หมายเลขทะเบียน</span><span class="line"
-                style="width: 168px;"></span><span> ไปปฏิบัติงาน ณ จังหวัด</span><span class="line"
-                style="width: 132px;"></span></p>
+        <p><span class="section-title">ขับรถยนต์หมายเลขทะเบียน</span><span class="line" style="width: 168px;">
+        {{ $documents->vehicle->car_category }} {{ $documents->vehicle->car_regnumber }} {{ $documents->vehicle->car_province }}
 
-        <p><span class="section-title">โดยออกเดินทางเวลา</span><span class="line" style="width: 258px;"></span><span>
-                ผู้ร่วมเดินทางจำนวน</span><span class="line" style="width: 81px;"></span>คน</p>
+            </span><span> ไปปฏิบัติงาน ณ จังหวัด</span><span class="line" style="width: 132px;">
+                {{ $documents->province->name_th }}
+            </span></p>
+
+        <p><span class="section-title">โดยออกเดินทางเวลา</span><span class="line" style="width: 258px;">
+        {{  \Carbon\Carbon::parse($report->stime)->format('H:i') }}</span>
+
+        </span><span>ผู้ร่วมเดินทางจำนวน</span><span class="line" style="width: 81px;">{{ $report->total_companion }}</span>คน</p>
 
         <p><span class="section-title">หมายเลขกิโลเมตรก่อนเดินทาง</span><span class="line"
-                style="width: 127px;"></span><span>หมายเลขกิโลเมตรหลังเดินทาง</span><span class="line"
-                style="width: 128px;"></span></p>
+                style="width: 125px;">{{ $report->skilo_num }}</span>
+                <span>หมายเลขกิโลเมตรหลังเดินทาง</span><span class="line"
+                style="width: 125px;">{{ $report->ekilo_num }}</span></p>
 
         <p>
-            <span class="checkbox"></span>
-            <span class="section-title" style="margin-left:10px;">การปฏิบัติงานครั้งนี้เป็นไปด้วยความเรียบร้อย</span>
+            @if ( $report->performance_isgood == 'Y' )
+                <span class="checkbox2"></span>
+                <span class="section-title" style="margin-left:10px;">การปฏิบัติงานครั้งนี้เป็นไปด้วยความเรียบร้อย</span>
+            @else
+                <span class="checkbox"></span>
+                <span class="section-title" style="margin-left:10px;">การปฏิบัติงานครั้งนี้เป็นไปด้วยความเรียบร้อย</span>
+            @endif
         </p>
         <p>
-            <span class="checkbox"></span>
-            <span class="section-title" style="margin-left:10px;">อื่นๆ</span>
-            <span class="line" style="width: 518px;"></span>
+            @if ( $report->performance_isgood == 'N' )
+                <span class="checkbox2"></span>
+                <span class="section-title" style="margin-left:10px;">อื่นๆ</span>
+                <span class="line" style="width: 518px;">{{ $report->comment_issue }}</span>
+            @else
+                <span class="checkbox"></span>
+                <span class="section-title" style="margin-left:10px;">อื่นๆ</span>
+                <span class="line" style="width: 518px;"></span>
+            @endif
+            
         </p>
         <p><span class="line" style="width: 580px;margin-left:25px"></span></p>
 
-        <p><span class="section-title">โดยกลับถึงสถาบันวิทยาศาสตร์ทางทะเล เวลา </span><span class="line"
-                style="width: 100px;"></span> น. </p>
-        <p><span>ค่าใช้จ่ายรวมที่ใช้ไป</span><span class="line"style="width: 100px;"></span>บาท</p>
-        <p><span class="section-title">และข้าพเจ้าได้ทำความสะอาดรถยนต์เป็นที่เรียบร้อยแล้ว </span></p>
+        <p><span>ค่าใช้จ่ายรวมที่ใช้ไป </span><span class="line"style="width: 100px;">{{ $report->total_cost }}</span> บาท</p>
+        <p><span class="section-title">โดยกลับถึงสถาบันวิทยาศาสตร์ทางทะเล เวลา </span><span class="line" style="width: 60px; padding-left:15px">
+            {{  \Carbon\Carbon::parse($report->stime)->format('H:i') }}</span>
+            </span> น. และข้าพเจ้าได้ทำความสะอาดรถยนต์เป็นที่เรียบร้อยแล้ว
+        <span class="section-title"> </span></p>
+        
         <p><span class="section-title">เพื่อใช้สำหรับงานในวันต่อไป</span> </p>
-        <p><span class="section-title" style="margin-left:25px;">จึงเรียนมาเพื่อโปรดทราบ</span> </p>
+        <p><span class="section-title" style="margin-left:70px;">จึงเรียนมาเพื่อโปรดทราบ</span> </p>
 
         <div class="signature">
-            <p class="line" style="width: 188px;"> </p>
-            <p><span>(</span><span class="line" style="width: 188px;"></span><span>)</span></p>
-            <p style="margin-left:60px;">พนักงานขับรถ</p>
+            <p class="line" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible;"> </p>
+            <p><span>
+            ( <span class="line" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible;">
+                {{ $documents->carmanUser->name }} {{ $documents->carmanUser->lname }}
+            </span> 
+            )
+            </span>
+            <p class="line2" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible;">พนักงานขับรถ</p>  
         </div>
     </div>
+    
 </body>
 
 </html>

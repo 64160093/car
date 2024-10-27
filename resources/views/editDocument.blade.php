@@ -168,6 +168,10 @@
                                     <input type="text" name="location" class="form-control"
                                         value="{{ old('location', $document->location) }}">
                                 </td>
+                                <td><strong>{{ __('ให้รถไปรับที่') }}:</strong>
+                                    <input type="text" name="car_pickup" class="form-control"
+                                        value="{{ old('car_pickup', $document->car_pickup) }}">
+                                </td>
                                 <td><strong>{{ __('ประเภทของรถ') }}:</strong>
                                     <span>{{ old('car_type', $document->car_type) ?? 'N/A' }}</span>
                                 </td>

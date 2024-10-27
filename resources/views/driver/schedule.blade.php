@@ -4,7 +4,7 @@
 @section('content')
 
 <div class="container">
-    <h1 class="text text-center">แผนงานในการปฏิบัติหน้าที่ของคนขับรถ</h1>
+    <h1 class="text text-center mb-4">แผนงานในการปฏิบัติหน้าที่ของคนขับรถ</h1>
 
     @if (session('error'))
         <div class="alert alert-danger">
@@ -22,9 +22,10 @@
         <table class="table table-bordered text-center"> <!-- เพิ่ม text-center ที่นี่เพื่อจัดกึ่งกลางทั้งตาราง -->
             <thead>
                 <tr>
-                    <th class="text-center">วันที่</th>
+                    <th class="text-center">วันที่เดินทาง</th>
+                    <th class="text-center">วัตถุประสงค์</th>
                     <th class="text-center">เวลา</th>
-                    <th class="text-center">รายละเอียด</th>
+                    <th class="text-center">สถานะ</th>
                     <th class="text-center">รายละเอียด</th>
                     <th class="text-center">รายงาน</th>
                     <th class="text-center">ดูรายงานที่ส่งแล้ว</th>
@@ -35,15 +36,31 @@
                 @foreach($documents as $document)
                         <tr>
                             <!-- วันที่ -->
-                            <td class="align-middle">{{ \Carbon\Carbon::parse($document->start_date)->format('d F Y') }}</td>
-
+                            <td class="align-middle">
+                                {{ \Carbon\Carbon::parse($document->start_date)->format('d') }}
+                                {{ \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') }}
+                                {{ \Carbon\Carbon::parse($document->start_date)->format('Y') + 543 }}                                                    <br>
+                            </td>
+                            
+                            <!-- รายละเอียด -->
+                            <td class="align-middle">{{ $document->objective }}</td>
                             <!-- เวลา -->
+
                             <td class="align-middle">{{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} -
                                 {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }}
                             </td>
 
-                            <!-- รายละเอียด -->
-                            <td class="align-middle">{{ $document->objective }}</td>
+                            <!-- รายละเอียดเพิ่มเติม -->
+                            <td class="align-middle">
+                                @if ($document->allow_carman == 'approved')
+                                    <span class="badge bg-success">รับทราบงาน </span>
+                                @elseif ($document->allow_carman	 == 'pending')
+                                    <span class="badge bg-warning">รอดำเนินการ</span>
+                                @else
+                                    <span class="badge bg-danger">ไม่สามารถรับงานได้</span>
+                                @endif 
+                            </td>
+
 
                             <!-- รายละเอียดเพิ่มเติม -->
                             <td class="align-middle">
@@ -87,7 +104,7 @@
                                         ดู PDF
                                     </a>
                                 @else
-                                    <span class="text-muted">ยังไม่ได้สร้างรายงาน</span>
+                                    <span class="text-muted">ยังไม่ได้ส่งรายงาน</span>
                                 @endif
                             </td>
                         </tr>

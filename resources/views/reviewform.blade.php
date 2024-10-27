@@ -51,15 +51,26 @@
                                         // ดึง ID ของผู้ร่วมเดินทาง
                                         $companionIds = explode(',', $document->companion_name);
                                         // ดึงข้อมูลผู้ใช้จากฐานข้อมูลตาม ID ที่ได้
-                                        $companions = \App\Models\User::whereIn('id', $companionIds)->get(); 
+                                        $companions = \App\Models\User::whereIn('id', $companionIds)->get();
+                                        $visibleCount = 5; // จำนวนชื่อที่ต้องการแสดงเริ่มต้น
                                     @endphp
 
                                     @if($companions->isEmpty())
                                         <li>{{ __('ไม่มีผู้ร่วมเดินทาง') }}</li>
                                     @else
-                                        @foreach($companions as $companion)
-                                            <li>{{ $companion->name }} {{ $companion->lname }}</li>
+                                        @foreach($companions as $index => $companion)
+                                            <li class="{{ $index >= $visibleCount ? 'd-none extra-companions' : '' }}">
+                                                {{ $companion->name }} {{ $companion->lname }}
+                                            </li>
                                         @endforeach
+
+                                        @if($companions->count() > $visibleCount)
+                                            <li>
+                                                <a href="javascript:void(0);" id="toggle-button" onclick="toggleCompanions()">
+                                                    {{ __('ดูเพิ่มเติม') }}
+                                                </a>
+                                            </li>
+                                        @endif
                                     @endif
                                 </ul>
                             </td>
@@ -69,15 +80,16 @@
                             <td><strong>{{ __('ผู้ควบคุมรถ') }}:</strong>
                                 {{ $document->carController->name ?? 'N/A' }} {{ $document->carController->lname ?? 'N/A' }}
                             </td>
+
+                        </tr>
+                        <tr>
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
                                 {{ \Carbon\Carbon::parse($document->start_date)->format('d-m-Y') }}</td>
-                        </tr>
-                        <tr>
                             <td><strong>{{ __('วันที่กลับ') }}:</strong>
                                 {{ \Carbon\Carbon::parse($document->end_date)->format('d-m-Y') }}</td>
-                            <td><strong>{{ __('เวลาไป') }}:</strong> {{ $document->start_time }}</td>
                         </tr>
                         <tr>
+                            <td><strong>{{ __('เวลาไป') }}:</strong> {{ $document->start_time }}</td>
                             <td><strong>{{ __('เวลากลับ') }}:</strong> {{ $document->end_time }}</td>
                         </tr>
                     </table>
@@ -89,6 +101,7 @@
                     <table class="table table-borderless">
                         <tr>
                             <td><strong>{{ __('สถานที่') }}:</strong> {{ $document->location }}</td>
+                            <td><strong>{{ __('ให้รถไปรับที่ ') }}:</strong> {{ $document->car_pickup }}</td>
                             <td><strong>{{ __('รถประเภท') }}:</strong> {{ $document->car_type }}</td>
                         </tr>
                         <tr>
@@ -101,7 +114,7 @@
 
                 <!-- โครงการที่เกี่ยวข้อง -->
                 <h6 class="text-muted">{{ __('โครงการที่เกี่ยวข้อง') }}</h6>
-                <div class="mt-4 border p-3">
+                <div class="mt-2 border p-3">
                     <p class="form-control-static">
                         @if($document->related_project)
                             <a href="{{ Storage::url($document->related_project) }}" target="_blank"
@@ -122,4 +135,22 @@
         </div>
     @endif
 </div>
+<script>
+    function toggleCompanions() {
+        const extraCompanions = document.querySelectorAll('.extra-companions');
+        const toggleButton = document.getElementById('toggle-button');
+
+        extraCompanions.forEach(companion => {
+            companion.classList.toggle('d-none');
+        });
+
+        // เปลี่ยนข้อความของปุ่มตามสถานะการแสดงผล
+        if (toggleButton.innerText === 'ดูเพิ่มเติม') {
+            toggleButton.innerText = 'ดูน้อยลง';
+        } else {
+            toggleButton.innerText = 'ดูเพิ่มเติม';
+        }
+    }
+</script>
+
 @endsection

@@ -48,7 +48,7 @@ class LoginController extends Controller
 
         if(auth()->attempt(['email' => $input['email'], 'password' => $input['password']])){
             if (auth()->user()->is_admin == 1) {
-                return redirect()->route('admin.home');
+                return redirect()->route('admin.dashboard');
             } elseif (auth()->user()->role_id == 11) {
                 return redirect()->route('documents.index'); // เปลี่ยนจาก 'driver.schedule' เป็น 'documents.index'
             } else {

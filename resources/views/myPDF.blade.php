@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PDF with Thai Fonts</title>
+    <title>Document Report</title>
     <style>
         @font-face {
             font-family: 'THSarabun';
@@ -84,15 +84,25 @@
                 {{ $docUser->name }} {{ $docUser->lname }}
             @endforeach
         </span></p>
-        <p>พร้อมด้วย <span class="line" style="width: 548px;">{{ $documents->companion_name }}</span></p>
-        <p><span class="line" style="width: 605px; height: 20px; padding-left: 30px;">233</span></p>
-        <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-top: 4px;">2s</span></p>
-        <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-top: 4px;">2s</span></p>
+        <p>พร้อมด้วย 
+            <span class="line" style="width: 548px;">
+                @php
+                    $companionIds = explode(',', $documents->companion_name);
+                    $companions = \App\Models\User::whereIn('id', $companionIds)->get(); 
+                @endphp
+                    @foreach($companions as $companion)
+                        {{ $companion->name }} {{ $companion->lname }} 
+                    @endforeach
+            </span>
+        </p>
+        <p><span class="line" style="width: 605px; height: 20px; padding-left: 30px;"></span></p>
+        <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-top: 4px;"></span></p>
+        <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-top: 4px;"></span></p>
         <p >รวมทั้งสิ้น <span class="line" style="width: 70px; margin-top: 10px;" >{{ $documents->sum_companion }}</span> คน 
             ขออนุญาตใช้รถยนต์ประเภท <span class="line" style="width: 271px; line-height: ;">{{ $documents->car_type }}</span>
         </p>
         <p>มีความประสงค์ขออนุญาตใช้รถยนต์เพื่อไป <span class="line" style="width: 380px;"> {{ $documents->objective }}</span></p>
-        <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-bottom: 2px;">2s</span></p>
+        <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-bottom: 2px;"></span></p>
 
         <p style="margin-top: 4px;">ที่ <span class="line" style="width: 592px;">{{ $documents->location }}</span></p>
         <p>
@@ -156,7 +166,7 @@
             {{ $documents->carmanUser->name }} {{ $documents->carmanUser->lname }}
         </span></p>
         <p>เป็นพนักงานขับรถยนต์ และ <span class="line" style="width: 373px;">
-
+         {{ $documents->carController->name }} {{ $documents->carController->lname }}
         </span> ควบคุมรถยนต์</p>
         <p style="line-height: 1.7;">คำสั่งของผู้อำนวยการ <span class="line" style="width: 487px;"></span</p>
         <!-- <p><span class="line" style="width: 605px; line-height: 0.9; padding-left: 30px;">2s</span></p> -->

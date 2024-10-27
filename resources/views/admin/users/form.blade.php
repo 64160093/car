@@ -10,27 +10,70 @@
         <h2>รายการคำขอทั้งหมด</h2>
     @endif
 
-    <!-- ช่องค้นหาข้อมูล -->
     <div class="container-fluid mt-2">
-        <form class="d-flex" method="GET" action="{{ route('admin.users.searchform') }}">
-            <input type="search" id="searchName" name="q" class="form-control me-2" placeholder="ค้นหาข้อมูล"
-                aria-label="Search" value="{{ request()->get('q') }}">
-            <button type="submit" class="btn btn-primary">ค้นหา</button>
-            {{-- Dropdown สำหรับกรองสถานะ --}}
-            <select name="filter" id="filter" class="form-select me-2" style="max-width: 200px;"
-                onchange="this.form.submit()">
-                <option value="">ทั้งหมด</option>
-                <option value="completed" {{ request('filter') == 'completed' ? 'selected' : '' }}>สำเร็จแล้ว</option>
-                <option value="pending" {{ request('filter') == 'pending' ? 'selected' : '' }}>พิจารณา</option>
-                <option value="cancelled" {{ request('filter') == 'cancelled' ? 'selected' : '' }}>ไม่อนุมัติ/ยกเลิก
-                </option>
-            </select>
+        <form method="GET" action="{{ route('admin.users.searchform') }}">
+            <div class="d-flex align-items-center">
+                <input type="search" id="searchName" name="q" class="form-control me-2" placeholder="ค้นหาข้อมูล"
+                    aria-label="Search" value="{{ request()->get('q') }}">
+                <button type="submit" class="btn btn-primary">ค้นหา</button>
+
+                {{-- Dropdown สำหรับกรองสถานะ --}}
+
+                <select name="filter" id="filter" class="form-select me-2 ms-2" style="max-width: 200px;"
+                    onchange="this.form.submit()">
+                    <option value="">ทั้งหมด</option>
+                    <option value="completed" {{ request('filter') == 'completed' ? 'selected' : '' }}>สำเร็จแล้ว</option>
+                    <option value="pending" {{ request('filter') == 'pending' ? 'selected' : '' }}>พิจารณา</option>
+                    <option value="cancelled" {{ request('filter') == 'cancelled' ? 'selected' : '' }}>ไม่อนุมัติ/ยกเลิก
+                    </option>
+                </select>
+            </div>
+
+            <!-- ฟิลด์สำหรับกรองช่วงเดือน ปี และเวลา -->
+            <div class="row mt-3 align-items-end">
+                <div class="col-md-2">
+                    <label for="start_date">เดือนและปีเริ่มต้น</label>
+                    <input type="month" name="start_date" id="start_date" class="form-control"
+                        value="{{ request('start_date') }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="end_date">เดือนและปีสิ้นสุด</label>
+                    <input type="month" name="end_date" id="end_date" class="form-control"
+                        value="{{ request('end_date') }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="start_time">เวลาเริ่มต้น</label>
+                    <select name="start_time" id="start_time" class="form-control">
+                        <option value="">เลือกเวลา</option>
+                        @for ($i = 0; $i < 24; $i++)
+                            <option value="{{ sprintf('%02d:00', $i) }}" {{ request('start_time') == sprintf('%02d:00', $i) ? 'selected' : '' }}>
+                                {{ sprintf('%02d:00', $i) }} น.
+                            </option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="end_time">เวลาสิ้นสุด</label>
+                    <select name="end_time" id="end_time" class="form-control">
+                        <option value="">เลือกเวลา</option>
+                        @for ($i = 0; $i < 24; $i++)
+                            <option value="{{ sprintf('%02d:00', $i) }}" {{ request('end_time') == sprintf('%02d:00', $i) ? 'selected' : '' }}>
+                                {{ sprintf('%02d:00', $i) }} น.
+                            </option>
+                        @endfor
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end"> <!-- ใช้ d-flex และ align-items-end -->
+                    <button type="submit" class="btn btn-primary" style="font-size: 0.9em;">กรองตามช่วงเวลา</button>
+                </div>
+            </div>
+
         </form>
     </div>
 
     <!-- ตารางแสดงข้อมูลเอกสาร -->
     @if($documents->isEmpty())
-        <div class="alert alert-info">
+        <div class="alert alert-info mt-4">
             {{ __('ไม่มีฟอร์มสำหรับการตรวจสอบ') }}
         </div>
     @else
@@ -101,7 +144,7 @@
                                                 </td>
                                                 <td>
                                                     @if ($document->allow_director != 'pending')
-                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}"
+                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }} "
                                                             class="btn btn-outline-primary"> PDF
                                                         </a>
                                                     @else
@@ -116,4 +159,72 @@
         </div>
     @endif
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+
+        // ฟังก์ชันสำหรับการปรับปรุงค่าเดือนสิ้นสุด
+        function updateEndDateOptions() {
+            const startDateValue = startDateInput.value;
+            const currentEndDateValue = endDateInput.value; // เก็บค่าเดิมก่อน
+
+            if (startDateValue) {
+                const [year, month] = startDateValue.split('-').map(Number);
+                const startMonth = month;
+                const startYear = year;
+
+                // กำหนดค่าที่เป็นไปได้สำหรับเดือนสิ้นสุด
+                endDateInput.innerHTML = ''; // ล้างตัวเลือกเดิม
+
+                // สร้างตัวเลือกเดือนสิ้นสุดที่เหมาะสม
+                for (let i = 0; i < 12; i++) {
+                    const currentMonth = (startMonth + i) % 12 || 12; // เลขเดือน
+                    const currentYear = startYear + Math.floor((startMonth + i - 1) / 12); // ปี
+
+                    // ถ้าเดือนและปีของ currentMonth เกินกว่า startMonth และ startYear
+                    if (currentYear > startYear || (currentYear === startYear && currentMonth >= startMonth)) {
+                        const optionValue = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
+                        const option = document.createElement('option');
+                        option.value = optionValue;
+                        option.text = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
+                        endDateInput.appendChild(option);
+                    }
+                }
+
+                // ตั้งค่าค่าต่ำสุดสำหรับเดือนและปีสิ้นสุด
+                endDateInput.setAttribute('min', startDateValue);
+
+                // ตรวจสอบค่าเดิมและตั้งค่าใหม่ถ้ายังคงเป็นค่าที่ถูกต้อง
+                if (currentEndDateValue && currentEndDateValue >= startDateValue) {
+                    endDateInput.value = currentEndDateValue; // ตั้งค่าคงเดิม
+                } else {
+                    endDateInput.value = ''; // หากไม่ถูกต้องให้รีเซ็ต
+                }
+            } else {
+                // หากไม่มีค่าในฟิลด์เริ่มต้น ให้ล้างค่าฟิลด์สิ้นสุด
+                endDateInput.value = '';
+                endDateInput.innerHTML = '<option value="">เลือกเดือน</option>'; // ล้างตัวเลือก
+                endDateInput.removeAttribute('min');
+            }
+        }
+
+        startDateInput.addEventListener('change', function () {
+            updateEndDateOptions();
+        });
+
+        endDateInput.addEventListener('change', function () {
+            const startDateValue = startDateInput.value;
+            if (this.value < startDateValue) {
+                alert('ไม่สามารถเลือกเดือนและปีสิ้นสุดที่ต่ำกว่าหรือเก่ากว่าเดือนและปีเริ่มต้นได้');
+                this.value = ''; // รีเซ็ตค่าเดือนสิ้นสุด
+            }
+        });
+
+        // อัปเดตค่าเดือนและปีสิ้นสุดเมื่อโหลดหน้า
+        updateEndDateOptions();
+    });
+</script>
+
 @endsection

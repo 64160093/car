@@ -333,7 +333,6 @@ class DocumentController extends Controller
         return view('editDocument', compact('document', 'companions', 'provinces', 'amphoe', 'district', 'users', 'user'));
     }
 
-
     public function update(Request $request, $id)
     {
         // Validation rule
@@ -349,6 +348,8 @@ class DocumentController extends Controller
             'provinces_id' => 'required|integer',
             'amphoe_id' => 'required|integer',
             'district_id' => 'required|integer',
+            'car_pickup' => 'required|string|max:255',
+
         ]);
 
         // ค้นหาเอกสาร
@@ -363,6 +364,7 @@ class DocumentController extends Controller
         $document->end_time = $request->input('end_time');
         $document->location = $request->input('location');
         $document->car_type = $request->input('car_type');
+        $document->car_pickup = $request->input('car_pickup');
 
         // อัพเดตข้อมูลจังหวัด อำเภอ และตำบล
         $document->provinces_id = $request->input('provinces_id');
@@ -374,6 +376,50 @@ class DocumentController extends Controller
 
         return redirect()->route('documents.history')->with('success', 'บันทึกการแก้ไขสำเร็จ');
     }
+
+
+    /**
+     * Cancel Document
+     *
+     * 
+     */
+    // public function cancel($id)
+    // {
+    //     $document = ReqDocument::findOrFail($id);
+
+    //     if ($document->cancel_allowed == 'pending') {
+    //         $document->cancel_allowed = 'rejected';
+    //         $document->save();
+
+    //         return redirect()->route('documents.history')->with('success', 'ยกเลิกคำขอสำเร็จ');
+    //     }
+
+    //     return redirect()->route('documents.history')->with('error', 'ไม่สามารถยกเลิกคำขอนี้ได้');
+    // }
+
+    // ใน DocumentController.php
+// ใน DocumentController.php
+    public function cancel(Request $request, $id)
+    {
+        // ตรวจสอบข้อมูลที่ส่งมา
+        $request->validate([
+            'cancel_reason' => 'required|string|max:255',
+        ]);
+
+        $document = ReqDocument::findOrFail($id);
+
+        if ($document->cancel_allowed == 'pending') {
+            $document->cancel_allowed = 'rejected';
+            $document->cancel_reason = $request->cancel_reason; // บันทึกเหตุผลการยกเลิก
+            $document->save();
+
+            return redirect()->route('documents.history')->with('success', 'ยกเลิกคำขอสำเร็จ');
+        }
+
+        return redirect()->route('documents.history')->with('error', 'ไม่สามารถยกเลิกคำขอนี้ได้');
+    }
+
+
     public function getAmphoes($province_id)
     {
         // ตรวจสอบว่ามี province_id ที่ต้องการหรือไม่
@@ -387,5 +433,70 @@ class DocumentController extends Controller
         $districts = District::where('amphoe_id', $amphoe_id)->get();
         return response()->json(['districts' => $districts]);
     }
+
+    public function search(Request $request)
+    {
+        // ตรวจสอบว่ามีค่าการค้นหาหรือไม่
+        $query = $request->input('q'); // เปลี่ยนเป็น 'q' ตามที่ใช้ในฟอร์ม
+        $filter = $request->input('filter'); // กรองสถานะ
+
+        // เริ่มต้นการค้นหาเอกสาร
+        $documents = ReqDocument::query();
+
+        // ค้นหาเอกสารตามวัตถุประสงค์
+        if ($query) {
+            $documents->where('objective', 'like', '%' . $query . '%');
+        }
+
+        // กรองตามสถานะ
+        if ($filter) {
+            switch ($filter) {
+                case 'completed':
+                    $documents->where(function ($subQuery) {
+                        $subQuery->where('allow_division', 'approved')
+                            ->where('allow_opcar', 'approved')
+                            ->where('allow_officer', 'approved')
+                            ->where('allow_director', 'approved');
+                    })
+                        ->orWhereNull('allow_department');
+                    break;
+
+                case 'pending':
+                    $documents->where(function ($subQuery) {
+                        $subQuery->where('allow_division', 'pending')
+                            ->orWhere('allow_opcar', 'pending')
+                            ->orWhere('allow_officer', 'pending')
+                            ->orWhere('allow_director', 'pending');
+                    })
+                        ->where(function ($subQuery) {
+                            $subQuery->where('allow_department', '!=', 'rejected')
+                                ->where('allow_division', '!=', 'rejected')
+                                ->where('allow_opcar', '!=', 'rejected')
+                                ->where('allow_officer', '!=', 'rejected')
+                                ->where('allow_director', '!=', 'rejected')
+                                ->where('cancel_allowed', '!=', 'rejected');
+                        });
+                    break;
+
+                case 'cancelled':
+                    $documents->where(function ($subQuery) {
+                        $subQuery->where('allow_department', 'rejected')
+                            ->orWhere('allow_division', 'rejected')
+                            ->orWhere('allow_opcar', 'rejected')
+                            ->orWhere('allow_officer', 'rejected')
+                            ->orWhere('allow_director', 'rejected')
+                            ->orWhere('cancel_allowed', 'rejected');
+                    })
+                        ->whereNotNull('allow_department');
+                    break;
+            }
+        }
+
+        // สั่งเรียงตามวันที่สร้างล่าสุด
+        $documents = $documents->orderBy('created_at', 'desc')->get();
+
+        return view('document-history', compact('documents'));
+    }
+
 
 }

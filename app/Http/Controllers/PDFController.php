@@ -49,7 +49,7 @@ class PDFController extends Controller
         $report = ReportFormance::with(['vehicle', 'province', 'carmanUser']) // ปรับให้เข้ากับโครงสร้างโมเดลของคุณ
             ->findOrFail($id);
 
-        $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle', 'carmanUser', 'DivisionAllowBy'])
+        $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle','carmanUser','DivisionAllowBy'])
             ->findOrFail($report->req_document_id); // ใช้ req_document_id จาก $report
 
         $data = [

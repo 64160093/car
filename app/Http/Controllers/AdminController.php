@@ -218,28 +218,25 @@ class AdminController extends Controller
 
     public function searchForm(Request $request)
     {
-        // ดึงข้อมูลการค้นหาจาก input
         $q = $request->input('q');
-        $filter = $request->input('filter'); // รับค่าการกรองสถานะจาก request
+        $filter = $request->input('filter');
+        $startDate = $request->input('start_date'); // yyyy-mm format
+        $endDate = $request->input('end_date'); // yyyy-mm format
+        $startTime = $request->input('start_time');
+        $endTime = $request->input('end_time');
 
-        // เขียน Query เริ่มต้น
         $query = ReqDocument::join('req_document_user', 'req_document.document_id', '=', 'req_document_user.req_document_id')
             ->join('users', 'req_document_user.user_id', '=', 'users.id')
             ->select('req_document.*', 'users.name', 'users.lname')
-            ->orderBy('req_document.created_at', 'desc'); // จัดเรียงตามวันที่สร้าง (ล่าสุดขึ้นก่อน)
+            ->orderBy('req_document.created_at', 'desc');
 
-        // ตรวจสอบว่ามีการค้นหาหรือไม่
         if (!empty($q)) {
-            // ถ้ามีการค้นหาให้ทำการกรองข้อมูล
             $keywords = explode(' ', $q);
-
             $query->where(function ($subQuery) use ($keywords) {
                 if (count($keywords) == 2) {
-                    // กรณีที่กรอกชื่อและนามสกุล
                     $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
                         ->where('req_document_user.lname', 'LIKE', '%' . $keywords[1] . '%');
                 } else {
-                    // กรณีกรอกชื่อหรือคำนามเดียว
                     $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
                         ->orWhere('req_document_user.lname', 'LIKE', '%' . $keywords[0] . '%')
                         ->orWhere('req_document.objective', 'LIKE', '%' . $keywords[0] . '%');
@@ -247,62 +244,68 @@ class AdminController extends Controller
             });
         }
 
-        // เพิ่มการกรองสถานะถ้ามีการเลือก
+        // กรองตามช่วงเดือน
+        if ($startDate && $endDate) {
+            $startDateTime = \Carbon\Carbon::createFromFormat('Y-m', $startDate)->startOfMonth();
+            $endDateTime = \Carbon\Carbon::createFromFormat('Y-m', $endDate)->endOfMonth();
+
+            $query->whereBetween('req_document.start_date', [$startDateTime, $endDateTime]);
+        }
+
+        // กรองตามช่วงเวลา
+        if ($startTime) {
+            $query->whereTime('req_document.start_time', '>=', $startTime);
+        }
+        if ($endTime) {
+            $query->whereTime('req_document.end_time', '<=', $endTime);
+        }
+
+        // การกรองสถานะ
         if ($filter) {
             switch ($filter) {
                 case 'completed':
-                    // กรองกรณีที่ approved ทั้งหมด ยกเว้น allow_department
                     $query->where(function ($subQuery) {
                         $subQuery->where('req_document.allow_division', 'approved')
                             ->where('req_document.allow_opcar', 'approved')
                             ->where('req_document.allow_officer', 'approved')
                             ->where('req_document.allow_director', 'approved');
                     });
-
-                    // หรือ allow_department อาจจะไม่ถูกกำหนด (null)
                     $query->orWhereNull('req_document.allow_department');
                     break;
 
                 case 'pending':
-                    // กรองเฉพาะเอกสารที่มีสถานะ pending และไม่รวมที่มี rejected
                     $query->where(function ($subQuery) {
                         $subQuery->where('req_document.allow_division', 'pending')
                             ->orWhere('req_document.allow_opcar', 'pending')
                             ->orWhere('req_document.allow_officer', 'pending')
                             ->orWhere('req_document.allow_director', 'pending');
                     });
-
-                    // กรองออกเอกสารที่มีสถานะ rejected ในทุกฟิลด์
                     $query->where(function ($subQuery) {
                         $subQuery->where('req_document.allow_department', '!=', 'rejected')
                             ->where('req_document.allow_division', '!=', 'rejected')
                             ->where('req_document.allow_opcar', '!=', 'rejected')
                             ->where('req_document.allow_officer', '!=', 'rejected')
-                            ->where('req_document.allow_director', '!=', 'rejected');
+                            ->where('req_document.allow_director', '!=', 'rejected')
+                            ->Where('req_document.cancel_allowed', '!=', 'rejected');
                     });
                     break;
 
                 case 'cancelled':
-                    // ตรวจสอบสถานะให้รวมถึง rejected
                     $query->where(function ($subQuery) {
                         $subQuery->where('req_document.allow_department', 'rejected')
                             ->orWhere('req_document.allow_division', 'rejected')
                             ->orWhere('req_document.allow_opcar', 'rejected')
                             ->orWhere('req_document.allow_officer', 'rejected')
-                            ->orWhere('req_document.allow_director', 'rejected');
+                            ->orWhere('req_document.allow_director', 'rejected')
+                            ->orWhere('req_document.cancel_allowed', 'rejected');
                     });
-                    // ข้าม allow_department หาก allow_department เป็น null
                     $query->whereNotNull('req_document.allow_department');
                     break;
             }
         }
 
-        // ดึงข้อมูลเอกสารและแบ่งหน้า
         $documents = $query->paginate(10);
-
-        // ส่งข้อมูลไปยัง view
         return view('admin.users.form', compact('documents'));
     }
-
 
 }

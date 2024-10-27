@@ -5,6 +5,8 @@
 <title>Home</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/th.js"></script>
 @endsection
 
 @section('content')
@@ -15,20 +17,18 @@
         </div>
     @endif
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-6 justify-content-start">
-            <a href="{{ route('reqdocument.create') }}" class="btn btn-primary">{{ __('Add Event') }}</a>
-
+            <a href="{{ route('reqdocument.create') }}" class="btn btn-primary">{{ __('ขออนุญาตใช้พาหนะ') }}</a>
         </div>
         <div class="col-md-6 d-flex justify-content-end">
-            <button id="exportButton" class="btn btn-success">{{ __('Export Calendar') }}</button>
+            <button id="exportButton" class="btn btn-success">{{ __('ส่งออกเอกสาร') }}</button>
         </div>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <div id="calendar" style="width: 100%;height:100vh"></div>
-
+            <div id="calendar" style="width: 97%; height: 97vh; margin: 0 auto;"></div>
         </div>
     </div>
 </div>
@@ -44,7 +44,6 @@
     });
 
     var calendarEl = document.getElementById('calendar');
-    var events = [];
     var calendar = new FullCalendar.Calendar(calendarEl, {
         headerToolbar: {
             left: 'prev,next today',
@@ -52,96 +51,23 @@
             right: 'dayGridMonth,listMonth'
         },
         initialView: 'dayGridMonth',
-        timeZone: 'Asia/Bangkok', editable: true,
+        timeZone: 'Asia/Bangkok', 
+        locale: 'th', // ตั้งค่าภาษาเป็นไทย
+        editable: true,
 
-        events: [
-            {
-                id: '1',
-                title: 'Meeting with Team',
-                start: '2024-08-15T10:00:00',
-                end: '2024-08-15T11:00:00',
-                backgroundColor: '#f39c12', // สีพื้นหลัง
-                borderColor: '#f39c12' // สีขอบ
-            },
-            {
-                id: '2',
-                title: 'Project Deadline',
-                start: '2024-08-20',
-                backgroundColor: '#e74c3c',
-                borderColor: '#e74c3c'
-            },
-            {
-                id: '3',
-                title: 'Workshop',
-                start: '2024-08-25T09:00:00',
-                end: '2024-08-25T12:00:00',
-                backgroundColor: '#3498db',
-                borderColor: '#3498db'
-            },
-            {
-                id: '4',
-                title: 'Company Event',
-                start: '2024-08-30',
-                backgroundColor: '#2ecc71',
-                borderColor: '#2ecc71'
-            }
-        ],
+        events: '/events', // ดึงข้อมูล events จาก Controller
 
-        // Deleting The Event
-        // eventContent: function (info) {
-        //     var eventTitle = info.event.title;
-        //     var eventElement = document.createElement('div');
-        //     eventElement.innerHTML = '<span style="cursor: pointer;">❌</span> ' + eventTitle;
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // false สำหรับเวลาแบบ 24 ชั่วโมง
+        },
 
-        //     eventElement.querySelector('span').addEventListener('click', function () {
-        //         if (confirm("Are you sure you want to delete this event?")) {
-        //             var eventId = info.event.id;
-        //             $.ajax({
-        //                 method: 'get',
-        //                 url: '/schedule/delete/' + eventId,
-        //                 headers: {
-        //                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        //                 },
-        //                 success: function (response) {
-        //                     console.log('Event deleted successfully.');
-        //                     calendar.refetchEvents(); // Refresh events after deletion
-        //                 },
-        //                 error: function (error) {
-        //                     console.error('Error deleting event:', error);
-        //                 }
-        //             });
-        //         }
-        //     });
-        //     return {
-        //         domNodes: [eventElement]
-        //     };
-        // },
-
-        // Drag And Drop
-
-        // eventDrop: function (info) {
-        //     var eventId = info.event.id;
-        //     var newStartDate = info.event.start;
-        //     var newEndDate = info.event.end || newStartDate;
-        //     var newStartDateUTC = newStartDate.toISOString().slice(0, 10);
-        //     var newEndDateUTC = newEndDate.toISOString().slice(0, 10);
-
-        //     $.ajax({
-        //         method: 'post',
-        //         url: `/schedule/${eventId}`,
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             start_date: newStartDateUTC,
-        //             end_date: newEndDateUTC,
-        //         },
-        //         success: function () {
-        //             console.log('Event moved successfully.');
-        //         },
-        //         error: function (error) {
-        //             console.error('Error moving event:', error);
-        //         }
-        //     });
-        // },
+        // Event Resizing
+        eventDrop: function(info) {
+            info.revert();
+            alert('You cannot move events to another day.');
+        },
 
         // Event Resizing
         eventResize: function (info) {
@@ -170,8 +96,8 @@
 
     calendar.render();
 
-    // Exporting Function
-    document.getElementById('exportButton').addEventListener('click', function () {
+    // ฟังก์ชันเพื่อส่งออกข้อมูล
+    function exportEvents() {
         var events = calendar.getEvents().map(function (event) {
             return {
                 title: event.title,
@@ -182,9 +108,7 @@
         });
 
         var wb = XLSX.utils.book_new();
-
         var ws = XLSX.utils.json_to_sheet(events);
-
         XLSX.utils.book_append_sheet(wb, ws, 'Events');
 
         var arrayBuffer = XLSX.write(wb, {
@@ -200,6 +124,10 @@
         downloadLink.href = URL.createObjectURL(blob);
         downloadLink.download = 'events.xlsx';
         downloadLink.click();
-    })
+    }
+
+    // ฟังก์ชันที่ใช้เมื่อกดปุ่มส่งออก
+    document.getElementById('exportButton').addEventListener('click', exportEvents);
 </script>
+
 @endsection

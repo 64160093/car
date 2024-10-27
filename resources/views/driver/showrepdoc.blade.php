@@ -67,17 +67,17 @@
             <div class="mb-3 border p-3">
                 <ul class="list-group list-group-numbered">
                     @if(isset($report->gasoline_cost))
-                        <li class="list-group-item disabled"><strong>{{ __('ค่าที่พัก:') }}</strong>
+                        <li class="list-group-item disabled"><strong>{{ __('ค่าเชื้อเพลิง:') }}</strong>
                             {{ number_format($report->gasoline_cost, 2) . ' บาท' }}</li>
                     @endif
 
                     @if(isset($report->expressway_toll))
-                        <li class="list-group-item disabled"><strong>{{ __('ค่าอาหาร:') }}</strong>
+                        <li class="list-group-item disabled"><strong>{{ __('ค่าทางด่วน:') }}</strong>
                             {{ number_format($report->expressway_toll, 2) . ' บาท' }}</li>
                     @endif
 
                     @if(isset($report->parking_fee))
-                        <li class="list-group-item disabled"><strong>{{ __('ค่าเชื้อเพลิง:') }}</strong>
+                        <li class="list-group-item disabled"><strong>{{ __('ค่าที่จอดรถ:') }}</strong>
                             {{ number_format($report->parking_fee, 2) . ' บาท' }}</li>
                     @endif
 

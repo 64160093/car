@@ -16,9 +16,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReqDocumentController;
 use App\Http\Controllers\DocumentController;
-// use App\Http\Controllers\DriverScheduleController;
 use App\Http\Controllers\ReportDocumentController;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\DashboardController;
 
 
 
@@ -26,6 +26,8 @@ use App\Http\Controllers\PDFController;
 Route::get('/', function () {
     return view('welcome');
 })->name(name: 'welcome');
+
+Route::get('/events', [ReqDocumentController::class, 'getEvents'])->name('events');
 
 // เส้นทางสำหรับการยืนยันตัวตน
 Auth::routes();
@@ -37,7 +39,8 @@ Route::get('/home', [HomeController::class, 'index'])
 
 
 // เส้นทางสำหรับหน้าแรกของผู้ดูแลระบบ
-Route::get('/admin/home', [HomeController::class, 'adminHome'])->name('admin.home')
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->name('admin.dashboard')
     ->middleware(IsAdmin::class);
 
 // แก้ไขโปรไฟล์
@@ -61,28 +64,28 @@ Route::get('/get-districts/{amphoeId}', [ReqDocumentController::class, 'getDistr
 
 
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Auth;
+// use Illuminate\Support\Facades\Storage;
+// use Illuminate\Support\Facades\Response;
+// use Illuminate\Support\Facades\Auth;
 
-Route::get('/signatures/{filename}', function ($filename) {
-    $path = 'signatures/' . $filename;
+// Route::get('/signatures/{filename}', function ($filename) {
+//     $path = 'signatures/' . $filename;
 
-    // ตรวจสอบว่ามีไฟล์อยู่ในระบบหรือไม่
-    if (!Storage::exists($path)) {
-        abort(404);
-    }
+//     // ตรวจสอบว่ามีไฟล์อยู่ในระบบหรือไม่
+//     if (!Storage::exists($path)) {
+//         abort(404);
+//     }
 
-    $userId = Auth::id();    // ดึง ID ของผู้ใช้ที่เข้าสู่ระบบ
+//     $userId = Auth::id();    // ดึง ID ของผู้ใช้ที่เข้าสู่ระบบ
 
-    // ตรวจสอบว่า ID ของผู้ใช้ตรงกับ ID ที่อยู่ในชื่อไฟล์หรือไม่
-    if (strpos($filename, $userId . '_signature') !== 0) {
-        abort(403); // ห้ามเข้าถึงหาก ID ไม่ตรงกัน
-    }
+//     // ตรวจสอบว่า ID ของผู้ใช้ตรงกับ ID ที่อยู่ในชื่อไฟล์หรือไม่
+//     if (strpos($filename, $userId . '_signature') !== 0) {
+//         abort(403); // ห้ามเข้าถึงหาก ID ไม่ตรงกัน
+//     }
 
-    // ส่งไฟล์กลับไปยังผู้ใช้
-    return Response::file(storage_path('app/' . $path));
-})->middleware('auth');
+//     // ส่งไฟล์กลับไปยังผู้ใช้
+//     return Response::file(storage_path('app/' . $path));
+// })->middleware('auth');
 
 
 
@@ -103,8 +106,11 @@ Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->n
 
 //แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
 Route::get('/document-history', [DocumentController::class, 'index'])->name('documents.history');
+Route::get('/documents/search', [DocumentController::class, 'search'])->name('documents.search');
+
+
 Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
-Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('documents.status');
+Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('documents.status')->middleware('auth');
 
 //รายการคำขอที่รอนุมัติ อนุมัติคำร้อง
 Route::get('/permission-form', [DocumentController::class, 'permission'])->name('documents.index');
@@ -116,18 +122,17 @@ Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('rep
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
-
-
-
+//PDF
 Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
 Route::get('/report/showRepDoc/pdf', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
 
 
 
-// หน้าแสดงรายการเอกสาร
-
-// หน้าแก้ไขเอกสาร
+//แก้ไขเอกสาร
 Route::get('/documents/edit', [DocumentController::class, 'edit'])->name('documents.edit');
-
-// การอัพเดตเอกสาร
 Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('documents.update.edit');
+
+//ยกเลิกเอกสาร
+Route::post('/documents/cancel/{id}', [DocumentController::class, 'cancel'])->name('documents.cancel');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

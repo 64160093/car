@@ -191,7 +191,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="gasoline_cost_checkbox" name="expenses[]"
                             value="gasoline_cost" onchange="toggleInput('gasoline_cost_input', this)" {{ (in_array('gasoline_cost', old('expenses', []))) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="gasoline_cost_checkbox">ค่าที่พัก</label>
+                        <label class="form-check-label" for="gasoline_cost_checkbox">ค่าเชื้อเพลิง</label>
                         <input type="text" class="form-control mt-2 d-none" id="gasoline_cost_input"
                             name="gasoline_cost" placeholder="จำนวนเงิน" value="{{ old('gasoline_cost') }}"
                             oninput="formatAndCalculate(this);" onkeypress="return isNumberKey(event)">
@@ -200,7 +200,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="expressway_toll_checkbox" name="expenses[]"
                             value="expressway_toll" onchange="toggleInput('expressway_toll_input', this)" {{ (in_array('expressway_toll', old('expenses', []))) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="expressway_toll_checkbox">ค่าอาหาร</label>
+                        <label class="form-check-label" for="expressway_toll_checkbox">ค่าทางด่วน</label>
                         <input type="text" class="form-control mt-2 d-none" id="expressway_toll_input"
                             name="expressway_toll" placeholder="จำนวนเงิน" value="{{ old('expressway_toll') }}"
                             oninput="formatAndCalculate(this);" onkeypress="return isNumberKey(event)">
@@ -209,7 +209,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="parking_fee_checkbox" name="expenses[]"
                             value="parking_fee" onchange="toggleInput('parking_fee_input', this)" {{ (in_array('parking_fee', old('expenses', []))) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="parking_fee_checkbox">ค่าเชื้อเพลิง</label>
+                        <label class="form-check-label" for="parking_fee_checkbox">ค่าที่จอดรถ</label>
                         <input type="text" class="form-control mt-2 d-none" id="parking_fee_input" name="parking_fee"
                             placeholder="จำนวนเงิน" value="{{ old('parking_fee') }}" oninput="formatAndCalculate(this);"
                             onkeypress="return isNumberKey(event)">

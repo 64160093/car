@@ -33,6 +33,8 @@ class ReqDocument extends Model
         'car_id',
         'carman',
         'car_controller',
+        'cancel_allowed',
+        'cancel_reason',
 
     ];
 

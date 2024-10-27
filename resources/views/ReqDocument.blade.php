@@ -194,13 +194,6 @@
                                 </span>
                             @enderror
                         </div>
-                        <!-- <div class="mb-4">
-                            <label for="booking-date" class="form-label">เลือกวันที่</label>
-                            <input type="date" id="booking-date" class="form-control" 
-                            onchange="updateBookings()" 
-                            min="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" 
-                            max="{{ \Carbon\Carbon::now()->addDays(7)->format('Y-m-d') }}">
-                         </div> -->
                     </div>
 
                     <div class="col-md-6">

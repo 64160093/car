@@ -39,7 +39,7 @@
                             @if (Route::has('login'))
                                 <li class="nav-item">
                                     <a class="nav-link btn btn-outline-primary me-2"
-                                        href="{{ route('login') }}">{{ __('Login') }}</a>
+                                        href="{{ route('login') }}">{{ __('เข้าสู่ระบบ') }}</a>
                                 </li>
                             @endif
                         @else
@@ -85,7 +85,7 @@
                     @auth
                         <!-- navdar admin -->
                         @if (auth()->user()->is_admin == 1)
-                            <li class="sidebar-item"><a href="{{ route('admin.home') }}" class="sidebar-link"><i
+                            <li class="sidebar-item"><a href="{{ route('admin.dashboard') }}" class="sidebar-link"><i
                                         class="lni lni-home"></i><span>{{ __('หน้าหลัก') }}</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('admin.users') }}" class="sidebar-link"><i
                                         class="lni lni-users"></i><span>{{ __('จัดการข้อมูลผู้ใช้') }}</span></a></li>

@@ -63,6 +63,25 @@ class ReqDocumentController extends Controller
         ]);
         $companions = explode(',', $request->input('companions_hidden'));
     
+
+
+        // ตรวจสอบการจองทับซ้อน
+        $existingBooking = ReqDocument::where(function ($query) use ($request) {
+            $query->where('car_id', $request->input('car_id'))
+                ->where(function ($query) use ($request) {
+                    $query->whereBetween('start_date', [$request->start_date, $request->end_date])
+                            ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                            ->orWhereRaw('? BETWEEN start_date AND end_date', [$request->start_date])
+                            ->orWhereRaw('? BETWEEN start_date AND end_date', [$request->end_date]);
+                });
+            })->exists();
+
+        if ($existingBooking) {
+            return back()->withErrors(['start_date' => 'วันเวลาที่คุณเลือกถูกจองไปแล้ว'])->withInput();
+        }   
+
+
+
         // จัดการการอัปโหลดไฟล์
         $filePath = null;
         if ($request->hasFile('related_project')) {
@@ -122,7 +141,7 @@ class ReqDocumentController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['getEvents']);
     }
 
     public function getAmphoes($provinceId)
@@ -136,5 +155,30 @@ class ReqDocumentController extends Controller
         $districts = District::where('amphoe_id', $amphoeId)->get(['district_id as id', 'name_th as name']);
         return response()->json($districts);
     }
+
+
+
+public function getEvents()
+{
+    // ดึงข้อมูลจากฐานข้อมูล ReqDocument
+    $documents = ReqDocument::select('document_id', 'objective', 'start_date', 'end_date', 'start_time', 'end_time')
+        ->get()
+        ->map(function ($document) {
+            return [
+                'id' => $document->document_id,
+                'title' => $document->objective,
+                'start' => $document->start_date . 'T' . $document->start_time, // รวมวันที่และเวลาเริ่ม
+                'end' => $document->end_date . 'T' . $document->end_time,       // รวมวันที่และเวลาสิ้นสุด
+                'backgroundColor' => '#3498db', // คุณสามารถปรับสีได้ตามต้องการ
+                // 'borderColor' => '#000'
+            ];
+        });
+
+    // ส่งข้อมูลในรูปแบบ JSON ให้กับ FullCalendar
+    return response()->json($documents);
+    // return view('welcome');
+}
+
+
 
 }
