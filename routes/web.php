@@ -37,10 +37,13 @@ Route::get('/home', [HomeController::class, 'index'])
     ->name('home')
     ->middleware(IsUsers::class);
 
-
 // เส้นทางสำหรับหน้าแรกของผู้ดูแลระบบ
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-    ->name('admin.dashboard')
+->name('admin.dashboard')
+->middleware(IsAdmin::class);
+
+// เส้นทางสำหรับหน้าแรกของผู้ดูแลระบบ
+Route::get('/admin/home', [AdminController::class, 'dashBoard'])->name('admin.home')
     ->middleware(IsAdmin::class);
 
 // แก้ไขโปรไฟล์
@@ -64,28 +67,28 @@ Route::get('/get-districts/{amphoeId}', [ReqDocumentController::class, 'getDistr
 
 
 
-// use Illuminate\Support\Facades\Storage;
-// use Illuminate\Support\Facades\Response;
-// use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Auth;
 
-// Route::get('/signatures/{filename}', function ($filename) {
-//     $path = 'signatures/' . $filename;
+Route::get('/signatures/{filename}', function ($filename) {
+    $path = 'signatures/' . $filename;
 
-//     // ตรวจสอบว่ามีไฟล์อยู่ในระบบหรือไม่
-//     if (!Storage::exists($path)) {
-//         abort(404);
-//     }
+    // ตรวจสอบว่ามีไฟล์อยู่ในระบบหรือไม่
+    if (!Storage::exists($path)) {
+        abort(404);
+    }
 
-//     $userId = Auth::id();    // ดึง ID ของผู้ใช้ที่เข้าสู่ระบบ
+    $userId = Auth::id();    // ดึง ID ของผู้ใช้ที่เข้าสู่ระบบ
 
-//     // ตรวจสอบว่า ID ของผู้ใช้ตรงกับ ID ที่อยู่ในชื่อไฟล์หรือไม่
-//     if (strpos($filename, $userId . '_signature') !== 0) {
-//         abort(403); // ห้ามเข้าถึงหาก ID ไม่ตรงกัน
-//     }
+    // ตรวจสอบว่า ID ของผู้ใช้ตรงกับ ID ที่อยู่ในชื่อไฟล์หรือไม่
+    if (strpos($filename, $userId . '_signature') !== 0) {
+        abort(403); // ห้ามเข้าถึงหาก ID ไม่ตรงกัน
+    }
 
-//     // ส่งไฟล์กลับไปยังผู้ใช้
-//     return Response::file(storage_path('app/' . $path));
-// })->middleware('auth');
+    // ส่งไฟล์กลับไปยังผู้ใช้
+    return Response::file(storage_path('app/' . $path));
+})->middleware('auth');
 
 
 
@@ -100,14 +103,13 @@ Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name
     ->middleware(IsAdmin::class);
 Route::get('/admin/users/form', [AdminController::class, 'showform'])->name('admin.users.form')
     ->middleware(IsAdmin::class);
-
-Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
+    
+    Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
 
 
 //แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
 Route::get('/document-history', [DocumentController::class, 'index'])->name('documents.history');
 Route::get('/documents/search', [DocumentController::class, 'search'])->name('documents.search');
-
 
 Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
 Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('documents.status')->middleware('auth');
@@ -122,7 +124,7 @@ Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('rep
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
-//PDF
+ //PDF
 Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
 Route::get('/report/showRepDoc/pdf', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
 
@@ -134,4 +136,5 @@ Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('docu
 
 //ยกเลิกเอกสาร
 Route::post('/documents/cancel/{id}', [DocumentController::class, 'cancel'])->name('documents.cancel');
-
+Route::post('/documents/{id}/confirm-cancel', [DocumentController::class, 'confirmCancel'])->name('documents.confirmCancel');
+Route::post('/documents/{id}/confirm-director-cancel', [DocumentController::class, 'confirmDirectorCancel'])->name('documents.confirmDirectorCancel');

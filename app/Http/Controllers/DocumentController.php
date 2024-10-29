@@ -59,7 +59,7 @@ class DocumentController extends Controller
         return view('reviewstatus', compact('document'));
     }
 
-
+    
 
     /**
      *
@@ -378,39 +378,22 @@ class DocumentController extends Controller
     }
 
 
-    /**
+        /**
      * Cancel Document
      *
      * 
      */
-    // public function cancel($id)
-    // {
-    //     $document = ReqDocument::findOrFail($id);
-
-    //     if ($document->cancel_allowed == 'pending') {
-    //         $document->cancel_allowed = 'rejected';
-    //         $document->save();
-
-    //         return redirect()->route('documents.history')->with('success', 'ยกเลิกคำขอสำเร็จ');
-    //     }
-
-    //     return redirect()->route('documents.history')->with('error', 'ไม่สามารถยกเลิกคำขอนี้ได้');
-    // }
-
-    // ใน DocumentController.php
-// ใน DocumentController.php
     public function cancel(Request $request, $id)
     {
-        // ตรวจสอบข้อมูลที่ส่งมา
         $request->validate([
-            'cancel_reason' => 'required|string|max:255',
+            'cancel_reason' => 'nullable|string|max:255',
         ]);
 
         $document = ReqDocument::findOrFail($id);
 
         if ($document->cancel_allowed == 'pending') {
             $document->cancel_allowed = 'rejected';
-            $document->cancel_reason = $request->cancel_reason; // บันทึกเหตุผลการยกเลิก
+            $document->cancel_reason = $request->cancel_reason ?? ''; // บันทึกเหตุผลถ้ามี
             $document->save();
 
             return redirect()->route('documents.history')->with('success', 'ยกเลิกคำขอสำเร็จ');
@@ -419,7 +402,28 @@ class DocumentController extends Controller
         return redirect()->route('documents.history')->with('error', 'ไม่สามารถยกเลิกคำขอนี้ได้');
     }
 
+    // ส่วนของแอดมิน
+    public function confirmCancel(Request $request, $id)
+    {
+        $document = ReqDocument::findOrFail($id);
+        
+        $document->cancel_admin = 'Y';
+        $document->save();
 
+        return redirect()->route('documents.status')->with('success', 'คำขอถูกยกเลิกเรียบร้อยแล้ว');
+    }
+
+    // ส่วนของผู้อำนวยการ
+    public function confirmDirectorCancel(Request $request, $id)
+    {
+    
+        $document = ReqDocument::findOrFail($id);
+        $document->cancel_director = 'Y';
+        $document->save();
+    
+        return redirect()->route('documents.index')->with('success', 'คำขอถูกยกเลิกเรียบร้อยแล้วโดยผู้อำนวยการ');
+    }
+    
     public function getAmphoes($province_id)
     {
         // ตรวจสอบว่ามี province_id ที่ต้องการหรือไม่
@@ -439,15 +443,12 @@ class DocumentController extends Controller
         // ตรวจสอบว่ามีค่าการค้นหาหรือไม่
         $query = $request->input('q'); // เปลี่ยนเป็น 'q' ตามที่ใช้ในฟอร์ม
         $filter = $request->input('filter'); // กรองสถานะ
-
         // เริ่มต้นการค้นหาเอกสาร
         $documents = ReqDocument::query();
-
         // ค้นหาเอกสารตามวัตถุประสงค์
         if ($query) {
             $documents->where('objective', 'like', '%' . $query . '%');
         }
-
         // กรองตามสถานะ
         if ($filter) {
             switch ($filter) {
@@ -460,7 +461,6 @@ class DocumentController extends Controller
                     })
                         ->orWhereNull('allow_department');
                     break;
-
                 case 'pending':
                     $documents->where(function ($subQuery) {
                         $subQuery->where('allow_division', 'pending')
@@ -477,7 +477,6 @@ class DocumentController extends Controller
                                 ->where('cancel_allowed', '!=', 'rejected');
                         });
                     break;
-
                 case 'cancelled':
                     $documents->where(function ($subQuery) {
                         $subQuery->where('allow_department', 'rejected')
@@ -491,12 +490,9 @@ class DocumentController extends Controller
                     break;
             }
         }
-
         // สั่งเรียงตามวันที่สร้างล่าสุด
         $documents = $documents->orderBy('created_at', 'desc')->get();
-
         return view('document-history', compact('documents'));
     }
-
 
 }

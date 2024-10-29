@@ -3,6 +3,8 @@
 @section('content')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <div class="container">
     <div class="row justify-content-center">
@@ -11,17 +13,28 @@
                 <div class="card-header text-center bg-warning">{{ __('รายการรถทั้งหมด') }}</div>
 
                 <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                @if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'สำเร็จ',
+            text: '{{ session('success') }}',
+            confirmButtonText: 'ตกลง'
+        });
+    </script>
+@endif
 
-                    @if (session('error'))
-                        <div class="alert alert-danger" role="alert">
-                            {{ session('error') }}
-                        </div>
-                    @endif
+@if (session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: '{{ session('error') }}',
+            confirmButtonText: 'ตกลง'
+        });
+    </script>
+@endif
+
 
                     <!-- ตารางข้อมูลรถในกรอบ -->
                     <div class="table-responsive">
@@ -75,13 +88,34 @@
                                     
                                     <!-- ลบข้อมูล -->
                                     <td style="text-align: center;">
-                                        <form action="{{ route('vehicles.destroy', $vehicle->car_id) }}" method="POST" onsubmit="return confirm('คุณแน่ใจว่าต้องการลบข้อมูลนี้หรือไม่?');">
+                                        <form id="delete-form-{{ $vehicle->car_id }}" action="{{ route('vehicles.destroy', $vehicle->car_id) }}" method="POST" style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">
+                                            <button type="button" class="btn btn-danger" onclick="confirmDelete({{ $vehicle->car_id }})">
                                                 <i class="fa fa-trash"></i> ลบ
                                             </button>
                                         </form>
+                                        <script>
+    function confirmDelete(carId) {
+        Swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: "คุณจะไม่สามารถย้อนกลับได้!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + carId).submit();
+            }
+        });
+    }
+</script>
+
+
+                                        
                                     </td>
                                 </tr>
                             @endforeach

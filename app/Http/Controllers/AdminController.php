@@ -13,8 +13,7 @@ use App\Models\Position;
 use App\Models\Role;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\ReqDocument;
-use App\Models\Document;
-use App\Models\ReqDocumentUser;
+use App\Models\ReportFormance;
 
 class AdminController extends Controller
 {
@@ -175,13 +174,13 @@ class AdminController extends Controller
             $users = User::join('position', 'users.position_id', '=', 'position.position_id')
                 // ->join('department', 'users.department_id', '=', 'department.department_id')
                 ->join('role', 'users.role_id', '=', 'role.role_id')
-                ->where('users.name', 'LIKE', '%' . $q . '%')
-                ->orWhere('users.lname', 'LIKE', '%' . $q . '%')
-                ->orWhere('users.email', 'LIKE', '%' . $q . '%')
-                ->orWhere('users.phonenumber', 'LIKE', '%' . $q . '%')
-                ->orWhere('position.position_name', 'LIKE', '%' . $q . '%')
+                        ->where('users.name', 'LIKE', '%'.$q.'%')
+                        ->orWhere('users.lname', 'LIKE', '%'.$q.'%')
+                        ->orWhere('users.email', 'LIKE', '%'.$q.'%')
+                        ->orWhere('users.phonenumber', 'LIKE', '%'.$q.'%')
+                        ->orWhere('position.position_name', 'LIKE', '%'.$q.'%')
                 // ->orWhere('department.department_name', 'LIKE', '%'.$q.'%')
-                ->orWhere('role.role_name', 'LIKE', '%' . $q . '%')
+                        ->orWhere('role.role_name', 'LIKE', '%'.$q.'%')
 
                 ->select('users.*', 'position.position_name', 'role.role_name')
                 ->paginate(10);
@@ -307,5 +306,11 @@ class AdminController extends Controller
         $documents = $query->paginate(10);
         return view('admin.users.form', compact('documents'));
     }
+    
+    
+
+
+
+
 
 }

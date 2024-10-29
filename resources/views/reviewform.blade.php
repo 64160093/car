@@ -13,7 +13,11 @@
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">{{ __('เอกสารที่: ') . $document->document_id }}</h5>
                 <p class="mb-0">
-                    {{ __('วันที่ทำเรื่อง: ') . \Carbon\Carbon::parse($document->reservation_date)->format('d-m-Y') }}
+                    {{ __('วันที่ทำเรื่อง: ') .
+            \Carbon\Carbon::parse($document->reservation_date)->format('d') . ' ' .
+            \Carbon\Carbon::parse($document->reservation_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' .
+            \Carbon\Carbon::parse($document->reservation_date)->format('Y') 
+                                                }}
                 </p>
             </div>
 
@@ -84,9 +88,17 @@
                         </tr>
                         <tr>
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
-                                {{ \Carbon\Carbon::parse($document->start_date)->format('d-m-Y') }}</td>
+                                {{ 
+                                                    \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
+            \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' .
+            \Carbon\Carbon::parse($document->start_date)->addYears(543)->format('Y') 
+                                                }}</td>
                             <td><strong>{{ __('วันที่กลับ') }}:</strong>
-                                {{ \Carbon\Carbon::parse($document->end_date)->format('d-m-Y') }}</td>
+                                {{ 
+                                                    \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
+            \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') . '  พ.ศ.  ' .
+            \Carbon\Carbon::parse($document->end_date)->addYears(543)->format('Y') 
+                                                }}
                         </tr>
                         <tr>
                             <td><strong>{{ __('เวลาไป') }}:</strong> {{ $document->start_time }}</td>
@@ -135,22 +147,4 @@
         </div>
     @endif
 </div>
-<script>
-    function toggleCompanions() {
-        const extraCompanions = document.querySelectorAll('.extra-companions');
-        const toggleButton = document.getElementById('toggle-button');
-
-        extraCompanions.forEach(companion => {
-            companion.classList.toggle('d-none');
-        });
-
-        // เปลี่ยนข้อความของปุ่มตามสถานะการแสดงผล
-        if (toggleButton.innerText === 'ดูเพิ่มเติม') {
-            toggleButton.innerText = 'ดูน้อยลง';
-        } else {
-            toggleButton.innerText = 'ดูเพิ่มเติม';
-        }
-    }
-</script>
-
 @endsection

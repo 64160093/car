@@ -1,4 +1,6 @@
 @extends('layouts.app')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 @section('content')
 <div class="container">
@@ -8,11 +10,17 @@
                 <div class="card-header bg-warning text-center">{{ __('แก้ไขข้อมูลส่วนตัว') }}</div>
 
                 <div class="container mt-2">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                @if (session('success'))
+                    <script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: '{{ session('success') }}',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    </script>
+                @endif
+
 
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -111,7 +119,7 @@
                             @if (auth()->user()->is_admin == 1)
                                 <a href="{{ route('admin.home') }}" class="btn btn-warning">ย้อนกลับ</a>
                             @else
-                                <a href="{{ route('home') }}" class="btn btn-warning">ย้อนกลับ</a>
+                                <a href="{{ route('welcome') }}" class="btn btn-warning">ย้อนกลับ</a>
                             @endif
                             <button type="submit" class="btn btn-primary">อัปเดตข้อมูล</button>
                         </div>

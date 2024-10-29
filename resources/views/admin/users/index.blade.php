@@ -4,6 +4,8 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <div class="container">
 <div class="row justify-content-center">
@@ -14,16 +16,27 @@
             <div class="card-body">
                 <!-- ข้อความแจ้งเตือน -->
                 @if (session('success'))
-                    <div class="alert alert-success" role="alert">
-                        {{ session('success') }}
-                    </div>
+                    <script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: '{{ session('success') }}',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    </script>
                 @endif
 
                 @if (session('error'))
-                    <div class="alert alert-danger" role="alert">
-                        {{ session('error') }}
-                    </div>
+                    <script>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: '{{ session('error') }}',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    </script>
                 @endif
+
 
                 <!-- ช่องค้นหาชื่อ-นามสกุล -->
                 <div class="container-fluid mt-2">
@@ -95,13 +108,32 @@
                                                 class="btn btn-primary">
                                                 <i class="fa fa-edit"></i> แก้ไข
                                             </a>
-                                            <form action="{{ route('admin.users.delete', $user->id) }}"
-                                                method="POST" style="display:inline-block;" onsubmit="return confirm('คุณแน่ใจว่าต้องการลบข้อมูลนี้หรือไม่?');">
+                                            <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.delete', $user->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
-                                                <button type="submit" class="btn btn-danger">
+                                                <button type="button" class="btn btn-danger" onclick="confirmDelete({{ $user->id }})">
                                                     <i class="fa fa-trash"></i> ลบ
                                                 </button>
                                             </form>
+
+                                            <script>
+                                                function confirmDelete(userId) {
+                                                    Swal.fire({
+                                                        title: 'คุณแน่ใจหรือไม่?',
+                                                        text: "ข้อมูลนี้จะถูกลบและไม่สามารถกู้คืนได้!",
+                                                        icon: 'warning',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#d33',
+                                                        cancelButtonColor: '#3085d6',
+                                                        confirmButtonText: 'ลบ',
+                                                        cancelButtonText: 'ยกเลิก'
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            document.getElementById(`delete-form-${userId}`).submit();
+                                                        }
+                                                    });
+                                                }
+                                            </script>
+
                                         </td>
                                     </tr>
                                 @endforeach

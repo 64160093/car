@@ -8,17 +8,16 @@
 <div class="container">
     @if (auth()->user()->is_admin == 1)
         <h2>รายการคำขอทั้งหมด</h2>
-    @endif
+                    @endif
 
-    <div class="container-fluid mt-2">
+                    <!-- ช่องค้นหาข้อมูล -->
+                    <div class="container-fluid mt-2">
         <form method="GET" action="{{ route('admin.users.searchform') }}">
             <div class="d-flex align-items-center">
                 <input type="search" id="searchName" name="q" class="form-control me-2" placeholder="ค้นหาข้อมูล"
                     aria-label="Search" value="{{ request()->get('q') }}">
                 <button type="submit" class="btn btn-primary">ค้นหา</button>
-
                 {{-- Dropdown สำหรับกรองสถานะ --}}
-
                 <select name="filter" id="filter" class="form-select me-2 ms-2" style="max-width: 200px;"
                     onchange="this.form.submit()">
                     <option value="">ทั้งหมด</option>
@@ -28,7 +27,6 @@
                     </option>
                 </select>
             </div>
-
             <!-- ฟิลด์สำหรับกรองช่วงเดือน ปี และเวลา -->
             <div class="row mt-3 align-items-end">
                 <div class="col-md-2">
@@ -67,35 +65,34 @@
                     <button type="submit" class="btn btn-primary" style="font-size: 0.9em;">กรองตามช่วงเวลา</button>
                 </div>
             </div>
-
         </form>
     </div>
 
-    <!-- ตารางแสดงข้อมูลเอกสาร -->
-    @if($documents->isEmpty())
-        <div class="alert alert-info mt-4">
-            {{ __('ไม่มีฟอร์มสำหรับการตรวจสอบ') }}
-        </div>
-    @else
-        <div class="table-responsive mt-4 mb-4">
-            <table class="table table-bordered table-striped table-hover">
-                <thead class="thead-dark">
-                    <tr class="text-center">
-                        <th>#</th>
-                        <th>ชื่อ-นามสกุล</th>
-                        <th>วัตถุประสงค์</th>
-                        <th>วันที่เดินทางไป</th>
-                        <th>วันที่เดินทางกลับ</th>
-                        <th>สถานะปัจจุบัน</th>
-                        <th>ดูสถานะทั้งหมด</th>
-                        <th>PDF คำร้อง/คนขับ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($documents->groupBy(function ($date) {
-                            return \Carbon\Carbon::parse($date->created_at)->format('F Y');
-                        }) as $month => $groupedDocuments)
-                                    @foreach($groupedDocuments as $document)
+                    <!-- ตารางแสดงข้อมูลเอกสาร -->
+                    @if($documents->isEmpty())
+                        <div class="alert alert-info mt-4">
+                            {{ __('ไม่มีฟอร์มสำหรับการตรวจสอบ') }}
+                        </div>
+                    @else
+                    <div class="table-responsive mt-4 mb-4">
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="thead-dark">
+            <tr class="text-center">
+                                        <th>#</th>
+                                        <th>ชื่อ-นามสกุล</th>
+                                        <th>วัตถุประสงค์</th>
+                                        <th>วันที่เดินทางไป</th>
+                                        <th>วันที่เดินทางกลับ</th>
+                                        <th>สถานะปัจจุบัน</th>
+                                        <th>ดูสถานะทั้งหมด</th>
+                                        <th>PDF คำร้อง/คนขับ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($documents->groupBy(function ($date) {
+                                            return \Carbon\Carbon::parse($date->created_at)->format('F Y');
+                                        }) as $month => $groupedDocuments)
+                                        @foreach($groupedDocuments as $document)
                                             <tr class="text-center">
                                                 @php
                                                     $requester = $document->reqDocumentUsers->first();
@@ -113,76 +110,85 @@
                                                     {{ \Carbon\Carbon::parse($document->end_date)->format('d') }}
                                                     {{ \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') }}
                                                     {{ \Carbon\Carbon::parse($document->end_date)->format('Y') + 543 }}<br>
+
                                                     เวลา : {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }} น.
                                                 </td>
                                                 <td>
-                                                    @if ($document->cancel_allowed == 'pending')
-                                                        @foreach($document->reqDocumentUsers as $docUser)
-                                                            @if ($docUser->division_id == 2)
-                                                                @if ($document->allow_department == 'pending')
-                                                                    <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
-                                                                @elseif ($document->allow_department == 'approved')
-                                                                    @include('partials.allow_status', ['document' => $document])
-                                                                @else
-                                                                    <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
-                                                                    @if ($document->notallowed_reason)
-                                                                        <br><span>เหตุผล: {{ $document->notallowed_reason }}</span>
-                                                                    @endif
-                                                                @endif
-                                                            @else
+                                                @if ( $document->cancel_allowed == 'pending' )
+                                                    @foreach($document->reqDocumentUsers as $docUser)
+                                                        @if ($docUser->division_id == 2)
+                                                            @if ($document->allow_department == 'pending')
+                                                                <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
+                                                            @elseif ($document->allow_department == 'approved')
                                                                 @include('partials.allow_status', ['document' => $document])
+                                                            @else
+                                                                <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
+                                                                @if ($document->notallowed_reason)
+                                                                    <br><span>เหตุผล: {{ $document->notallowed_reason }}</span>
+                                                                @endif
                                                             @endif
-                                                        @endforeach
-                                                    @else
-                                                        <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
-                                                    @endif
+                                                        @else
+                                                            @include('partials.allow_status', ['document' => $document])
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
+                                                @endif
                                                 </td>
 
                                                 <td>
-                                                    <a href="{{ route('documents.status') }}?id={{ $document->document_id }}"
-                                                        class="btn btn-outline-primary">สถานะ</a>
+                                                    <a href="{{ route('documents.status') }}?id={{ $document->document_id }}" 
+                                                        class="btn btn-outline-primary">สถานะ</a>           
                                                 </td>
                                                 <td>
                                                     @if ($document->allow_director != 'pending')
-                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }} "
+                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}" 
                                                             class="btn btn-outline-primary"> PDF
-                                                        </a>
+                                                        </a>    
                                                     @else
                                                         <button type="button" class="btn btn-secondary" disabled>PDF</button>
                                                     @endif
+
+                                                    @if ($document->allow_director != 'pending')
+                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}" 
+                                                            class="btn btn-outline-primary"> PDF
+                                                        </a>    
+                                                    @else
+                                                        <button type="button" class="btn btn-secondary" disabled>PDF</button>
+                                                    @endif
+                                                    
                                                 </td>
                                             </tr>
+                                        @endforeach
                                     @endforeach
-                    @endforeach
-                </tbody>
-            </table>
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
-    @endif
+    </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const startDateInput = document.getElementById('start_date');
         const endDateInput = document.getElementById('end_date');
-
         // ฟังก์ชันสำหรับการปรับปรุงค่าเดือนสิ้นสุด
         function updateEndDateOptions() {
             const startDateValue = startDateInput.value;
             const currentEndDateValue = endDateInput.value; // เก็บค่าเดิมก่อน
-
             if (startDateValue) {
                 const [year, month] = startDateValue.split('-').map(Number);
                 const startMonth = month;
                 const startYear = year;
-
                 // กำหนดค่าที่เป็นไปได้สำหรับเดือนสิ้นสุด
                 endDateInput.innerHTML = ''; // ล้างตัวเลือกเดิม
-
                 // สร้างตัวเลือกเดือนสิ้นสุดที่เหมาะสม
                 for (let i = 0; i < 12; i++) {
                     const currentMonth = (startMonth + i) % 12 || 12; // เลขเดือน
                     const currentYear = startYear + Math.floor((startMonth + i - 1) / 12); // ปี
-
                     // ถ้าเดือนและปีของ currentMonth เกินกว่า startMonth และ startYear
                     if (currentYear > startYear || (currentYear === startYear && currentMonth >= startMonth)) {
                         const optionValue = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-01`;
@@ -192,10 +198,8 @@
                         endDateInput.appendChild(option);
                     }
                 }
-
                 // ตั้งค่าค่าต่ำสุดสำหรับเดือนและปีสิ้นสุด
                 endDateInput.setAttribute('min', startDateValue);
-
                 // ตรวจสอบค่าเดิมและตั้งค่าใหม่ถ้ายังคงเป็นค่าที่ถูกต้อง
                 if (currentEndDateValue && currentEndDateValue >= startDateValue) {
                     endDateInput.value = currentEndDateValue; // ตั้งค่าคงเดิม
@@ -209,11 +213,9 @@
                 endDateInput.removeAttribute('min');
             }
         }
-
         startDateInput.addEventListener('change', function () {
             updateEndDateOptions();
         });
-
         endDateInput.addEventListener('change', function () {
             const startDateValue = startDateInput.value;
             if (this.value < startDateValue) {
@@ -221,7 +223,6 @@
                 this.value = ''; // รีเซ็ตค่าเดือนสิ้นสุด
             }
         });
-
         // อัปเดตค่าเดือนและปีสิ้นสุดเมื่อโหลดหน้า
         updateEndDateOptions();
     });

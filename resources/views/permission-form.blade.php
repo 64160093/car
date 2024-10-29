@@ -114,6 +114,14 @@
                                 <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
                                 class="btn btn-secondary">ดูรายละเอียด</a>
                             @endif
+
+                            @if ( in_array(auth()->user()->role_id, [3]))
+                                @if ( $document->cancel_admin == 'Y')
+                                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDirectorCancellationModal">
+                                        !
+                                    </button>
+                                @endif
+                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -122,4 +130,31 @@
 
     @endif
 </div>
+
+<div class="modal fade" id="confirmDirectorCancellationModal" tabindex="-1" aria-labelledby="confirmDirectorCancellationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDirectorCancellationModalLabel">ยืนยันการยกเลิกคำขอจากผู้อำนวยการ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำขอนี้ในฐานะผู้อำนวยการ? : {{ $document->cancel_reason ?? 'n/a' }}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <form id="confirmDirectorCancellationForm" action="{{ route('documents.confirmDirectorCancel', ['id' => $document->document_id]) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="cancel_director" value="Y">
+                    
+                    <button type="submit" class="btn btn-danger">ยืนยันการยกเลิก</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 @endsection

@@ -66,19 +66,43 @@ class ReqDocumentController extends Controller
 
 
         // ตรวจสอบการจองทับซ้อน
-        $existingBooking = ReqDocument::where(function ($query) use ($request) {
-            $query->where('car_id', $request->input('car_id'))
-                ->where(function ($query) use ($request) {
-                    $query->whereBetween('start_date', [$request->start_date, $request->end_date])
-                            ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
-                            ->orWhereRaw('? BETWEEN start_date AND end_date', [$request->start_date])
-                            ->orWhereRaw('? BETWEEN start_date AND end_date', [$request->end_date]);
+        $existingBooking = ReqDocument::where('car_id', $request->input('car_id'))
+            ->where('car_type', $request->input('car_type'))
+            ->where(function ($query) use ($request) {
+                // ตรวจสอบการจองในวันเดียวกัน
+                $query->where('start_date', $request->start_date)
+                    ->where(function ($timeQuery) use ($request) {
+                    $timeQuery->where(function ($subTimeQuery) use ($request) {
+                        // ตรวจสอบว่าเวลาที่จองใหม่ซ้อนทับกับเวลาที่ถูกจอง
+                        $subTimeQuery->whereBetween('start_time', [$request->start_time, $request->end_time])
+                            ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                            ->orWhere(function ($nestedTimeQuery) use ($request) {
+                            $nestedTimeQuery->where('start_time', '<=', $request->start_time)
+                                ->where('end_time', '>=', $request->end_time);
+                        });
+                    });
                 });
-            })->exists();
+            })
+            ->orWhere(function ($crossDayQuery) use ($request) {
+                // ตรวจสอบการจองข้ามวัน
+                $crossDayQuery->where('start_date', '<=', $request->end_date)
+                    ->where('end_date', '>=', $request->start_date)
+                    ->where(function ($timeQuery) use ($request) {
+                    $timeQuery->whereBetween('start_time', [$request->start_time, $request->end_time])
+                        ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
+                        ->orWhere(function ($subTimeQuery) use ($request) {
+                            // ตรวจสอบการซ้อนทับเวลา
+                            $subTimeQuery->where('start_time', '<=', $request->start_time)
+                                ->where('end_time', '>=', $request->end_time);
+                        });
+                });
+            })
+            ->exists();
 
+        // ป้องกันการจองซ้อนทับ
         if ($existingBooking) {
             return back()->withErrors(['start_date' => 'วันเวลาที่คุณเลือกถูกจองไปแล้ว'])->withInput();
-        }   
+        } 
 
 
 

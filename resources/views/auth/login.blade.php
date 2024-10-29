@@ -49,7 +49,7 @@
 
                     <div class="input-group mb-3">
                         <input id="email" type="email"
-                        class="form-control form-control-lg bg-light fs-6 @error('email') is-invalid @enderror border-primary" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="Email address">
+                        class="form-control form-control-lg bg-light fs-6 @error('email') is-invalid @enderror border-primary" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus placeholder="อีเมล">
                         @error('email')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -60,7 +60,7 @@
 
                     <div class="input-group mb-1">
                         <input id="password" type="password"
-                        class="form-control form-control-lg bg-light fs-6 @error('password') is-invalid @enderror border-primary" name="password" required autocomplete="current-password" placeholder="Password">
+                        class="form-control form-control-lg bg-light fs-6 @error('password') is-invalid @enderror border-primary" name="password" required autocomplete="current-password" placeholder="รหัสผ่าน">
                         @error('password')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -72,7 +72,7 @@
                     <div class="input-group mb-5 d-flex justify-content-between">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="formCheck">
-                            <label for="formCheck" class="form-check-label text-secondary"><small>Remember Me</small></label>
+                            <label for="formCheck" class="form-check-label text-secondary"><small>จำฉันไว้</small></label>
                         </div>
                         <div class="forgot">
                             <small><a href="{{ route('password.request') }}" style="color: #FB7F0D;">ลืมรหัสผ่าน?</a></small>
