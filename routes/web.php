@@ -19,7 +19,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ReportDocumentController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\DashboardController;
-
+use App\Http\Controllers\DriverScheduleController;
 
 
 // เส้นทางหลักของแอปพลิเคชัน
@@ -39,8 +39,8 @@ Route::get('/home', [HomeController::class, 'index'])
 
 // เส้นทางสำหรับหน้าแรกของผู้ดูแลระบบ
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-->name('admin.dashboard')
-->middleware(IsAdmin::class);
+    ->name('admin.dashboard')
+    ->middleware(IsAdmin::class);
 
 // เส้นทางสำหรับหน้าแรกของผู้ดูแลระบบ
 Route::get('/admin/home', [AdminController::class, 'dashBoard'])->name('admin.home')
@@ -103,8 +103,8 @@ Route::any('/admin/users/search', [AdminController::class, 'searchUsers'])->name
     ->middleware(IsAdmin::class);
 Route::get('/admin/users/form', [AdminController::class, 'showform'])->name('admin.users.form')
     ->middleware(IsAdmin::class);
-    
-    Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
+
+Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->name('admin.users.searchform');
 
 
 //แสดงประวัติการขอ และ แสดงรายละเอียดคำขอ
@@ -119,12 +119,16 @@ Route::get('/permission-form', [DocumentController::class, 'permission'])->name(
 Route::get('/permission-form-allow', [DocumentController::class, 'show'])->name('documents.show')->middleware('auth');
 Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name('documents.updateStatus');
 
+
+Route::get('/schedule/search', [DocumentController::class, 'scheduleSearch'])->name('documents.scheduleSearch');
+
+
 //รายงานคนขับรถ
 Route::get('/report[id]', [ReportDocumentController::class, 'index'])->name('report.index');
 Route::post('/report', [ReportDocumentController::class, 'store'])->name('report.submit');
 Route::get('/reportdoc/show/{id}', [ReportDocumentController::class, 'show'])->name('reportdoc.show');
 
- //PDF
+//PDF
 Route::get('/generate-pdf', [PDFController::class, 'generatePDF'])->name('PDF.document');
 Route::get('/report/showRepDoc/pdf', [PDFController::class, 'generateReportPDF'])->name('report.showRepDoc.pdf');
 

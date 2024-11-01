@@ -162,7 +162,7 @@
 
 
     <div class="row">
-        @foreach ([['title' => 'การขออนุญาตใช้รถของแต่ละบุคลากร', 'id' => 'requestChart', 'bgColor' => 'bg-info'], ['title' => 'จำนวนการขออนุญาตตามส่วนงาน', 'id' => 'divisionChart', 'bgColor' => 'bg-danger'], ['title' => 'จำนวนการขออนุญาตตามประเภทงาน', 'id' => 'workChart', 'bgColor' => 'bg-success'], ['title' => 'จำนวนการขออนุญาตตามประเภทของรถ', 'id' => 'carTypeChart', 'bgColor' => 'bg-warning']] as $chart)
+        @foreach ([['title' => 'จำนวนการขออนุญาตของบุคลากร', 'id' => 'requestChart', 'bgColor' => 'bg-primary'], ['title' => 'จำนวนการขออนุญาตตามส่วนงาน', 'id' => 'divisionChart', 'bgColor' => 'bg-danger'], ['title' => 'จำนวนการขออนุญาตตามประเภทงาน', 'id' => 'workChart', 'bgColor' => 'bg-success'], ['title' => 'จำนวนการขออนุญาตตามประเภทของรถ', 'id' => 'carTypeChart', 'bgColor' => 'bg-warning']] as $chart)
             <div class="col-md-6 mb-3">
                 <div class="card shadow-sm border-0 h-100">
                     <div class="card-header {{ $chart['bgColor'] }} text-white text-center h5">{{ $chart['title'] }}</div>
@@ -189,22 +189,34 @@
     }
 
     // Function to create charts
+    // Function to create charts
     function createChart(ctx, labels, data, label, bgColor, borderColor) {
+        const sortedData = labels.map((label, index) => ({
+            label: label,
+            value: data[index]
+        })).sort((a, b) => b.value - a.value);
+
+        const sortedLabels = sortedData.map(item => item.label);
+        const sortedValues = sortedData.map(item => item.value);
+
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
         gradient.addColorStop(0, bgColor);
         gradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
 
+        // Generate time period text without "จำนวนการขออนุญาต"
+        const timePeriod = `{{ $viewType === 'month' ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][$month - 1] . ' ปี ' . ($selectedYear + 543) : ($viewType === 'quarter' ? 'ไตรมาส ' . $quarter . ' ปี ' . ($selectedYear + 543) : 'ปี ' . ($selectedYear + 543)) }}`;
+
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: sortedLabels,
                 datasets: [{
                     label: label,
-                    data: data,
+                    data: sortedValues,
                     backgroundColor: gradient,
                     borderColor: borderColor,
                     borderWidth: 2,
-                    borderRadius: 5, // Add rounded corners
+                    borderRadius: 5,
                 }]
             },
             options: {
@@ -215,6 +227,10 @@
                         grid: {
                             color: (context) => context.index % 2 === 0 ? 'rgba(200, 200, 200, 0.2)' : 'rgba(255, 255, 255, 0.2)'
                         },
+                        title: {
+                            display: true,
+                            text: 'ครั้ง'
+                        },
                         ticks: {
                             callback: function (value) {
                                 return Number.isInteger(value) ? value : '';
@@ -223,10 +239,10 @@
                     },
                     y: {
                         beginAtZero: true,
-                        maxTicksLimit: 10, // จำกัดจำนวนการแสดงผลสูงสุด
+                        maxTicksLimit: 10,
                         ticks: {
                             font: {
-                                size: labels.length > 10 ? 10 : 12 // ลดขนาดเมื่อมีข้อมูลเกิน 10
+                                size: sortedLabels.length > 10 ? 10 : 12
                             }
                         }
                     }
@@ -246,13 +262,13 @@
                     tooltip: {
                         callbacks: {
                             label: function (context) {
-                                return context.dataset.label + ': ' + context.raw + ' ครั้ง';
+                                return context.raw + ' ครั้ง';
                             }
                         }
                     },
                     title: {
                         display: true,
-                        text: label,
+                        text: timePeriod, // Only show the time period
                         font: {
                             size: 22,
                             weight: 'bold'
@@ -271,10 +287,11 @@
     }
 
     // Create all charts with enhanced styles
-    createChart(document.getElementById('requestChart').getContext('2d'), @json($labels), @json($data), 'จำนวนการขออนุญาต', 'rgba(54, 162, 235, 0.6)', 'rgba(54, 162, 235, 1)');
+    createChart(document.getElementById('requestChart').getContext('2d'), @json($labels), @json($data), 'จำนวนการขออนุญาตของบุคลากร', 'rgba(0, 0, 255, 0.6)', 'rgba(0, 0, 255, 1)');
     createChart(document.getElementById('divisionChart').getContext('2d'), @json($divisionLabels), @json($divisionData), 'จำนวนการขออนุญาตตามส่วนงาน', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 99, 132, 1)');
     createChart(document.getElementById('workChart').getContext('2d'), @json($workLabels), @json($workData), 'จำนวนการขออนุญาตตามประเภทงาน', 'rgba(75, 192, 192, 0.6)', 'rgba(75, 192, 192, 1)');
     createChart(document.getElementById('carTypeChart').getContext('2d'), @json($carTypeLabels), @json($carTypeData), 'จำนวนการขออนุญาตตามประเภทของรถ', 'rgba(255, 206, 86, 0.6)', 'rgba(255, 206, 86, 1)');
 </script>
+
 
 @endsection

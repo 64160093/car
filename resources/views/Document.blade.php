@@ -148,7 +148,7 @@
                             <label class="form-label"><strong>{{ __('โครงการที่เกี่ยวข้อง') }}</strong></label>
                             @if($document->related_project)
                                 <p class="form-control-static">
-                                    <a href="{{ Storage::url($document->related_project) }}" target="_blank"
+                                    <a href="{{ asset('storage/' . $document->related_project) }}" target="_blank"
                                         class="btn btn-outline-primary">{{ __('ดูไฟล์') }}</a>
                                 </p>
                             @else
@@ -156,6 +156,7 @@
                             @endif
                         </div>
                     </div>
+
                 </div>
             </div>
         @endforeach

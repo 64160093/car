@@ -32,8 +32,8 @@ class ReqDocumentController extends Controller
         $work_type = WorkType::all();
         $vehicles = Vehicle::all();
         $caricon = CarIcon::all();
-        
-        return view('reqdocument', compact('provinces', 'amphoe', 'district', 'work_type', 'user','vehicles','caricon'));
+
+        return view('reqdocument', compact('provinces', 'amphoe', 'district', 'work_type', 'user', 'vehicles', 'caricon'));
     }
 
 
@@ -62,7 +62,7 @@ class ReqDocumentController extends Controller
             'car_controller' => 'required|exists:users,id',
         ]);
         $companions = explode(',', $request->input('companions_hidden'));
-    
+
 
 
         // ตรวจสอบการจองทับซ้อน
@@ -102,21 +102,22 @@ class ReqDocumentController extends Controller
         // ป้องกันการจองซ้อนทับ
         if ($existingBooking) {
             return back()->withErrors(['start_date' => 'วันเวลาที่คุณเลือกถูกจองไปแล้ว'])->withInput();
-        } 
+        }
 
 
 
         // จัดการการอัปโหลดไฟล์
         $filePath = null;
         if ($request->hasFile('related_project')) {
-            $filePath = $request->file('related_project')->store('projects');
+            // เก็บไฟล์ใน disk 'public'
+            $filePath = $request->file('related_project')->store('projects', 'public');
         }
-    
+
         // ตรวจสอบ role_id ว่าเป็น 12 หรือไม่ เพื่อบันทึกค่า car_id
         $carId = auth()->user()->role_id == 12 ? $request->input('car_id') : null;
         $carMan = auth()->user()->role_id == 12 ? $request->input('carman') : null;
 
-    
+
         // บันทึกข้อมูลลงในตาราง req_document
         $document = ReqDocument::create([
             'companion_name' => $request->companion_name,
@@ -140,7 +141,7 @@ class ReqDocumentController extends Controller
             'car_controller' => $request->input('car_controller'),
         ]);
 
-    
+
         // บันทึกความสัมพันธ์ระหว่างผู้ใช้และเอกสารในตาราง req_document_user
         $document->users()->attach(Auth::user()->id, [
             'name' => Auth::user()->name,
@@ -151,14 +152,14 @@ class ReqDocumentController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         foreach ($companions as $companionId) {
             // ตรวจสอบว่า $companionId เป็นตัวเลขหรือไม่ (ป้องกันข้อผิดพลาดจากข้อมูลที่ไม่ถูกต้อง)
             if (is_numeric($companionId)) {
                 $document->companions()->attach($companionId);
             }
         }
-    
+
         return redirect('/document-history')->with('success', 'บันทึกข้อมูลเรียบร้อยแล้ว');
     }
 
@@ -182,26 +183,26 @@ class ReqDocumentController extends Controller
 
 
 
-public function getEvents()
-{
-    // ดึงข้อมูลจากฐานข้อมูล ReqDocument
-    $documents = ReqDocument::select('document_id', 'objective', 'start_date', 'end_date', 'start_time', 'end_time')
-        ->get()
-        ->map(function ($document) {
-            return [
-                'id' => $document->document_id,
-                'title' => $document->objective,
-                'start' => $document->start_date . 'T' . $document->start_time, // รวมวันที่และเวลาเริ่ม
-                'end' => $document->end_date . 'T' . $document->end_time,       // รวมวันที่และเวลาสิ้นสุด
-                'backgroundColor' => '#3498db', // คุณสามารถปรับสีได้ตามต้องการ
-                // 'borderColor' => '#000'
-            ];
-        });
+    public function getEvents()
+    {
+        // ดึงข้อมูลจากฐานข้อมูล ReqDocument
+        $documents = ReqDocument::select('document_id', 'objective', 'start_date', 'end_date', 'start_time', 'end_time')
+            ->get()
+            ->map(function ($document) {
+                return [
+                    'id' => $document->document_id,
+                    'title' => $document->objective,
+                    'start' => $document->start_date . 'T' . $document->start_time, // รวมวันที่และเวลาเริ่ม
+                    'end' => $document->end_date . 'T' . $document->end_time,       // รวมวันที่และเวลาสิ้นสุด
+                    'backgroundColor' => '#3498db', // คุณสามารถปรับสีได้ตามต้องการ
+                    // 'borderColor' => '#000'
+                ];
+            });
 
-    // ส่งข้อมูลในรูปแบบ JSON ให้กับ FullCalendar
-    return response()->json($documents);
-    // return view('welcome');
-}
+        // ส่งข้อมูลในรูปแบบ JSON ให้กับ FullCalendar
+        return response()->json($documents);
+        // return view('welcome');
+    }
 
 
 

@@ -119,7 +119,7 @@
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
                                 {{ optional($document->start_date)
             ? \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
-            \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' ' . 
+            \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' ' .
             \Carbon\Carbon::parse($document->start_date)->format('Y') + 543
             : 'N/A' }}
                             </td>
@@ -173,13 +173,14 @@
                     <h6 class="text-muted">{{ __('โครงการที่เกี่ยวข้อง') }}</h6>
                     <p class="form-control-static">
                         @if($document->related_project)
-                            <a href="{{ Storage::url($document->related_project) }}" target="_blank"
+                            <a href="{{ asset('storage/' . $document->related_project) }}" target="_blank"
                                 class="btn btn-outline-primary">{{ __('ดูไฟล์') }}</a>
                         @else
                             {{ __('ไม่มีไฟล์') }}
                         @endif
                     </p>
                 </div>
+
 
                 <!-- ลงชื่อผู้ขอ -->
                 <div class="mt-4" style="text-align: right; margin-right: 50px;">

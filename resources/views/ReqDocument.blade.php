@@ -135,7 +135,7 @@
                     @enderror
                 </div>
 
-                
+
 
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
@@ -340,19 +340,19 @@
 
                         @foreach($vehicles as $vehicle)
                                             @if(in_array($vehicle->icon_id, [1, 2, 3]) && !$hasDisplayedPickupTruck)
-                                                <option value="รถกระบะ" {{ old('car_type') == 'รถกระบะ' ? 'selected' : '' }}>
-                                                    {{ __('รถกระบะ') }}
-                                                </option>
-                                                @php
-                                                    $hasDisplayedPickupTruck = true; // แสดง "รถกระบะ" เพียงครั้งเดียว
-                                                @endphp
+                                                                <option value="รถกระบะ" {{ old('car_type') == 'รถกระบะ' ? 'selected' : '' }}>
+                                                                    {{ __('รถกระบะ') }}
+                                                                </option>
+                                                                @php
+                                                                    $hasDisplayedPickupTruck = true; // แสดง "รถกระบะ" เพียงครั้งเดียว
+                                                                @endphp
                                             @elseif(in_array($vehicle->icon_id, [4, 5, 6]) && !$hasDisplayedVan)
-                                                <option value="รถตู้" {{ old('car_type') == 'รถตู้' ? 'selected' : '' }}>
-                                                    {{ __('รถตู้') }}
-                                                </option>
-                                                @php
-                                                    $hasDisplayedVan = true; // แสดง "รถตู้" เพียงครั้งเดียว
-                                                @endphp
+                                                                <option value="รถตู้" {{ old('car_type') == 'รถตู้' ? 'selected' : '' }}>
+                                                                    {{ __('รถตู้') }}
+                                                                </option>
+                                                                @php
+                                                                    $hasDisplayedVan = true; // แสดง "รถตู้" เพียงครั้งเดียว
+                                                                @endphp
                                             @elseif(in_array($vehicle->icon_id, [7, 8, 9]))
                                                 <option value="เรือ" {{ old('car_type') == 'เรือ' ? 'selected' : '' }}>
                                                     {{ __('เรือ') }}
@@ -373,7 +373,7 @@
                 <div class="form-group mb-4">
                     <label for="related_project">{{ __('เอกสารที่แนบ (PDF เท่านั้น)') }}</label>
                     <input type="file" class="form-control @error('related_project') is-invalid @enderror"
-                        id="related_project" name="related_project">
+                        id="related_project" name="related_project" accept=".pdf">
                     @error('related_project')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

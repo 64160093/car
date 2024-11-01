@@ -17,7 +17,7 @@
             \Carbon\Carbon::parse($document->reservation_date)->format('d') . ' ' .
             \Carbon\Carbon::parse($document->reservation_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' .
             \Carbon\Carbon::parse($document->reservation_date)->format('Y') 
-                                                }}
+                                                    }}
                 </p>
             </div>
 
@@ -89,16 +89,16 @@
                         <tr>
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
                                 {{ 
-                                                    \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
+                                                        \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
             \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' .
             \Carbon\Carbon::parse($document->start_date)->addYears(543)->format('Y') 
-                                                }}</td>
+                                                    }}</td>
                             <td><strong>{{ __('วันที่กลับ') }}:</strong>
                                 {{ 
-                                                    \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
+                                                        \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
             \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') . '  พ.ศ.  ' .
             \Carbon\Carbon::parse($document->end_date)->addYears(543)->format('Y') 
-                                                }}
+                                                    }}
                         </tr>
                         <tr>
                             <td><strong>{{ __('เวลาไป') }}:</strong> {{ $document->start_time }}</td>
@@ -129,13 +129,14 @@
                 <div class="mt-2 border p-3">
                     <p class="form-control-static">
                         @if($document->related_project)
-                            <a href="{{ Storage::url($document->related_project) }}" target="_blank"
+                            <a href="{{ asset('storage/' . $document->related_project) }}" target="_blank"
                                 class="btn btn-outline-primary">{{ __('ดูไฟล์') }}</a>
                         @else
                             {{ __('ไม่มีไฟล์') }}
                         @endif
                     </p>
                 </div>
+
 
                 <!-- ลงชื่อผู้ขอ -->
                 <div class="mt-4" style="text-align: right; margin-right: 50px;">
