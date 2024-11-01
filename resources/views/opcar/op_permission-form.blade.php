@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mb-3">
-        <h1 class="mb-4">รายการคำขออนุญาต </h1>   
+    <h1 class="mb-4">รายการคำขออนุญาต </h1>
     @if($documents->isEmpty())
         <div class="alert alert-info">
             {{ __('ไม่มีฟอร์มสำหรับการตรวจสอบ') }}
@@ -34,48 +34,59 @@
                         <td class="text-center">
                             {{ \Carbon\Carbon::parse($document->start_date)->format('d') }}
                             {{ \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') }}
-                            {{ \Carbon\Carbon::parse($document->start_date)->format('Y') + 543 }}                                                    <br>
+                            {{ \Carbon\Carbon::parse($document->start_date)->format('Y') + 543 }} <br>
                             เวลา : {{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} น.
                         </td>
                         <td class="text-center">
-                            @if ( $document->cancel_allowed == 'pending' )
+                            @if ($document->cancel_allowed == 'pending')
                                 @if (in_array(auth()->user()->role_id, [12]))
                                     @if ($document->allow_opcar == 'approved')
                                         <span class="badge bg-success">อนุมัติ </span>
-                                    @elseif ($document->allow_opcar	 == 'pending')
+                                    @elseif ($document->allow_opcar == 'pending')
                                         <span class="badge bg-warning">รอดำเนินการ</span>
                                     @else
                                         <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                    @endif 
+                                    @endif
                                 @endif
                             @else
                                 <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                             @endif
                         </td>
-                        
+
                         <td class="text-center">
-                            @if ( $document->cancel_allowed == 'pending' )
+                            @if ($document->cancel_allowed == 'pending')
                                 @if (in_array(auth()->user()->role_id, [12]))
                                     @if ($document->allow_carman == 'approved')
                                         <span class="badge bg-success">รับทราบ </span>
-                                    @elseif ($document->allow_carman	 == 'pending')
+                                    @elseif ($document->allow_carman == 'pending')
                                         <span class="badge bg-warning">รอดำเนินการ</span>
                                     @else
                                         <span class="badge bg-danger">ไม่สามารถรับงานได้</span>
-                                    @endif 
+                                    @endif
                                 @endif
                             @else
                                 <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                             @endif
                         </td>
                         <td class="text-center">
-                        @if ( $document->cancel_allowed == 'pending' )
-                            <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
-                                class="btn btn-primary">ดูรายละเอียด</a>
-                        @else
-                            <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
-                                class="btn btn-secondary">ดูรายละเอียด</a>
-                        @endif
+                            @if ($document->cancel_allowed == 'pending')
+                                <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
+                                    class="btn btn-primary">ดูรายละเอียด</a>
+                            @else
+                                <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
+                                    class="btn btn-secondary">ดูรายละเอียด</a>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            <!-- แสดงปุ่มดู PDF หากมี ReportFormance -->
+                            @if($document->reportFormance)
+                                <a href="{{ route('report.showRepDoc.pdf', ['id' => $document->reportFormance->report_id]) }}"
+                                    class="btn btn-info" target="_blank">
+                                    ดู PDF
+                                </a>
+                            @else
+                                <span>ไม่มีรายงาน</span>
+                            @endif
                         </td>
                     </tr>
                 @endforeach

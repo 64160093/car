@@ -149,14 +149,17 @@
                                                         <button type="button" class="btn btn-secondary" disabled>PDF</button>
                                                     @endif
 
-                                                    @if ($document->allow_director != 'pending')
-                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}"
-                                                            class="btn btn-outline-primary"> PDF
-                                                        </a>
+                                                    @if ($document->allow_carman != 'pending')
+                                                        @if ($document->reportFormance)
+                                                            <a href="{{ route('report.showRepDoc.pdf') }}?id={{ $document->reportFormance->report_id }}"
+                                                                class="btn btn-outline-primary"> PDF
+                                                            </a>
+                                                        @else
+                                                            <button type="button" class="btn btn-secondary" disabled>PDF</button>
+                                                        @endif
                                                     @else
                                                         <button type="button" class="btn btn-secondary" disabled>PDF</button>
                                                     @endif
-
                                                 </td>
                                             </tr>
                                     @endforeach
@@ -165,10 +168,7 @@
             </table>
         </div>
     @endif
-</div>
-</div>
-</div>
-</div>
+
 </div>
 
 <script>

@@ -174,13 +174,13 @@ class AdminController extends Controller
             $users = User::join('position', 'users.position_id', '=', 'position.position_id')
                 // ->join('department', 'users.department_id', '=', 'department.department_id')
                 ->join('role', 'users.role_id', '=', 'role.role_id')
-                        ->where('users.name', 'LIKE', '%'.$q.'%')
-                        ->orWhere('users.lname', 'LIKE', '%'.$q.'%')
-                        ->orWhere('users.email', 'LIKE', '%'.$q.'%')
-                        ->orWhere('users.phonenumber', 'LIKE', '%'.$q.'%')
-                        ->orWhere('position.position_name', 'LIKE', '%'.$q.'%')
+                ->where('users.name', 'LIKE', '%' . $q . '%')
+                ->orWhere('users.lname', 'LIKE', '%' . $q . '%')
+                ->orWhere('users.email', 'LIKE', '%' . $q . '%')
+                ->orWhere('users.phonenumber', 'LIKE', '%' . $q . '%')
+                ->orWhere('position.position_name', 'LIKE', '%' . $q . '%')
                 // ->orWhere('department.department_name', 'LIKE', '%'.$q.'%')
-                        ->orWhere('role.role_name', 'LIKE', '%'.$q.'%')
+                ->orWhere('role.role_name', 'LIKE', '%' . $q . '%')
 
                 ->select('users.*', 'position.position_name', 'role.role_name')
                 ->paginate(10);
@@ -208,12 +208,12 @@ class AdminController extends Controller
     public function showform()
     {
         $user = auth()->user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
-        $documents = ReqDocument::orderBy('document_id', 'desc')->get();
+        // ดึงข้อมูล ReqDocument พร้อมกับข้อมูลที่เชื่อมโยงกับ ReportFormance
+        $documents = ReqDocument::with('reportFormance')->orderBy('document_id', 'desc')->get();
 
         // ส่งข้อมูลไปยัง view admin.user.form
         return view('admin.users.form', compact('documents'));
     }
-
 
     public function searchForm(Request $request)
     {
@@ -306,8 +306,8 @@ class AdminController extends Controller
         $documents = $query->paginate(10);
         return view('admin.users.form', compact('documents'));
     }
-    
-    
+
+
 
 
 
