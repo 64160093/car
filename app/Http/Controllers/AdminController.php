@@ -209,7 +209,7 @@ class AdminController extends Controller
     {
         $user = auth()->user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
         // ดึงข้อมูล ReqDocument พร้อมกับข้อมูลที่เชื่อมโยงกับ ReportFormance
-        $documents = ReqDocument::with('reportFormance')->orderBy('document_id', 'desc')->get();
+        $documents = ReqDocument::with('reportFormance')->orderBy('document_id', 'desc')->paginate(10);
 
         // ส่งข้อมูลไปยัง view admin.user.form
         return view('admin.users.form', compact('documents'));
@@ -264,46 +264,55 @@ class AdminController extends Controller
             switch ($filter) {
                 case 'completed':
                     $query->where(function ($subQuery) {
-                        $subQuery->where('req_document.allow_division', 'approved')
-                            ->where('req_document.allow_opcar', 'approved')
-                            ->where('req_document.allow_officer', 'approved')
-                            ->where('req_document.allow_director', 'approved');
-                    });
-                    $query->orWhereNull('req_document.allow_department');
-                    break;
+                        $subQuery->where('allow_division', 'approved')
+                            ->where('allow_opcar', 'approved')
+                            ->where('allow_officer', 'approved')
+                            ->where('allow_director', 'approved');
+                    })
+                        ->where(function ($subQuery) {
+                            $subQuery->where('allow_department', '!=', 'rejected')
+                                ->where('allow_division', '!=', 'rejected')
+                                ->where('allow_opcar', '!=', 'rejected')
+                                ->where('allow_officer', '!=', 'rejected')
+                                ->where('allow_director', '!=', 'rejected')
+                                ->where('cancel_allowed', '!=', 'rejected');
+                        })
+                        ->orWhereNull('allow_department');
 
+                    break;
                 case 'pending':
                     $query->where(function ($subQuery) {
-                        $subQuery->where('req_document.allow_division', 'pending')
-                            ->orWhere('req_document.allow_opcar', 'pending')
-                            ->orWhere('req_document.allow_officer', 'pending')
-                            ->orWhere('req_document.allow_director', 'pending');
-                    });
-                    $query->where(function ($subQuery) {
-                        $subQuery->where('req_document.allow_department', '!=', 'rejected')
-                            ->where('req_document.allow_division', '!=', 'rejected')
-                            ->where('req_document.allow_opcar', '!=', 'rejected')
-                            ->where('req_document.allow_officer', '!=', 'rejected')
-                            ->where('req_document.allow_director', '!=', 'rejected')
-                            ->Where('req_document.cancel_allowed', '!=', 'rejected');
-                    });
+                        $subQuery->where('allow_division', 'pending')
+                            ->orWhere('allow_opcar', 'pending')
+                            ->orWhere('allow_officer', 'pending')
+                            ->orWhere('allow_director', 'pending');
+                    })
+                        ->where(function ($subQuery) {
+                            $subQuery->where('allow_department', '!=', 'rejected')
+                                ->where('allow_division', '!=', 'rejected')
+                                ->where('allow_opcar', '!=', 'rejected')
+                                ->where('allow_officer', '!=', 'rejected')
+                                ->where('allow_director', '!=', 'rejected')
+                                ->where('cancel_allowed', '!=', 'rejected');
+                        });
                     break;
-
                 case 'cancelled':
                     $query->where(function ($subQuery) {
-                        $subQuery->where('req_document.allow_department', 'rejected')
-                            ->orWhere('req_document.allow_division', 'rejected')
-                            ->orWhere('req_document.allow_opcar', 'rejected')
-                            ->orWhere('req_document.allow_officer', 'rejected')
-                            ->orWhere('req_document.allow_director', 'rejected')
-                            ->orWhere('req_document.cancel_allowed', 'rejected');
-                    });
-                    $query->whereNotNull('req_document.allow_department');
+                        $subQuery->where('allow_department', 'rejected')
+                            ->orWhere('allow_division', 'rejected')
+                            ->orWhere('allow_opcar', 'rejected')
+                            ->orWhere('allow_officer', 'rejected')
+                            ->orWhere('allow_director', 'rejected')
+                            ->orWhere('cancel_allowed', 'rejected')
+                            ->orWhere('cancel_admin', 'Y')
+                            ->orWhere('cancel_director', 'Y');
+                    })
+                        ->whereNotNull('allow_department');
                     break;
             }
         }
 
-        $documents = $query->paginate(10);
+        $documents = $query->paginate(5);
         return view('admin.users.form', compact('documents'));
     }
 

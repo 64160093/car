@@ -181,8 +181,6 @@ class ReqDocumentController extends Controller
         return response()->json($districts);
     }
 
-
-
     public function getEvents()
     {
         // ดึงข้อมูลจากฐานข้อมูล ReqDocument
@@ -204,6 +202,13 @@ class ReqDocumentController extends Controller
         // return view('welcome');
     }
 
+    public function getBookings($carType)
+    {
+        $bookings = ReqDocument::where('car_type', $carType)
+            ->get(['start_date', 'start_time', 'end_time']); // เปลี่ยนให้เหมาะกับชื่อฟิลด์ในฐานข้อมูล
+
+        return response()->json($bookings);
+    }
 
 
 }

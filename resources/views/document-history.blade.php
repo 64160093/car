@@ -33,7 +33,7 @@
         @endphp
 
         @foreach($documents->groupBy(function ($date) use ($groupedBy) {
-                return \Carbon\Carbon::parse($date->$groupedBy)->format('F Y', 'th');
+                return \Carbon\Carbon::parse($date->$groupedBy)->locale('th')->translatedFormat('F Y');
             }) as $month => $groupedDocuments)
             <div class="card mb-4 mt-2">
                 {{-- Header ของการ์ดจะแสดงเดือน --}}
@@ -123,7 +123,6 @@
                                     }
                                 @endphp
 
-
                                 <div class="d-flex justify-content-between align-items-center border p-3 rounded shadow-sm {{ $borderColor }}"
                                     style="background-color: #f8f9fa;">
                                     <div class="d-flex justify-content-between">
@@ -134,10 +133,10 @@
                                             วันที่ไป:
                                             <span>
                                                 {{ 
-                                                                        \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
+                                                                                                \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
                             \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' ' .
                             \Carbon\Carbon::parse($document->start_date)->addYears(543)->format('Y') 
-                                                                    }}
+                                                                                            }}
                                             </span><br>
                                             เวลาไป: {{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} น.
                                         </div>
@@ -148,16 +147,14 @@
                                             วันที่กลับ:
                                             <span>
                                                 {{ 
-                                                                        \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
+                                                                                                \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
                             \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') . ' ' .
                             \Carbon\Carbon::parse($document->end_date)->addYears(543)->format('Y') 
-                                                                    }}
+                                                                                            }}
                                             </span><br>
                                             เวลากลับ: {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }} น.
                                         </div>
                                     </div>
-
-
 
                                     <div>
                                         @if ($document->cancel_allowed == 'pending')
@@ -193,21 +190,16 @@
                                                 class="btn btn-outline-primary">สถานะ</a>
 
                                         @endif
-
-
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
-
-
-
             </div>
         @endforeach
     @endif
-        {{ $documents->links() }}
+    {{ $documents->appends(request()->query())->links() }}
 </div>
 
 <style>

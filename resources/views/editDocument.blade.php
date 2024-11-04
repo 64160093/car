@@ -33,7 +33,6 @@
     }
 </style>
 
-</style>
 @section('content')
 <div class="container mt-5">
     <h1>{{ __('หน้าแก้ไขเอกสาร') }}</h1>
@@ -273,26 +272,60 @@
 
 <!-- Modal เพิ่มผู้ร่วมเดินทาง -->
 <style>
-    .custom-modal {
-        max-width: 600px;
-        width: 100%;
+    .custom-modal.modal-xl {
+        max-width: 1000px;
+    }
+
+    .custom-modal .modal-content {
+        height: 80vh;
+        /* ปรับขนาดความสูงของ modal */
+    }
+
+    .custom-modal .modal-body {
+        height: calc(80vh - 120px);
+        /* ชดเชยพื้นที่ header และ footer */
         overflow-y: auto;
+    }
+
+    #companions {
+        width: 100%;
+        /* ให้ select ขยายเต็มความกว้าง */
+        height: 100%;
+        /* ให้ select ขยายเต็มความสูง */
+    }
+
+    #companions option {
+        border-bottom: 3px solid #ddd;
+        /* เส้นแบ่งด้านล่าง */
+        padding: 5px;
+        /* เพิ่มระยะห่างภายในให้กับ option */
+    }
+
+    #companions option:last-child {
+        border-bottom: none;
+        /* ลบเส้นแบ่งออกจาก option สุดท้าย */
     }
 </style>
 <div class="modal fade" id="companionModal" tabindex="-1" aria-labelledby="companionModalLabel" aria-hidden="true">
-    <div class="modal-dialog custom-modal">
+    <div class="modal-dialog modal-xl custom-modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="companionModalLabel">{{ __('เพิ่มผู้ร่วมเดินทาง') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="companion-list-container" style="max-height: 200px; overflow-y: auto;">
+                <div class="companion-search-container mb-3">
+                    <input type="text" id="searchCompanion" class="form-control"
+                        placeholder="{{ __('ค้นหาชื่อผู้ร่วมเดินทาง') }}">
+                </div>
+                <div class="companion-list-container">
                     <select id="companions" name="companions[]" class="form-control" multiple>
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ in_array($user->id, explode(',', $document->companion_name)) ? 'style=display:none;' : '' }}>
-                                {{ $user->name }} {{ $user->lname }}
-                            </option>
+                            @if ($user->id !== Auth::user()->id && !$user->isAdmin() && !in_array($user->role_id, [11, 12]))
+                                <option value="{{ $user->id }}" {{ in_array($user->id, explode(',', $document->companion_name)) ? 'style=display:none;' : '' }}>
+                                    {{ $user->name }} {{ $user->lname }}
+                                </option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -307,6 +340,17 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+    // ฟังก์ชันค้นหาชื่อผู้ร่วมเดินทาง
+    document.getElementById('searchCompanion').addEventListener('input', function () {
+        const filter = this.value.toLowerCase();
+        const options = document.querySelectorAll('#companions option');
+
+        options.forEach(option => {
+            const name = option.textContent.toLowerCase();
+            option.style.display = name.includes(filter) ? 'block' : 'none';
+        });
+    });
+
     // เมื่อเปลี่ยนแปลงจังหวัด
     $('#provinces_id').on('change', function () {
         var provinceId = $(this).val();
@@ -353,6 +397,7 @@
             });
         }
     });
+
     document.addEventListener('DOMContentLoaded', function () {
         const companionsSelect = document.getElementById('companions');
         const companionList = document.getElementById('companion-list').querySelector('ul'); // Select the <ul> directly

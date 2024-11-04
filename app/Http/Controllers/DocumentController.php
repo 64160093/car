@@ -463,7 +463,16 @@ class DocumentController extends Controller
                             ->where('allow_officer', 'approved')
                             ->where('allow_director', 'approved');
                     })
+                        ->where(function ($subQuery) {
+                            $subQuery->where('allow_department', '!=', 'rejected')
+                                ->where('allow_division', '!=', 'rejected')
+                                ->where('allow_opcar', '!=', 'rejected')
+                                ->where('allow_officer', '!=', 'rejected')
+                                ->where('allow_director', '!=', 'rejected')
+                                ->where('cancel_allowed', '!=', 'rejected');
+                        })
                         ->orWhereNull('allow_department');
+
                     break;
                 case 'pending':
                     $documents->where(function ($subQuery) {
@@ -488,7 +497,9 @@ class DocumentController extends Controller
                             ->orWhere('allow_opcar', 'rejected')
                             ->orWhere('allow_officer', 'rejected')
                             ->orWhere('allow_director', 'rejected')
-                            ->orWhere('cancel_allowed', 'rejected');
+                            ->orWhere('cancel_allowed', 'rejected')
+                            ->orWhere('cancel_admin', 'Y')
+                            ->orWhere('cancel_director', 'Y');
                     })
                         ->whereNotNull('allow_department');
                     break;
