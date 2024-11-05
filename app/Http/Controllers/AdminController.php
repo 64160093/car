@@ -94,6 +94,21 @@ class AdminController extends Controller
         return redirect()->route('show.vehicles');
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'car_category' => 'required|string|max:3',                  //varchar(3)
+            'car_regnumber' => 'required|integer|digits_between:1,4',   //int(4)
+            'car_province' => 'required|string|max:255',
+        ]);
+
+        $vehicle = Vehicle::findOrFail($id);
+        $vehicle->update($request->all());
+
+        return redirect()->route('show.vehicles')->with('success', 'อัปเดตข้อมูลสำเร็จ');
+    }
+
+
 
     /**
      *
@@ -207,13 +222,11 @@ class AdminController extends Controller
     //------------------------- แสดงรายการคำขอ -------------------------
     public function showform()
     {
-        $user = auth()->user(); // ดึงข้อมูลผู้ใช้ปัจจุบัน
-        // ดึงข้อมูล ReqDocument พร้อมกับข้อมูลที่เชื่อมโยงกับ ReportFormance
+        $user = auth()->user();
         $documents = ReqDocument::with('reportFormance')->orderBy('document_id', 'desc')->paginate(10);
-
-        // ส่งข้อมูลไปยัง view admin.user.form
         return view('admin.users.form', compact('documents'));
     }
+
 
     public function searchForm(Request $request)
     {
@@ -312,7 +325,7 @@ class AdminController extends Controller
             }
         }
 
-        $documents = $query->paginate(5);
+        $documents = $query->paginate(10);
         return view('admin.users.form', compact('documents'));
     }
 

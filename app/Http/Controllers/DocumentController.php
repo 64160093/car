@@ -387,6 +387,7 @@ class DocumentController extends Controller
      *
      * 
      */
+    // ส่วนของผู้ใช้
     public function cancel(Request $request, $id)
     {
         $request->validate([
@@ -410,11 +411,10 @@ class DocumentController extends Controller
     public function confirmCancel(Request $request, $id)
     {
         $document = ReqDocument::findOrFail($id);
-
         $document->cancel_admin = 'Y';
         $document->save();
 
-        return redirect()->route('documents.status')->with('success', 'คำขอถูกยกเลิกเรียบร้อยแล้ว');
+        return redirect()->route('documents.status', ['id' => $id])->with('success', 'คำขอถูกยกเลิกเรียบร้อยแล้ว');
     }
 
     // ส่วนของผู้อำนวยการ
@@ -427,6 +427,21 @@ class DocumentController extends Controller
 
         return redirect()->route('documents.index')->with('success', 'คำขอถูกยกเลิกเรียบร้อยแล้วโดยผู้อำนวยการ');
     }
+
+
+    public function updateEditAllowed(Request $request, $id)
+    {
+        $request->validate([
+            'edit_allowed' => 'required|string|max:255',
+        ]);
+
+        $document = ReqDocument::findOrFail($id);
+        $document->edit_allowed = $request->edit_allowed;
+        $document->save();
+
+        return redirect()->route('documents.history')->with('success', 'สถานะถูกแก้ไขเรียบร้อยแล้ว');
+    }
+
 
     public function getAmphoes($province_id)
     {
@@ -442,6 +457,11 @@ class DocumentController extends Controller
         return response()->json(['districts' => $districts]);
     }
 
+    /**
+     * search Document
+     *
+     * 
+     */
     public function search(Request $request)
     {
         // ตรวจสอบว่ามีค่าการค้นหาหรือไม่
@@ -506,7 +526,7 @@ class DocumentController extends Controller
             }
         }
         // สั่งเรียงตามวันที่สร้างล่าสุด
-        $documents = $documents->orderBy('created_at', 'desc')->paginate(5); // แบ่งหน้า
+        $documents = $documents->orderBy('created_at', 'desc')->paginate(5); // แบ่งหน้าละ 10 รายการ
         return view('document-history', compact('documents'));
     }
 
@@ -515,38 +535,30 @@ class DocumentController extends Controller
         $query = $request->input('search');
         $month = $request->input('month');
         $year = $request->input('year');
-
         // ดึงข้อมูลทั้งหมดจากฐานข้อมูล
         $documents = ReqDocument::orderBy('created_at', 'desc')->get();
-
         // จัดเก็บข้อมูลใน Session
         session(['documents' => $documents]);
-
         // กรองข้อมูลที่อยู่ใน Session
         $filteredDocuments = collect(session('documents'))->filter(function ($document) use ($month, $year, $query) {
             // เพิ่มเงื่อนไขสำหรับ allow_director
             if ($document->allow_director !== 'approved') {
                 return false; // ข้ามเอกสารที่ไม่ได้รับการอนุมัติ
             }
-
             // กรองตามเดือน
             if ($month && \Carbon\Carbon::parse($document->start_date)->month !== (int) $month) {
                 return false;
             }
-
             // กรองตามปี
             if ($year && \Carbon\Carbon::parse($document->start_date)->year !== (int) $year) {
                 return false;
             }
-
             // กรองตามวัตถุประสงค์
             if ($query && strpos($document->objective, $query) === false) {
                 return false;
             }
-
             return true;
         });
-
         // ใช้เอกสารทั้งหมดถ้าไม่มีการกรอง
         if ($month || $year || $query) {
             $documents = $filteredDocuments; // ใช้เอกสารที่กรองแล้ว
@@ -556,7 +568,6 @@ class DocumentController extends Controller
                 return $document->allow_director === 'approved'; // แสดงเฉพาะเอกสารที่ได้รับการอนุมัติ
             });
         }
-
         return view('driver.schedule', compact('documents'));
     }
 

@@ -7,8 +7,10 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
 
 @endsection
 
@@ -31,6 +33,7 @@
                     </div>
                 @endif
 
+                <!-- วันที่ทำเรื่อง (Moved to top-right) -->
                 <div class="row mb-4">
                     <div class="col-md-8">
                         <h5>{{ __('รายละเอียดการเดินทาง') }}</h5>
@@ -55,6 +58,7 @@
                             @endif
                         </span>
                     </div>
+
                     <div class="col-md-4 text-right">
                         <div class="form-group">
                             <label for="reservation_date">{{ __('วันที่ทำเรื่อง') }}</label>
@@ -91,6 +95,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- ฟิลด์ผู้ร่วมเดินทาง -->
                 <div class="row mb-4">
@@ -130,6 +135,8 @@
                     @enderror
                 </div>
 
+
+
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
                     <label for="objective">{{ __('วัตถุประสงค์') }}</label>
@@ -166,6 +173,7 @@
                     <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type"
                         required>
                         <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
+
                         @php
                             $hasDisplayedPickupTruck = false;
                             $hasDisplayedVan = false;
@@ -199,6 +207,7 @@
                         </span>
                     @enderror
                 </div>
+
                 <!-- ให้รถไปรับที่ -->
                 <div class="form-group mb-4">
                     <label for="car_pickup">{{ __('ให้รถไปรับที่ไหน') }}</label>
@@ -209,7 +218,6 @@
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
-
                 </div>
 
                 <!-- วันที่ไป และ วันที่กลับ (In the same row) -->
@@ -242,6 +250,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- เวลาไป และ เวลากลับ -->
                 <div class="row mb-4">
@@ -307,6 +316,7 @@
                             @enderror
                         </div>
                     </div>
+
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="amphoe_id">{{ __('อำเภอ') }}</label>
@@ -330,6 +340,7 @@
                             @enderror
                         </div>
                     </div>
+
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="district_id">{{ __('ตำบล') }}</label>
@@ -366,6 +377,8 @@
                         </span>
                     @enderror
                 </div>
+
+
                 <!-- ลายเซ็นของผู้ใช้ -->
                 <div class="form-group mb-4">
                     <label for="signature">{{ __('ลงชื่อผู้ขอ') }}</label>
@@ -378,6 +391,7 @@
                         <p>{{ __('ยังไม่มีการอัปโหลดลายเซ็น') }}</p>
                     @endif
                 </div>
+
                 <button type="submit" class="btn btn-primary">{{ __('ยืนยันแบบฟอร์ม') }}</button>
             </form>
         </div>

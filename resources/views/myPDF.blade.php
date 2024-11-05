@@ -98,7 +98,7 @@
         <p><span class="line" style="width: 605px; height: 20px; padding-left: 30px;"></span></p>
         <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-top: 4px;"></span></p>
         <p><span class="line" style="width: 605px; line-height: 1; padding-left: 30px; margin-top: 4px;"></span></p>
-        <p >รวมทั้งสิ้น <span class="line" style="width: 70px; margin-top: 10px;" >{{ $documents->sum_companion }}</span> คน 
+        <p >รวมทั้งสิ้น <span class="line" style="width: 70px; margin-top: 10px;" >{{ $documents->sum_companion + 1}}</span> คน 
             ขออนุญาตใช้รถยนต์ประเภท <span class="line" style="width: 271px; line-height: ;">{{ $documents->car_type }}</span>
         </p>
         <p>มีความประสงค์ขออนุญาตใช้รถยนต์เพื่อไป <span class="line" style="width: 380px;"> {{ $documents->objective }}</span></p>
@@ -147,7 +147,9 @@
                 )
             </p>
             <p style="line-height: 1; margin-left: 25"><span class="line" style="text-align: center;">
-                {{ $documents->DivisionAllowBy->name }} {{ $documents->DivisionAllowBy->lname }}
+                
+                {{ $documents->DivisionAllowBy ? $documents->DivisionAllowBy->name : '' }}
+                {{ $documents->DivisionAllowBy ? $documents->DivisionAllowBy->lname : '' }}
                 </span> หัวหน้าฝ่าย
             </p>
             <!-- <p style="line-height: 1; margin-left: 25; text-align: center;">
@@ -161,9 +163,12 @@
         </div>
         <p>
             โปรดพิจารณาอนุญาตให้ใช้รถยนต์หมานเลขทะเบียน <span class="line" style="width:100px; padding-left: 10px;">
-            {{ $documents->vehicle->car_category }} {{ $documents->vehicle->car_regnumber }} {{ $documents->vehicle->car_province }}
+            {{ $documents->vehicle ? $documents->vehicle->car_category : ''}} 
+            {{ $documents->vehicle ? $documents->vehicle->car_regnumber :''}} 
+            {{ $documents->vehicle ? $documents->vehicle->car_province : ''}}
             </span> มี <span class="line" style="width: 200px;">
-            {{ $documents->carmanUser->name }} {{ $documents->carmanUser->lname }}
+            {{ $documents->carmanUser ? $documents->carmanUser->name : ''}} 
+            {{ $documents->carmanUser ? $documents->carmanUser->lname : ''}}
         </span></p>
         <p>เป็นพนักงานขับรถยนต์ และ <span class="line" style="width: 373px;">
          {{ $documents->carController->name }} {{ $documents->carController->lname }}
@@ -172,9 +177,18 @@
         <!-- <p><span class="line" style="width: 605px; line-height: 0.9; padding-left: 30px;">2s</span></p> -->
 
             @foreach($documents->reqDocumentUsers as $docUser)
-                <!-- {{$docUser->signature_name}} -->
                 <img src="{{ Storage::url('signatures/' . $docUser->signature_name) }}"  width="150" class="img-fluid mt-2">
-            @endforeach 
+            @endforeach
+
+            <a href="{{ asset('images/BIMS_TH.png') }}" target="_blank">
+                <img src="{{ asset('images/BIMS_TH.png') }}" alt="BIMS_TH Image" class="img-fluid" style="max-width: 100%; height: auto;">
+            </a>
+
+
+            @foreach($documents->reqDocumentUsers as $docUser)
+                <img src="{{ asset('public/images/BIMS_TH.png') }}" width="150" class="img-fluid mt-2">
+            @endforeach
+
 
     </div>
 </body>

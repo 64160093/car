@@ -29,10 +29,13 @@ class DashboardController extends Controller
         $data = [];
         $divisionLabels = [];
         $divisionData = [];
+        $approvedDivisionLabels = [];
+        $approvedDivisionData = [];
         $workLabels = [];
         $workData = [];
         $carTypeLabels = [];
         $carTypeData = [];
+        $approvedData = []; // ตัวแปรสำหรับข้อมูลที่ได้รับอนุมัติ
 
         // ดึงปีที่มีข้อมูลจาก ReqDocument
         $yearsWithData = ReqDocument::selectRaw('YEAR(start_date) as year')
@@ -40,6 +43,7 @@ class DashboardController extends Controller
             ->orderBy('year', 'desc') // เรียงจากปีล่าสุด
             ->pluck('year'); // ดึงเฉพาะปีเป็น Collection
 
+        // ดึงข้อมูลตามช่วงเวลาที่เลือก
         if ($viewType === 'month') {
             // ดึงข้อมูลสำหรับรายเดือน
             $requestCounts = ReqDocumentUser::selectRaw('user_id, COUNT(*) as count')
@@ -55,6 +59,39 @@ class DashboardController extends Controller
                 $data[] = $requestCount->count;
             }
 
+            // ดึงข้อมูลการขออนุญาตที่ได้รับอนุมัติ
+            $approvedRequestCounts = ReqDocumentUser::selectRaw('user_id, COUNT(*) as count')
+                ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->whereYear('req_document.start_date', $selectedYear)
+                ->whereMonth('req_document.start_date', $month)
+                ->where(function ($query) {
+                    $query->where('req_document.allow_department', 'approved')
+                        ->where('req_document.allow_division', 'approved')
+                        ->where('req_document.allow_opcar', 'approved')
+                        ->where('req_document.allow_officer', 'approved')
+                        ->where('req_document.allow_director', 'approved')
+                        ->where('allow_department', '!=', 'rejected')
+                        ->where('allow_division', '!=', 'rejected')
+                        ->where('allow_opcar', '!=', 'rejected')
+                        ->where('allow_officer', '!=', 'rejected')
+                        ->where('allow_director', '!=', 'rejected')
+                        ->where('cancel_allowed', '!=', 'rejected');
+                })
+                ->orWhereNull('allow_department')
+                ->groupBy('user_id')
+                ->get();
+
+            // สร้างข้อมูลการอนุมัติ
+            $approvedCounts = [];
+            foreach ($approvedRequestCounts as $approvedCount) {
+                $approvedCounts[$approvedCount->user_id] = $approvedCount->count;
+            }
+
+            // สร้างข้อมูลสำหรับการอนุมัติในกราฟ
+            foreach ($requestCounts as $requestCount) {
+                $approvedData[] = isset($approvedCounts[$requestCount->user_id]) ? $approvedCounts[$requestCount->user_id] : 0;
+            }
+
             // ดึงข้อมูลตามส่วนงาน
             $divisionRequestCounts = ReqDocumentUser::selectRaw('division_id, COUNT(*) as count')
                 ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
@@ -68,6 +105,36 @@ class DashboardController extends Controller
                 $divisionLabels[] = $division ? $division->division_name : 'Unknown Division';
                 $divisionData[] = $requestCount->count;
             }
+
+            // ดึงข้อมูลการขออนุญาตที่ได้รับการอนุมัติตามส่วนงาน
+            $approvedDivisionRequestCounts = ReqDocumentUser::selectRaw('division_id, COUNT(*) as count')
+                ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->whereYear('req_document.start_date', $selectedYear)
+                ->whereMonth('req_document.start_date', $month)
+                ->where(function ($query) {
+                    $query->where('req_document.allow_department', 'approved')
+                        ->where('req_document.allow_division', 'approved')
+                        ->where('req_document.allow_opcar', 'approved')
+                        ->where('req_document.allow_officer', 'approved')
+                        ->where('req_document.allow_director', 'approved')
+                        ->where('allow_department', '!=', 'rejected')
+                        ->where('allow_division', '!=', 'rejected')
+                        ->where('allow_opcar', '!=', 'rejected')
+                        ->where('allow_officer', '!=', 'rejected')
+                        ->where('allow_director', '!=', 'rejected')
+                        ->where('cancel_allowed', '!=', 'rejected');
+                })
+                ->orWhereNull('allow_department')
+                ->groupBy('division_id')
+                ->get();
+
+            // เตรียมข้อมูลสำหรับการแสดงผลในกราฟการอนุมัติตามส่วนงาน
+            foreach ($approvedDivisionRequestCounts as $approvedCount) {
+                $division = Division::find($approvedCount->division_id);
+                $approvedDivisionLabels[] = $division ? $division->division_name : 'Unknown Division';
+                $approvedDivisionData[] = $approvedCount->count;
+            }
+
 
             // ดึงข้อมูลตามประเภทงาน
             $workRequestCounts = ReqDocumentUser::selectRaw('work_id, COUNT(*) as count')
@@ -94,7 +161,6 @@ class DashboardController extends Controller
                 $carTypeLabels[] = $requestCount->car_type ? $requestCount->car_type : 'Unknown Car Type';
                 $carTypeData[] = $requestCount->count;
             }
-
         } elseif ($viewType === 'quarter') {
             // ดึงข้อมูลสำหรับรายไตรมาส
             $startMonth = ($quarter - 1) * 3 + 1; // เดือนเริ่มต้นของไตรมาส
@@ -113,6 +179,39 @@ class DashboardController extends Controller
                 $data[] = $requestCount->count;
             }
 
+            // ดึงข้อมูลการขออนุญาตที่ได้รับอนุมัติ
+            $approvedRequestCounts = ReqDocumentUser::selectRaw('user_id, COUNT(*) as count')
+                ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->whereYear('req_document.start_date', $selectedYear)
+                ->whereBetween('req_document.start_date', ["{$selectedYear}-{$startMonth}-01", "{$selectedYear}-{$endMonth}-31"])
+                ->where(function ($query) {
+                    $query->where('req_document.allow_department', 'approved')
+                        ->where('req_document.allow_division', 'approved')
+                        ->where('req_document.allow_opcar', 'approved')
+                        ->where('req_document.allow_officer', 'approved')
+                        ->where('req_document.allow_director', 'approved')
+                        ->where('allow_department', '!=', 'rejected')
+                        ->where('allow_division', '!=', 'rejected')
+                        ->where('allow_opcar', '!=', 'rejected')
+                        ->where('allow_officer', '!=', 'rejected')
+                        ->where('allow_director', '!=', 'rejected')
+                        ->where('cancel_allowed', '!=', 'rejected');
+                })
+                ->orWhereNull('allow_department')
+                ->groupBy('user_id')
+                ->get();
+
+            // สร้างข้อมูลการอนุมัติ
+            $approvedCounts = [];
+            foreach ($approvedRequestCounts as $approvedCount) {
+                $approvedCounts[$approvedCount->user_id] = $approvedCount->count;
+            }
+
+            // สร้างข้อมูลสำหรับการอนุมัติในกราฟ
+            foreach ($requestCounts as $requestCount) {
+                $approvedData[] = isset($approvedCounts[$requestCount->user_id]) ? $approvedCounts[$requestCount->user_id] : 0;
+            }
+
             // ดึงข้อมูลตามส่วนงาน
             $divisionRequestCounts = ReqDocumentUser::selectRaw('division_id, COUNT(*) as count')
                 ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
@@ -126,7 +225,34 @@ class DashboardController extends Controller
                 $divisionLabels[] = $division ? $division->division_name : 'Unknown Division';
                 $divisionData[] = $requestCount->count;
             }
+            // ดึงข้อมูลการขออนุญาตที่ได้รับการอนุมัติตามส่วนงาน
+            $approvedDivisionRequestCounts = ReqDocumentUser::selectRaw('division_id, COUNT(*) as count')
+                ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->whereYear('req_document.start_date', $selectedYear)
+                ->whereBetween('req_document.start_date', ["{$selectedYear}-{$startMonth}-01", "{$selectedYear}-{$endMonth}-31"])
+                ->where(function ($query) {
+                    $query->where('req_document.allow_department', 'approved')
+                        ->where('req_document.allow_division', 'approved')
+                        ->where('req_document.allow_opcar', 'approved')
+                        ->where('req_document.allow_officer', 'approved')
+                        ->where('req_document.allow_director', 'approved')
+                        ->where('allow_department', '!=', 'rejected')
+                        ->where('allow_division', '!=', 'rejected')
+                        ->where('allow_opcar', '!=', 'rejected')
+                        ->where('allow_officer', '!=', 'rejected')
+                        ->where('allow_director', '!=', 'rejected')
+                        ->where('cancel_allowed', '!=', 'rejected');
+                })
+                ->orWhereNull('allow_department')
+                ->groupBy('division_id')
+                ->get();
 
+            // เตรียมข้อมูลสำหรับการแสดงผลในกราฟการอนุมัติตามส่วนงาน
+            foreach ($approvedDivisionRequestCounts as $approvedCount) {
+                $division = Division::find($approvedCount->division_id);
+                $approvedDivisionLabels[] = $division ? $division->division_name : 'Unknown Division';
+                $approvedDivisionData[] = $approvedCount->count;
+            }
             // ดึงข้อมูลตามประเภทงาน
             $workRequestCounts = ReqDocumentUser::selectRaw('work_id, COUNT(*) as count')
                 ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
@@ -152,9 +278,8 @@ class DashboardController extends Controller
                 $carTypeLabels[] = $requestCount->car_type ? $requestCount->car_type : 'Unknown Car Type';
                 $carTypeData[] = $requestCount->count;
             }
-
         } elseif ($viewType === 'year') {
-            // ดึงข้อมูลสำหรับทั้งปี
+            // ดึงข้อมูลสำหรับรายปี
             $requestCounts = ReqDocumentUser::selectRaw('user_id, COUNT(*) as count')
                 ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
                 ->whereYear('req_document.start_date', $selectedYear)
@@ -165,6 +290,38 @@ class DashboardController extends Controller
                 $user = User::find($requestCount->user_id);
                 $labels[] = $user ? $user->name : 'Unknown User';
                 $data[] = $requestCount->count;
+            }
+
+            // ดึงข้อมูลการขออนุญาตที่ได้รับอนุมัติ
+            $approvedRequestCounts = ReqDocumentUser::selectRaw('user_id, COUNT(*) as count')
+                ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->whereYear('req_document.start_date', $selectedYear)
+                ->where(function ($query) {
+                    $query->where('req_document.allow_department', 'approved')
+                        ->where('req_document.allow_division', 'approved')
+                        ->where('req_document.allow_opcar', 'approved')
+                        ->where('req_document.allow_officer', 'approved')
+                        ->where('req_document.allow_director', 'approved')
+                        ->where('allow_department', '!=', 'rejected')
+                        ->where('allow_division', '!=', 'rejected')
+                        ->where('allow_opcar', '!=', 'rejected')
+                        ->where('allow_officer', '!=', 'rejected')
+                        ->where('allow_director', '!=', 'rejected')
+                        ->where('cancel_allowed', '!=', 'rejected');
+                })
+                ->orWhereNull('allow_department')
+                ->groupBy('user_id')
+                ->get();
+
+            // สร้างข้อมูลการอนุมัติ
+            $approvedCounts = [];
+            foreach ($approvedRequestCounts as $approvedCount) {
+                $approvedCounts[$approvedCount->user_id] = $approvedCount->count;
+            }
+
+            // สร้างข้อมูลสำหรับการอนุมัติในกราฟ
+            foreach ($requestCounts as $requestCount) {
+                $approvedData[] = isset($approvedCounts[$requestCount->user_id]) ? $approvedCounts[$requestCount->user_id] : 0;
             }
 
             // ดึงข้อมูลตามส่วนงาน
@@ -179,7 +336,33 @@ class DashboardController extends Controller
                 $divisionLabels[] = $division ? $division->division_name : 'Unknown Division';
                 $divisionData[] = $requestCount->count;
             }
+            // ดึงข้อมูลการขออนุญาตที่ได้รับการอนุมัติตามส่วนงาน
+            $approvedDivisionRequestCounts = ReqDocumentUser::selectRaw('division_id, COUNT(*) as count')
+                ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->whereYear('req_document.start_date', $selectedYear)
+                ->where(function ($query) {
+                    $query->where('req_document.allow_department', 'approved')
+                        ->where('req_document.allow_division', 'approved')
+                        ->where('req_document.allow_opcar', 'approved')
+                        ->where('req_document.allow_officer', 'approved')
+                        ->where('req_document.allow_director', 'approved')
+                        ->where('allow_department', '!=', 'rejected')
+                        ->where('allow_division', '!=', 'rejected')
+                        ->where('allow_opcar', '!=', 'rejected')
+                        ->where('allow_officer', '!=', 'rejected')
+                        ->where('allow_director', '!=', 'rejected')
+                        ->where('cancel_allowed', '!=', 'rejected');
+                })
+                ->orWhereNull('allow_department')
+                ->groupBy('division_id')
+                ->get();
 
+            // เตรียมข้อมูลสำหรับการแสดงผลในกราฟการอนุมัติตามส่วนงาน
+            foreach ($approvedDivisionRequestCounts as $approvedCount) {
+                $division = Division::find($approvedCount->division_id);
+                $approvedDivisionLabels[] = $division ? $division->division_name : 'Unknown Division';
+                $approvedDivisionData[] = $approvedCount->count;
+            }
             // ดึงข้อมูลตามประเภทงาน
             $workRequestCounts = ReqDocumentUser::selectRaw('work_id, COUNT(*) as count')
                 ->join('req_document', 'req_document.document_id', '=', 'req_document_user.req_document_id')
@@ -211,8 +394,11 @@ class DashboardController extends Controller
             'userCount',
             'labels',
             'data',
+            'approvedData',
             'divisionLabels',
             'divisionData',
+            'approvedDivisionLabels',
+            'approvedDivisionData',
             'workLabels',
             'workData',
             'carTypeLabels',
@@ -220,8 +406,8 @@ class DashboardController extends Controller
             'viewType',
             'month',
             'selectedYear',
-            'quarter', // เพิ่มตัวแปร quarter ที่ส่งไปยัง view
-            'yearsWithData' // เพิ่มตัวแปรที่เก็บปีที่มีข้อมูล
+            'quarter',
+            'yearsWithData'
         ));
     }
 }

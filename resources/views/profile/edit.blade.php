@@ -117,7 +117,7 @@
 
                         <div class="form-group mt-4 text-center mb-3"> 
                             @if (auth()->user()->is_admin == 1)
-                                <a href="{{ route('admin.home') }}" class="btn btn-warning">ย้อนกลับ</a>
+                                <a href="{{ route('admin.dashboard') }}" class="btn btn-warning">ย้อนกลับ</a>
                             @else
                                 <a href="{{ route('welcome') }}" class="btn btn-warning">ย้อนกลับ</a>
                             @endif

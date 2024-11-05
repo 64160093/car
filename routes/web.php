@@ -19,7 +19,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ReportDocumentController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DriverScheduleController;
+
 
 
 // เส้นทางหลักของแอปพลิเคชัน
@@ -58,7 +58,7 @@ Route::get('/vehicles', [AdminController::class, 'showVehicles'])->name('show.ve
 Route::post('/vehicles', [AdminController::class, 'storeVehicle'])->name('store.vehicle');
 Route::post('/vehicles/update-status/{id}', [AdminController::class, 'updateStatus'])->name('vehicles.updateStatus');
 Route::delete('/vehicles/{id}', [AdminController::class, 'destroy'])->name('vehicles.destroy');
-
+Route::put('/vehicles/{id}', [AdminController::class, 'update'])->name('vehicles.update');
 
 Route::get('/reqdocument', [ReqDocumentController::class, 'create'])->name('reqdocument.create');
 Route::post('/reqdocument', [ReqDocumentController::class, 'store'])->name('reqdocument.store');
@@ -111,7 +111,7 @@ Route::get('/admin/users/searchform', [AdminController::class, 'searchForm'])->n
 Route::get('/document-history', [DocumentController::class, 'index'])->name('documents.history');
 Route::get('/documents/search', [DocumentController::class, 'search'])->name('documents.search');
 
-Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review');
+Route::get('/reviewform', [DocumentController::class, 'reviewForm'])->name('documents.review')->middleware('auth');
 Route::get('/reviewstatus', [DocumentController::class, 'reviewStatus'])->name('documents.status')->middleware('auth');
 
 //รายการคำขอที่รอนุมัติ อนุมัติคำร้อง
@@ -135,10 +135,12 @@ Route::get('/report/showRepDoc/pdf', [PDFController::class, 'generateReportPDF']
 
 
 //แก้ไขเอกสาร
-Route::get('/documents/edit', [DocumentController::class, 'edit'])->name('documents.edit');
+Route::get('/documents/edit', [DocumentController::class, 'edit'])->name('documents.edit')->middleware('auth');
 Route::put('/documents/{id}', [DocumentController::class, 'update'])->name('documents.update.edit');
 
 //ยกเลิกเอกสาร
 Route::post('/documents/cancel/{id}', [DocumentController::class, 'cancel'])->name('documents.cancel');
 Route::post('/documents/{id}/confirm-cancel', [DocumentController::class, 'confirmCancel'])->name('documents.confirmCancel');
 Route::post('/documents/{id}/confirm-director-cancel', [DocumentController::class, 'confirmDirectorCancel'])->name('documents.confirmDirectorCancel');
+Route::post('/documents/{id}/update-edit-allowed', [DocumentController::class, 'updateEditAllowed'])->name('documents.updateEditAllowed');
+

@@ -7,7 +7,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <strong>วันที่ไป:
-                        {{ \Carbon\Carbon::parse($document->start_date)->translatedFormat('d F Y') }}</strong>
+                        {{ 
+                            \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' . 
+                            \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' . 
+                            \Carbon\Carbon::parse($document->start_date)->addYears(543)->format('Y') 
+                        }}</strong>
                 </div>
                 <div class="col-md-6 text-right">
                     <strong>วัตถุประสงค์: {{ $document->objective }}</strong>
@@ -103,6 +107,7 @@
             </div>
 
             <div class="text-center mb-4">
+                <!-- ไม่มีการขอยกเลิก -->
                 @if ($document->cancel_allowed == "pending")
                     <h4>สถานะปัจจุบัน:
                         <span>
@@ -124,6 +129,27 @@
                             @endforeach
                         </span>
                     </h4>
+                <!-- ยกเลิกก่อนถึงผอ. -->
+                @elseif ( $document->allow_director == 'pending' && $document->cancel_reason != null )
+                    <h4>สถานะปัจจุบัน:
+                        @if ( $document->cancel_admin == 'Y' )
+                            <span class="badge bg-danger">รายการคำขอถูกยกเลิกแล้ว</span>  
+                        @else
+                            <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>  
+                        @endif
+                    </h4>
+                <!-- ผอ.อนุมัติไปแล้ว -->
+                @elseif ( $document->allow_director != 'pending' && $document->cancel_reason != null )
+                    <h4>สถานะปัจจุบัน:
+                        @if ( $document->cancel_admin != 'Y' )
+                            <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>  
+                        @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
+                            <span class="badge bg-info">รอผู้อำนวยการอนุมัติคำขอยกเลิก</span>  
+                        @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                            <span class="badge bg-danger">รายการคำขอถูกยกเลิกแล้ว</span>
+                        @endif
+                        
+                    </h4>
                 @else
                     <h4>สถานะปัจจุบัน:
                         <span class="badge bg-danger">รายการคำขอถูกยกเลิกแล้ว</span>
@@ -132,37 +158,22 @@
             </div>
 
             <div class="text-center">
-                <!-- แก้ไขเอกสาร -->
+            <!-- แก้ไขเอกสาร -->
+                <!-- ถ้าไม่ยกเลิกแก้ไขได้ -->
                 @if ($document->cancel_allowed == "pending")
-                    @if ($document->allow_carman != "pending")
-                        <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
-                            class="btn btn-warning disabled">
-                            {{ __('แก้ไขเอกสาร') }}
-                        </a>
-                    @else
-                        <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}" class="btn btn-warning">
-                            {{ __('แก้ไขเอกสาร') }}
-                        </a>
-                    @endif
-                @endif
-
-                <!-- ยกเลิกคำขอ -->
-                @if ($document->cancel_allowed == "pending") <!-- ยังไม่มีคำขอยกเลิก -->
-
                     @foreach($document->reqDocumentUsers as $docUser)  
-                        <!--ฝายวิจัย-->
+                        <!-- ฝ่ายวิจัย -->
                         @if ($docUser->division_id == 2)
                             <!-- ไม่ผ่านการอนุมัติจากใคร -->
                             @if ($document->allow_department == "pending")
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#confirmCancelModal">
-                                    ยกเลิกคำขอ
-                                </button>
-
-                                <!-- ผ่านการอนุมัติ -->
+                                <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
+                                    class="btn btn-warning ">
+                                    {{ __('แก้ไขเอกสาร') }}
+                                </a>
+                            <!-- ผ่านการอนุมัติ -->
                             @else
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reasonCancelModal">
-                                    ยื่นเรื่องยกเลิกคำขอ
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAllowedModal">
+                                    ยื่นเรื่องแก้ไขสถานะ
                                 </button>
                             @endif
 
@@ -170,27 +181,75 @@
                         @else
                             <!-- ไม่ผ่านการอนุมัติจากใคร -->
                             @if ($document->allow_division == "pending")
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#confirmCancelModal">
-                                    ยกเลิกคำขอ
-                                </button>
-
-                                <!-- ผ่านการอนุมัติ -->
+                                <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
+                                    class="btn btn-warning ">
+                                    {{ __('แก้ไขเอกสาร') }}
+                                </a>
+                            <!-- ผ่านการอนุมัติ -->
                             @else
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reasonCancelModal">
-                                    ยื่นเรื่องยกเลิกคำขอ
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAllowedModal">
+                                    ยื่นเรื่องแก้ไขสถานะ
                                 </button>
                             @endif
-
                         @endif
                     @endforeach
-
-                <!-- มีคำขอยกเลิก -->
                 @else
-                    <button type="button" class="btn btn-danger disabled" data-bs-toggle="modal"
-                        data-bs-target="#confirmCancelModal">
-                        ยกเลิกคำขอ
-                    </button>
+
+                
+                <!-- ถ้ายกเลิกแก้ไขไม่ได้ -->
+                    <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
+                        class="btn btn-warning disabled">
+                        {{ __('แก้ไขเอกสาร') }}
+                    </a>
+                @endif
+
+            <!-- ยกเลิกคำขอ -->
+                @if (auth()->user()->is_admin != 1) 
+                    @if ($document->cancel_allowed == "pending") <!-- ยังไม่มีคำขอยกเลิก -->
+
+                        @foreach($document->reqDocumentUsers as $docUser)  
+                            <!--ฝ่ายวิจัย-->
+                            @if ($docUser->division_id == 2)
+                                <!-- ไม่ผ่านการอนุมัติจากใคร -->
+                                @if ($document->allow_department == "pending")
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#confirmCancelModal">
+                                        ยกเลิกคำขอ
+                                    </button>
+
+                                    <!-- ผ่านการอนุมัติ -->
+                                @else
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reasonCancelModal">
+                                        ยื่นเรื่องยกเลิกคำขอ
+                                    </button>
+                                @endif
+
+                            <!--ฝายอื่น-->
+                            @else
+                                <!-- ไม่ผ่านการอนุมัติจากใคร -->
+                                @if ($document->allow_division == "pending")
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#confirmCancelModal">
+                                        ยกเลิกคำขอ
+                                    </button>
+
+                                    <!-- ผ่านการอนุมัติ -->
+                                @else
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#reasonCancelModal">
+                                        ยื่นเรื่องยกเลิกคำขอ
+                                    </button>
+                                @endif
+
+                            @endif
+                        @endforeach
+
+                    <!-- มีคำขอยกเลิก -->
+                    @else
+                        <button type="button" class="btn btn-danger disabled" data-bs-toggle="modal"
+                            data-bs-target="#confirmCancelModal">
+                            ยกเลิกคำขอ
+                        </button>
+                    @endif
                 @endif
 
 
@@ -239,23 +298,49 @@
         @endif
     @endif
 
-    <!-- Modal 1: Cancel Admin -->
+
+    <!-- Modal edit_allowed -->
+    <div class="modal fade" id="editAllowedModal" tabindex="-1" aria-labelledby="editAllowedModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAllowedModalLabel">แก้ไขสถานะ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAllowedForm" action="{{ route('documents.updateEditAllowed', ['id' => $document->document_id]) }}" method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label for="edit_allowed">กรอกสถานะใหม่:</label>
+                            <input type="text" name="edit_allowed" id="edit_allowed" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    <button type="submit" class="btn btn-primary" form="editAllowedForm">บันทึกการเปลี่ยนแปลง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cancel Admin -->
     <div class="modal fade" id="confirmCancellationModal" tabindex="-1" aria-labelledby="confirmCancellationModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmCancellationModalLabel">ยืนยันความคิดเห็น</h5>
+                    <h5 class="modal-title" id="confirmCancellationModalLabel">ยืนยันการยกเลิกคำขอ</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    คุณแน่ใจหรือไม่ว่าต้องยืนยันคำขอนี้?
+                    คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำขอนี้?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
                     <form id="confirmCancellationForm" action="{{ route('documents.confirmCancel', ['id' => $document->document_id]) }}" method="POST">
                         @csrf
                         <input type="hidden" name="cancel_admin" value="Y"> <!-- กำหนดค่าเป็น Y -->
-                        <button type="submit" class="btn btn-primary">ยืนยัน</button>
+                        <button type="submit" class="btn btn-danger">ยืนยันการยกเลิก</button>
                     </form>
                 </div>
             </div>

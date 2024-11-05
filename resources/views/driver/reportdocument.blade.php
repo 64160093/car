@@ -364,20 +364,20 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <label for="signature" class="col-sm-3 col-form-label text-right">ลายเซ็น:</label>
+                        <label for="signature" class="col-sm-3 col-form-label ">ลายเซ็น:</label>
                         <div class="col-sm-9">
-                            @if(Auth::user()->signature)
-                                <img src="{{ asset('storage/signatures/' . Auth::user()->signature) }}" alt="Signature"
-                                    class="img-fluid" style="max-width: 200px;">
+                            @if (Auth::user()->signature_name)
+                                <img src="{{ url('/signatures/' . basename(Auth::user()->signature_name)) }}"
+                                    alt="Signature Image" class="img-fluid" width="250" height="auto">
                             @else
-                                <p>ไม่มีลายเซ็น</p>
+                                <p class="text-danger">{{ __('กรุณาเพิ่มลายเซ็นที่หน้าแก้ไขโปรไฟล์') }}</p>
                             @endif
                         </div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-end mb-3">
-                <button type="submit" class="btn btn-warning">ส่ง</button>
+                <button type="submit" class="btn btn-warning me-3">ส่งรายงาน</button>
             </div>
 
         </form>

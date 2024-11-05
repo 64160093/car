@@ -148,7 +148,7 @@
         <p>
             <span class="line" style="width: 212px;">
                 {{ \Carbon\Carbon::parse($documents->reservation_date)->format('d') }}
-                {{ \Carbon\Carbon::parse($documents->reservation_date)->locale('th')->translatedFormat('F') }}
+                {{ \Carbon\Carbon::parse($documents->reservation_date)->locale('th')->translatedFormat('F') }} พ.ศ. 
                 {{ \Carbon\Carbon::parse($documents->reservation_date)->format('Y') }}
             </span>
             <span class="section-title">จึงให้ขับรถไปรับบุคลากร เวลา</span>

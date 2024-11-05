@@ -102,18 +102,19 @@
                                                 <td style="max-width: 160px; ">{{ $document->objective }}</td>
                                                 <td>
                                                     {{ \Carbon\Carbon::parse($document->start_date)->format('d') }}
-                                                    {{ \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') }}
+                                                    {{ \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') }} พ.ศ.
                                                     {{ \Carbon\Carbon::parse($document->start_date)->format('Y') + 543 }}<br>
                                                     เวลา : {{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} น.
                                                 </td>
                                                 <td>
                                                     {{ \Carbon\Carbon::parse($document->end_date)->format('d') }}
-                                                    {{ \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') }}
+                                                    {{ \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') }} พ.ศ.
                                                     {{ \Carbon\Carbon::parse($document->end_date)->format('Y') + 543 }}<br>
 
                                                     เวลา : {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }} น.
                                                 </td>
                                                 <td>
+                                                    <!-- ไม่มีการขอยกเลิก -->
                                                     @if ($document->cancel_allowed == 'pending')
                                                         @foreach($document->reqDocumentUsers as $docUser)
                                                             @if ($docUser->division_id == 2)
@@ -131,6 +132,22 @@
                                                                 @include('partials.allow_status', ['document' => $document])
                                                             @endif
                                                         @endforeach
+                                                        <!-- ยกเลิกก่อนถึงผอ. -->
+                                                    @elseif ($document->allow_director == 'pending' && $document->cancel_reason != null)
+                                                        @if ($document->cancel_admin == 'Y')
+                                                            <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
+                                                        @else
+                                                            <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>
+                                                        @endif
+                                                        <!-- ผอ.อนุมัติไปแล้ว -->
+                                                    @elseif ($document->allow_director != 'pending' && $document->cancel_reason != null)
+                                                        @if ($document->cancel_admin != 'Y')
+                                                            <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>
+                                                        @elseif ($document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
+                                                            <span class="badge bg-info">รอผู้อำนวยการอนุมัติคำขอยกเลิก</span>
+                                                        @elseif ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                                                            <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
+                                                        @endif
                                                     @else
                                                         <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                                                     @endif
@@ -141,13 +158,16 @@
                                                         class="btn btn-outline-primary">สถานะ</a>
                                                 </td>
                                                 <td>
-                                                    @if ($document->allow_director != 'pending')
-                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}"
-                                                            class="btn btn-outline-primary" target="_blank"> PDF
-                                                        </a>
-                                                    @else
-                                                        <button type="button" class="btn btn-secondary" disabled>PDF</button>
-                                                    @endif
+                                                    <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}"
+                                                        class="btn btn-outline-primary" target="_blank"> PDF
+                                                    </a>
+                                                    <!-- @if ($document->allow_director != 'pending')
+                                                                        <a href="{{ route('PDF.document') }}?id={{ $document->document_id }}"
+                                                                            class="btn btn-outline-primary"   target="_blank"> PDF
+                                                                        </a>
+                                                                    @else
+                                                                        <button type="button" class="btn btn-secondary" disabled>PDF</button>
+                                                                    @endif -->
 
                                                     @if ($document->allow_carman != 'pending')
                                                         @if ($document->reportFormance)
@@ -170,6 +190,7 @@
     @endif
     {{ $documents->appends(request()->query())->links() }}
 </div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

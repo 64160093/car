@@ -51,7 +51,7 @@
         <div class="col-md-5 mb-3">
             <div class="card shadow-sm text-center border-0">
                 <div class="card-body bg-light">
-                    <h6 class="text-muted">จำนวนประเภทรถ</h6>
+                    <h6 class="text-muted">จำนวนรถทั้งหมด/คัน</h6>
                     <p class="h1 font-weight-bold text-primary">{{ $vehicleCount ?? 'Loading...' }}</p>
                     <i class="fas fa-car fa-3x text-primary"></i>
                 </div>
@@ -60,7 +60,7 @@
         <div class="col-md-5 mb-3">
             <div class="card shadow-sm text-center border-0">
                 <div class="card-body bg-light">
-                    <h6 class="text-muted">จำนวนบุคลากรทั้งหมด</h6>
+                    <h6 class="text-muted">จำนวนบุคลากรทั้งหมด/คน</h6>
                     <p class="h1 font-weight-bold text-primary">{{ $userCount ?? 'Loading...' }}</p>
                     <i class="fas fa-users fa-3x text-primary"></i>
                 </div>
@@ -160,7 +160,6 @@
         }
     </script>
 
-
     <div class="row">
         @foreach ([['title' => 'จำนวนการขออนุญาตของบุคลากร', 'id' => 'requestChart', 'bgColor' => 'bg-primary'], ['title' => 'จำนวนการขออนุญาตตามส่วนงาน', 'id' => 'divisionChart', 'bgColor' => 'bg-danger'], ['title' => 'จำนวนการขออนุญาตตามประเภทงาน', 'id' => 'workChart', 'bgColor' => 'bg-success'], ['title' => 'จำนวนการขออนุญาตตามประเภทของรถ', 'id' => 'carTypeChart', 'bgColor' => 'bg-warning']] as $chart)
             <div class="col-md-6 mb-3">
@@ -189,35 +188,12 @@
     }
 
     // Function to create charts
-    // Function to create charts
-    function createChart(ctx, labels, data, label, bgColor, borderColor) {
-        const sortedData = labels.map((label, index) => ({
-            label: label,
-            value: data[index]
-        })).sort((a, b) => b.value - a.value);
-
-        const sortedLabels = sortedData.map(item => item.label);
-        const sortedValues = sortedData.map(item => item.value);
-
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, bgColor);
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
-
-        // Generate time period text without "จำนวนการขออนุญาต"
-        const timePeriod = `{{ $viewType === 'month' ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][$month - 1] . ' ปี ' . ($selectedYear + 543) : ($viewType === 'quarter' ? 'ไตรมาส ' . $quarter . ' ปี ' . ($selectedYear + 543) : 'ปี ' . ($selectedYear + 543)) }}`;
-
+    function createChart(ctx, labels, datasets, timePeriod) {
         return new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: sortedLabels,
-                datasets: [{
-                    label: label,
-                    data: sortedValues,
-                    backgroundColor: gradient,
-                    borderColor: borderColor,
-                    borderWidth: 2,
-                    borderRadius: 5,
-                }]
+                labels: labels,
+                datasets: datasets
             },
             options: {
                 indexAxis: 'y',
@@ -242,7 +218,7 @@
                         maxTicksLimit: 10,
                         ticks: {
                             font: {
-                                size: sortedLabels.length > 10 ? 10 : 12
+                                size: labels.length > 10 ? 10 : 12
                             }
                         }
                     }
@@ -286,12 +262,66 @@
         });
     }
 
-    // Create all charts with enhanced styles
-    createChart(document.getElementById('requestChart').getContext('2d'), @json($labels), @json($data), 'จำนวนการขออนุญาตของบุคลากร', 'rgba(0, 0, 255, 0.6)', 'rgba(0, 0, 255, 1)');
-    createChart(document.getElementById('divisionChart').getContext('2d'), @json($divisionLabels), @json($divisionData), 'จำนวนการขออนุญาตตามส่วนงาน', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 99, 132, 1)');
-    createChart(document.getElementById('workChart').getContext('2d'), @json($workLabels), @json($workData), 'จำนวนการขออนุญาตตามประเภทงาน', 'rgba(75, 192, 192, 0.6)', 'rgba(75, 192, 192, 1)');
-    createChart(document.getElementById('carTypeChart').getContext('2d'), @json($carTypeLabels), @json($carTypeData), 'จำนวนการขออนุญาตตามประเภทของรถ', 'rgba(255, 206, 86, 0.6)', 'rgba(255, 206, 86, 1)');
+    // สร้างกราฟจำนวนการขออนุญาตของบุคลากรที่รวม approvedData
+    createChart(document.getElementById('requestChart').getContext('2d'), @json($labels), [
+        {
+            label: 'จำนวนการขออนุญาตทั้งหมด',
+            data: @json($data),
+            backgroundColor: 'rgba(0, 0, 255, 0.6)',
+            borderColor: 'rgba(0, 0, 255, 1)',
+            borderWidth: 2,
+            borderRadius: 5,
+        },
+        {
+            label: 'จำนวนที่ได้รับการอนุมัติ',
+            data: @json($approvedData),
+            backgroundColor: 'rgba(0, 255, 0, 0.6)',
+            borderColor: 'rgba(0, 255, 0, 1)',
+            borderWidth: 2,
+            borderRadius: 5,
+        }
+    ], `{{ $viewType === 'month' ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][$month - 1] . ' ปี ' . ($selectedYear + 543) : ($viewType === 'quarter' ? 'ไตรมาส ' . $quarter . ' ปี ' . ($selectedYear + 543) : 'ปี ' . ($selectedYear + 543)) }}`);
+
+    // สร้างกราฟจำนวนการขออนุญาตตามส่วนงานที่รวม approvedDivisionData
+    createChart(document.getElementById('divisionChart').getContext('2d'), @json($divisionLabels), [
+        {
+            label: 'จำนวนการขออนุญาตตามส่วนงาน',
+            data: @json($divisionData),
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 2,
+            borderRadius: 5,
+        },
+        {
+            label: 'จำนวนที่ได้รับการอนุมัติ',
+            data: @json($approvedDivisionData),
+            backgroundColor: 'rgba(0, 255, 0, 0.6)',
+            borderColor: 'rgba(0, 255, 0, 1)',
+            borderWidth: 2,
+            borderRadius: 5,
+        }
+    ], `{{ $viewType === 'month' ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][$month - 1] . ' ปี ' . ($selectedYear + 543) : ($viewType === 'quarter' ? 'ไตรมาส ' . $quarter . ' ปี ' . ($selectedYear + 543) : 'ปี ' . ($selectedYear + 543)) }}`);
+
+    // สร้างกราฟอื่นๆ
+    createChart(document.getElementById('workChart').getContext('2d'), @json($workLabels), [{
+        label: 'จำนวนการขออนุญาตตามประเภทงาน',
+        data: @json($workData),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 2,
+        borderRadius: 5,
+    }], `{{ $viewType === 'month' ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][$month - 1] . ' ปี ' . ($selectedYear + 543) : ($viewType === 'quarter' ? 'ไตรมาส ' . $quarter . ' ปี ' . ($selectedYear + 543) : 'ปี ' . ($selectedYear + 543)) }}`);
+
+    createChart(document.getElementById('carTypeChart').getContext('2d'), @json($carTypeLabels), [{
+        label: 'จำนวนการขออนุญาตตามประเภทของรถ',
+        data: @json($carTypeData),
+        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+        borderColor: 'rgba(255, 206, 86, 1)',
+        borderWidth: 2,
+        borderRadius: 5,
+    }], `{{ $viewType === 'month' ? ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'][$month - 1] . ' ปี ' . ($selectedYear + 543) : ($viewType === 'quarter' ? 'ไตรมาส ' . $quarter . ' ปี ' . ($selectedYear + 543) : 'ปี ' . ($selectedYear + 543)) }}`);
 </script>
+
 
 
 @endsection

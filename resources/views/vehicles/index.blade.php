@@ -42,9 +42,9 @@
                             <thead class="text-center">
                                 <tr>
                                     <th style="width: 10%;">ประเภท</th>
-                                    <th style="width: 65%;">หมายเลขทะเบียน</th>
+                                    <th style="width: 60%;">หมายเลขทะเบียน</th>
                                     <th style="width: 15%;">สถานะ</th>
-                                    <th style="width: 10%;"></th>
+                                    <th style="width: 15%;"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -95,7 +95,92 @@
                                                 <i class="fa fa-trash"></i> ลบ
                                             </button>
                                         </form>
-                                        <script>
+                                       
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editVehicleModal">
+                                        <i class="fa fa-edit"></i> แก้ไข
+                                        </button>
+
+<!-- Modal Structure -->
+<div class="modal fade" id="editVehicleModal" tabindex="-1" aria-labelledby="editVehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editVehicleModalLabel">{{ __('แก้ไขข้อมูลพาหนะ') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ route('vehicles.update', $vehicle->car_id) }}" id="editVehicleForm">
+                    @csrf
+                    @method('PUT')
+
+                    <!-- ประเภทรถ -->
+                    <div class="row mb-3">
+                        <label for="icon_id" class="col-md-4 col-form-label text-md-end">{{ __('ประเภทพาหนะ') }}</label>
+                        <div class="col-md-6">
+                            <span class="form-control bg-light text-start">{{ $car_icons->firstWhere('icon_id', $vehicle->icon_id)->type_name }}</span>
+                        </div>
+                    </div>
+
+                    <!-- หมวดเลขทะเบียน -->
+                    <div class="row mb-3">
+                        <label for="car_category" class="col-md-4 col-form-label text-md-end">{{ __('หมวดทะเบียน') }}</label>
+                        <div class="col-md-6">
+                            <input id="car_category" type="text" class="form-control @error('car_category') is-invalid @enderror" name="car_category" value="{{ old('car_category', $vehicle->car_category) }}" required>
+                            @error('car_category')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- เลขทะเบียน -->
+                    <div class="row mb-3">
+                        <label for="car_regnumber" class="col-md-4 col-form-label text-md-end">{{ __('เลขทะเบียน') }}</label>
+                        <div class="col-md-6">
+                            <input id="car_regnumber" type="text" class="form-control @error('car_regnumber') is-invalid @enderror" name="car_regnumber" value="{{ old('car_regnumber', $vehicle->car_regnumber) }}" required>
+                            @error('car_regnumber')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- จังหวัดของรถ -->
+                    <div class="row mb-3">
+                        <label for="car_province" class="col-md-4 col-form-label text-md-end">{{ __('จังหวัด') }}</label>
+                        <div class="col-md-6">
+                            <input id="car_province" type="text" class="form-control @error('car_province') is-invalid @enderror" name="car_province" value="{{ old('car_province', $vehicle->car_province) }}" required>
+                            @error('car_province')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="form-group mt-4 text-center">
+                        <button type="submit" class="btn btn-primary">{{ __('บันทึกการเปลี่ยนแปลง') }}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('ยกเลิก') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Event listener to show modal if there are validation errors
+    @if ($errors->any())
+        var editModal = new bootstrap.Modal(document.getElementById('editVehicleModal'));
+        editModal.show();
+    @endif
+</script>
+
+
+<script>
     function confirmDelete(carId) {
         Swal.fire({
             title: 'คุณแน่ใจหรือไม่?',
@@ -112,10 +197,7 @@
             }
         });
     }
-</script>
-
-
-                                        
+</script>                                     
                                     </td>
                                 </tr>
                             @endforeach
@@ -135,7 +217,7 @@
 
 
 
-    <!-- Modal -->
+    <!-- Modal Add-->
     <div class="modal fade" id="addVehicleModal" tabindex="-1" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -234,6 +316,9 @@
             @endif
         });
     </script>
+
+
+
     @endsection
 @endsection
 

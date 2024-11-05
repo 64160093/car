@@ -17,7 +17,7 @@
             \Carbon\Carbon::parse($document->reservation_date)->format('d') . ' ' .
             \Carbon\Carbon::parse($document->reservation_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' .
             \Carbon\Carbon::parse($document->reservation_date)->format('Y') 
-                                                    }}
+                                                }}
                 </p>
             </div>
 
@@ -89,16 +89,16 @@
                         <tr>
                             <td><strong>{{ __('วันที่ไป') }}:</strong>
                                 {{ 
-                                                        \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
+                                                    \Carbon\Carbon::parse($document->start_date)->format('d') . ' ' .
             \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') . ' พ.ศ. ' .
             \Carbon\Carbon::parse($document->start_date)->addYears(543)->format('Y') 
-                                                    }}</td>
+                                                }}</td>
                             <td><strong>{{ __('วันที่กลับ') }}:</strong>
                                 {{ 
-                                                        \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
+                                                    \Carbon\Carbon::parse($document->end_date)->format('d') . ' ' .
             \Carbon\Carbon::parse($document->end_date)->locale('th')->translatedFormat('F') . '  พ.ศ.  ' .
             \Carbon\Carbon::parse($document->end_date)->addYears(543)->format('Y') 
-                                                    }}
+                                                }}
                         </tr>
                         <tr>
                             <td><strong>{{ __('เวลาไป') }}:</strong> {{ $document->start_time }}</td>
@@ -127,8 +127,8 @@
                 <!-- โครงการที่เกี่ยวข้อง -->
                 <h6 class="text-muted">{{ __('โครงการที่เกี่ยวข้อง') }}</h6>
                 <div class="mt-2 border p-3">
-                    <p class="form-control-static">
-                        @if($document->related_project)
+                    <p class="form-control-static mt-0 mb-0">
+                    @if($document->related_project)
                             <a href="{{ asset('storage/' . $document->related_project) }}" target="_blank"
                                 class="btn btn-outline-primary">{{ __('ดูไฟล์') }}</a>
                         @else
@@ -137,12 +137,15 @@
                     </p>
                 </div>
 
-
                 <!-- ลงชื่อผู้ขอ -->
                 <div class="mt-4" style="text-align: right; margin-right: 50px;">
                     <strong>{{ __('ลงชื่อผู้ขอ:') }}</strong>
-                    <p>{{ $document->reqDocumentUsers->first()->signature_name ?? 'N/A' }}</p>
+                    @if ($document->reqDocumentUsers->first()->signature_name)
+                        <img src="{{ url('/signatures/' . basename($document->reqDocumentUsers->first()->signature_name)) }}" 
+                            alt="Signature Image" class="img-fluid mt-2" width="350" height="auto">
+                    @endif
                 </div>
+
 
             </div>
         </div>
