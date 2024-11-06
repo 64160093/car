@@ -7,10 +7,8 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-
 
 @endsection
 
@@ -58,7 +56,6 @@
                             @endif
                         </span>
                     </div>
-
                     <div class="col-md-4 text-right">
                         <div class="form-group">
                             <label for="reservation_date">{{ __('วันที่ทำเรื่อง') }}</label>
@@ -71,7 +68,6 @@
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
-
                         </div>
                     </div>
                 </div>
@@ -96,7 +92,6 @@
                     </div>
                 </div>
 
-
                 <!-- ฟิลด์ผู้ร่วมเดินทาง -->
                 <div class="row mb-4">
                     <div class="col-md-8">
@@ -120,7 +115,6 @@
                     </div>
                 </div>
                 <input type="hidden" id="companions_hidden" name="companion_name">
-
                 <!-- ผู้ควบคุมรถ -->
                 <div class="form-group mb-4">
                     <label for="car_controller">{{ __('ผู้ควบคุมรถ') }}</label>
@@ -134,8 +128,6 @@
                         </span>
                     @enderror
                 </div>
-
-
 
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
@@ -156,8 +148,7 @@
                         required>
                         <option value="" disabled selected>{{ __('เลือกประเภทของงาน') }}</option>
                         @foreach($work_type as $work_tp)
-                            <option value="{{ $work_tp->work_id }}" {{ old('work_id') == $work_tp->work_id ? 'selected' : '' }}>
-                                {{ $work_tp->work_name }}
+                            <option value="{{ $work_tp->work_id }}" {{ old('work_id') == $work_tp->work_id ? 'selected' : '' }}>{{ $work_tp->work_name }}
                             </option>
                         @endforeach
                     </select>
@@ -169,44 +160,71 @@
                 </div>
                 <!-- ประเภทรถยนต์ -->
                 <div class="form-group mb-4">
-                    <label for="car_type">{{ __('ประเภทของรถยนต์') }}</label>
-                    <select id="car_type" class="form-control @error('car_type') is-invalid @enderror" name="car_type"
-                        required>
-                        <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
+                    <div class="col-md-6">
+                        <label for="car_type">{{ __('ประเภทของรถยนต์') }}</label>
+                        <div class="input-group">
+                            <select id="car_type" class="form-control @error('car_type') is-invalid @enderror"
+                                name="car_type" {{ old('car_rent') ? 'disabled' : 'required' }}>
+                                <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
 
-                        @php
-                            $hasDisplayedPickupTruck = false;
-                            $hasDisplayedVan = false;
-                        @endphp
-
-                        @foreach($vehicles as $vehicle)
-                                            @if(in_array($vehicle->icon_id, [1, 2, 3]) && !$hasDisplayedPickupTruck)
-                                                                <option value="รถกระบะ" {{ old('car_type') == 'รถกระบะ' ? 'selected' : '' }}>
-                                                                    {{ __('รถกระบะ') }}
+                                @php
+                                    $hasDisplayedPickupTruck = false;
+                                    $hasDisplayedVan = false;
+                                @endphp
+                                @foreach($vehicles as $vehicle)
+                                                            @if(in_array($vehicle->icon_id, [1, 2, 3]) && !$hasDisplayedPickupTruck)
+                                                                                        <option value="รถกระบะ" {{ old('car_type') == 'รถกระบะ' ? 'selected' : '' }}>
+                                                                                            {{ __('รถกระบะ') }}
+                                                                                        </option>
+                                                                                        @php
+                                                                                            $hasDisplayedPickupTruck = true; // แสดง "รถกระบะ" เพียงครั้งเดียว
+                                                                                        @endphp
+                                                            @elseif(in_array($vehicle->icon_id, [4, 5, 6]) && !$hasDisplayedVan)
+                                                                                        <option value="รถตู้" {{ old('car_type') == 'รถตู้' ? 'selected' : '' }}>
+                                                                                            {{ __('รถตู้') }}
+                                                                                        </option>
+                                                                                        @php
+                                                                                            $hasDisplayedVan = true; // แสดง "รถตู้" เพียงครั้งเดียว
+                                                                                        @endphp
+                                                            @elseif(in_array($vehicle->icon_id, [7, 8, 9]))
+                                                                <option value="เรือ" {{ old('car_type') == 'เรือ' ? 'selected' : '' }}>
+                                                                    {{ __('เรือ') }}
                                                                 </option>
-                                                                @php
-                                                                    $hasDisplayedPickupTruck = true; // แสดง "รถกระบะ" เพียงครั้งเดียว
-                                                                @endphp
-                                            @elseif(in_array($vehicle->icon_id, [4, 5, 6]) && !$hasDisplayedVan)
-                                                                <option value="รถตู้" {{ old('car_type') == 'รถตู้' ? 'selected' : '' }}>
-                                                                    {{ __('รถตู้') }}
-                                                                </option>
-                                                                @php
-                                                                    $hasDisplayedVan = true; // แสดง "รถตู้" เพียงครั้งเดียว
-                                                                @endphp
-                                            @elseif(in_array($vehicle->icon_id, [7, 8, 9]))
-                                                <option value="เรือ" {{ old('car_type') == 'เรือ' ? 'selected' : '' }}>
-                                                    {{ __('เรือ') }}
-                                                </option>
-                                            @endif
-                        @endforeach
-                    </select>
+                                                            @endif
+                                @endforeach
+                            </select>
+                            <div class="input-group-append" style="margin-left: 20px;">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="car_rent" name="car_rent"
+                                        onclick="toggleCarType()">
+                                    <label class="form-check-label" for="car_rent">{{ __('รถเช่า') }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @error('car_type')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>
                     @enderror
                 </div>
+
+                <script>
+                    function toggleCarType() {
+                        const carTypeSelect = document.getElementById('car_type');
+                        const carRentCheckbox = document.getElementById('car_rent');
+
+                        if (carRentCheckbox.checked) {
+                            carTypeSelect.value = "รถเช่า"; // ตั้งค่า car_type เป็น "รถเช่า"
+                            carTypeSelect.disabled = true; // ปิดฟิลเลือกประเภทของรถยนต์
+                            carTypeSelect.required = false; // ไม่บังคับเลือก car_type
+                        } else {
+                            carTypeSelect.disabled = false; // เปิดฟิลเลือกประเภทของรถยนต์
+                            carTypeSelect.required = true; // ทำให้ car_type กลับมาบังคับเลือก
+                            carTypeSelect.value = ""; // รีเซ็ตค่า car_type
+                        }
+                    }
+                </script>
 
                 <!-- ให้รถไปรับที่ -->
                 <div class="form-group mb-4">
@@ -235,7 +253,6 @@
                             @enderror
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="end_date">{{ __('วันที่กลับ') }}</label>
@@ -250,7 +267,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <!-- เวลาไป และ เวลากลับ -->
                 <div class="row mb-4">
@@ -267,7 +283,6 @@
                             @enderror
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="end_time">{{ __('เวลากลับ') }}</label>
@@ -316,7 +331,6 @@
                             @enderror
                         </div>
                     </div>
-
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="amphoe_id">{{ __('อำเภอ') }}</label>
@@ -340,7 +354,6 @@
                             @enderror
                         </div>
                     </div>
-
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="district_id">{{ __('ตำบล') }}</label>
@@ -378,7 +391,6 @@
                     @enderror
                 </div>
 
-
                 <!-- ลายเซ็นของผู้ใช้ -->
                 <div class="form-group mb-4">
                     <label for="signature">{{ __('ลงชื่อผู้ขอ') }}</label>
@@ -391,7 +403,6 @@
                         <p>{{ __('ยังไม่มีการอัปโหลดลายเซ็น') }}</p>
                     @endif
                 </div>
-
                 <button type="submit" class="btn btn-primary">{{ __('ยืนยันแบบฟอร์ม') }}</button>
             </form>
         </div>
@@ -404,7 +415,6 @@
 <!-- เพิ่ม CSS และ JS ของ select2 -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-
 
 <script type="text/javascript">
     // เมื่อเปลี่ยนแปลงจังหวัด
@@ -585,12 +595,9 @@
                 var selectedOption = this.options[this.selectedIndex];
                 selectedOption.parentNode.removeChild(selectedOption);
             }
-
             // ล้าง dropdown หลังจากเลือก
             this.value = '';
         });
     });
-
 </script>
-
 @endsection

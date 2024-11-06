@@ -68,11 +68,11 @@
         </div>
     </div>
 
-    <div class="col-md-12 text-end mb-3">
+    <div class="col-md-12 text-center mb-3">
         <form method="GET" action="{{ route('admin.dashboard') }}" id="dashboardForm">
             <div class="form-group">
                 <label class="font-weight-bold">เลือกประเภทการแสดงผล:</label>
-                <ul class="nav nav-tabs justify-content-end">
+                <ul class="nav nav-tabs justify-content-center">
                     <li class="nav-item">
                         <a class="nav-link {{ $viewType == 'month' ? 'active' : '' }}" href="#"
                             onclick="setViewType('month');">รายเดือน</a>
@@ -89,7 +89,7 @@
                 <input type="hidden" name="view_type" id="view_type" value="{{ $viewType }}">
 
                 <div id="monthYearSelection"
-                    class="d-flex align-items-center justify-content-end mt-3 {{ $viewType === 'year' ? 'd-none' : '' }}">
+                    class="d-flex align-items-center justify-content-center mt-3 {{ $viewType === 'year' ? 'd-none' : '' }}">
                     @if ($viewType === 'quarter')
                         <label for="quarter" class="font-weight-bold mr-2 mt-2">เลือกไตรมาส:</label>
                         <select name="quarter" id="quarter" class="form-control d-inline-block w-auto mr-3"
@@ -125,7 +125,7 @@
                     @endif
                 </div>
 
-                <div class="d-flex align-items-center justify-content-end mt-3">
+                <div class="d-flex align-items-center justify-content-center mt-3">
                     <label for="year" class="font-weight-bold mr-2 mt-2">เลือกปี:</label>
                     <select name="year" id="year" class="form-control d-inline-block w-auto" onchange="submitForm()">
                         @foreach ($yearsWithData as $year)

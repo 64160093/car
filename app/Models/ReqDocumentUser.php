@@ -12,7 +12,6 @@ class ReqDocumentUser extends Model
         'req_document_id',
         'user_id',
         'report_id',
-        // ฟิลด์อื่นๆ
     ];
 
     // Define relationship to User model if needed
