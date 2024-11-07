@@ -160,7 +160,7 @@
             <b>ที่ </b><span class="line" style="width: 283px;">
             </span><b> วันที่ </b><span class="line" style="width: 245px;">
                 {{ \Carbon\Carbon::parse($documents->reservation_date)->format('d') }}
-                {{ \Carbon\Carbon::parse($documents->reservation_date)->locale('th')->translatedFormat('F') }}
+                {{ \Carbon\Carbon::parse($documents->reservation_date)->locale('th')->translatedFormat('F') }} พ.ศ.
                 {{ \Carbon\Carbon::parse($documents->reservation_date)->format('Y') }}
             </span> 
         </p>
@@ -265,7 +265,7 @@
             โปรดพิจารณาอนุญาตให้ใช้รถยนต์หมานเลขทะเบียน <span class="line" style="width:100px; padding-left: 10px;">
             {{ $documents->vehicle ? $documents->vehicle->car_category : ''}} 
             {{ $documents->vehicle ? $documents->vehicle->car_regnumber :''}} 
-            {{ $documents->vehicle ? $documents->vehicle->car_province : ''}}
+            <!-- {{ $documents->vehicle ? $documents->vehicle->car_province : ''}} -->
             </span> มี <span class="line" style="width: 200px;">
             {{ $documents->carmanUser ? $documents->carmanUser->name : ''}} 
             {{ $documents->carmanUser ? $documents->carmanUser->lname : ''}}

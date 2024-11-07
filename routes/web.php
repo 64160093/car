@@ -121,7 +121,6 @@ Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name
 
 
 Route::get('/schedule/search', [DocumentController::class, 'scheduleSearch'])->name('documents.scheduleSearch');
-Route::get('/op-car/search', [DocumentController::class, 'OPsearch'])->name('documents.OPsearch');
 
 
 //รายงานคนขับรถ
@@ -144,4 +143,7 @@ Route::post('/documents/cancel/{id}', [DocumentController::class, 'cancel'])->na
 Route::post('/documents/{id}/confirm-cancel', [DocumentController::class, 'confirmCancel'])->name('documents.confirmCancel');
 Route::post('/documents/{id}/confirm-director-cancel', [DocumentController::class, 'confirmDirectorCancel'])->name('documents.confirmDirectorCancel');
 Route::post('/documents/{id}/update-edit-allowed', [DocumentController::class, 'updateEditAllowed'])->name('documents.updateEditAllowed');
+
+// ค้นหา
+Route::get('/op-car/search', [DocumentController::class, 'OPsearch'])->name('documents.OPsearch');
 

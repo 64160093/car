@@ -171,6 +171,8 @@
                                                             <a href="{{ route('report.showRepDoc.pdf') }}?id={{ $document->reportFormance->report_id }}"
                                                                 class="btn btn-outline-primary" target="_blank"> PDF
                                                             </a>
+                                                        @elseif ($document->car_type = 'รถเช่า')
+                                                            <button type="button" class="btn btn-secondary" disabled>รถเช่า</button>
                                                         @else
                                                             <button type="button" class="btn btn-secondary" disabled>PDF</button>
                                                         @endif

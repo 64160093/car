@@ -192,10 +192,9 @@ class AdminController extends Controller
                 ->where('users.name', 'LIKE', '%' . $q . '%')
                 ->orWhere('users.lname', 'LIKE', '%' . $q . '%')
                 ->orWhere('users.email', 'LIKE', '%' . $q . '%')
-                ->orWhere('users.phonenumber', 'LIKE', '%' . $q . '%')
-                ->orWhere('position.position_name', 'LIKE', '%' . $q . '%')
-                // ->orWhere('department.department_name', 'LIKE', '%'.$q.'%')
-                ->orWhere('role.role_name', 'LIKE', '%' . $q . '%')
+                // ->orWhere('users.phonenumber', 'LIKE', '%' . $q . '%')
+                // ->orWhere('position.position_name', 'LIKE', '%' . $q . '%')
+                // ->orWhere('role.role_name', 'LIKE', '%' . $q . '%')
 
                 ->select('users.*', 'position.position_name', 'role.role_name')
                 ->paginate(10);

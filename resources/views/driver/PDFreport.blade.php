@@ -118,12 +118,31 @@
             vertical-align: middle;
             background-color: lightblue; 
         }
+
+        .overlay-signatureDirector {
+            position: absolute;
+            top: 4.65in; 
+            left: 5.05in; 
+            transform: translateX(-0.2in); 
+            z-index: 10;
+            
+        }
+
+        .overlay-signatureCarman {
+            position: absolute;
+            top: 9.7in; 
+            left: 4.78in; 
+            transform: translateX(-0.2in); 
+            z-index: 10;
+            
+        }
+        
     </style>
 </head>
 
 <body>
     <!-- จัดตำแหน่ง "เลขที่" ไว้ที่มุมขวาบนสุด -->
-    <p class="number">เลขที่ ............/.............</p>
+    <!-- <p class="number">เลขที่ ............/.............</p> -->
 
     <h1>สถาบันวิทยาศาสตร์ มหาวิทยาลัยบูรพา</h1>
     <h1>รายงานแจ้งพนักงานขับรถเพื่อทราบงานในแต่ละวัน</h1>
@@ -174,7 +193,7 @@
         <p><span class="section-title" style="margin-left:25px;">รับที่</span><span class="line"></span><span>
                 เพื่อไปปฏิบัติงาน</span><span class="line" style="width: 188px;"></span></p>
 
-        <p><span class="line" style="width: 188px; margin-left: 416px; margin-top: 30px;"></span></p>
+        <p><span class="line" style="width: 188px; margin-left: 416px; margin-top: 20px;"></span></p>
 
         <span class="longline" style="margin-top: 30px;"></span>
 
@@ -235,7 +254,7 @@
         <p><span class="section-title" style="margin-left:70px;">จึงเรียนมาเพื่อโปรดทราบ</span> </p>
 
         <div class="signature">
-            <p class="line" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible;"> </p>
+            <p class="line" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible; margin-left: 10px"> </p>
             <p><span>
             ( <span class="line" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible;">
                 {{ $documents->carmanUser->name }} {{ $documents->carmanUser->lname }}
@@ -245,6 +264,29 @@
             <p class="line2" style=" text-align: center; display: inline-block; white-space: nowrap; overflow: visible;">พนักงานขับรถ</p>  
         </div>
     </div>
+
+    <!-- ลายเซ็น -->
+        <a class="overlay-signatureDirector">
+            @php
+                $directorAllowByUser = $documents->DirectorAllowBy;
+                $signaturePath = null;
+                if ($directorAllowByUser) {
+                    $signaturePath = storage_path('app/signatures/' . $directorAllowByUser->signature_name);
+                }
+            @endphp
+            <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2">
+        </a>
+        <a class="overlay-signatureCarman">
+            @php
+                $carmanAllowByUser = $documents->CarmenAllowBy;
+                $signaturePath = null;
+                if ($carmanAllowByUser) {
+                    $signaturePath = storage_path('app/signatures/' . $carmanAllowByUser->signature_name);
+                }
+            @endphp
+            <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2">
+        </a>
+
     
 </body>
 
