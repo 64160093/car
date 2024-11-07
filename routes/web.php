@@ -121,6 +121,7 @@ Route::post('/update-status', [DocumentController::class, 'updateStatus'])->name
 
 
 Route::get('/schedule/search', [DocumentController::class, 'scheduleSearch'])->name('documents.scheduleSearch');
+Route::get('/op-car/search', [DocumentController::class, 'OPsearch'])->name('documents.OPsearch');
 
 
 //รายงานคนขับรถ

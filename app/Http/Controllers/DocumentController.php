@@ -110,7 +110,7 @@ class DocumentController extends Controller
                 // เอกสารที่ต้องส่งไปยัง role_id = 12
                 $documents = $approvedDivision
                     ->orderBy('document_id', 'desc')
-                    ->get();
+                    ->paginate(5);
                 return view('opcar.op_permission-form', compact('documents'));
 
 
@@ -528,7 +528,7 @@ class DocumentController extends Controller
             }
         }
         // สั่งเรียงตามวันที่สร้างล่าสุด
-        $documents = $documents->orderBy('created_at', 'desc')->paginate(5); // แบ่งหน้าละ 10 รายการ
+        $documents = $documents->orderBy('created_at', 'desc')->paginate(5);
         return view('document-history', compact('documents'));
     }
 
@@ -571,6 +571,37 @@ class DocumentController extends Controller
             });
         }
         return view('driver.schedule', compact('documents'));
+    }
+
+    public function OPsearch(Request $request)
+    {
+        $query = $request->input('search');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // ดึงข้อมูลทั้งหมดจากฐานข้อมูลพร้อมข้อมูลผู้ขอ
+        $documentsQuery = ReqDocument::with('reqDocumentUsers')->orderBy('created_at', 'desc');
+
+        // กรองตามเงื่อนไขที่ได้รับจากฟอร์ม
+        if ($query) {
+            $documentsQuery->where('objective', 'like', '%' . $query . '%');
+        }
+
+        if ($month) {
+            $documentsQuery->whereMonth('start_date', $month);
+        }
+
+        if ($year) {
+            $documentsQuery->whereYear('start_date', $year);
+        }
+
+        // กรองเฉพาะเอกสารที่ได้รับการอนุมัติจากแผนก
+        $documentsQuery->where('allow_division', 'approved');
+
+        // ใช้ paginate แทน collection เพื่อทำการแบ่งหน้า
+        $documents = $documentsQuery->paginate(10);  // 10 คือตัวเลขของผลลัพธ์ที่แสดงในแต่ละหน้า
+
+        return view('opcar.op_permission-form', compact('documents'));
     }
 
 

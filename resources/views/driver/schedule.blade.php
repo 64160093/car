@@ -71,8 +71,8 @@
                         <tr>
                             <td class="align-middle">
                                 {{ \Carbon\Carbon::parse($document->start_date)->format('d') }}
-                                {{ \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') }} พ.ศ. 
-                                {{ \Carbon\Carbon::parse($document->start_date)->format('Y') + 543 }}                                                    <br>
+                                {{ \Carbon\Carbon::parse($document->start_date)->locale('th')->translatedFormat('F') }} พ.ศ.
+                                {{ \Carbon\Carbon::parse($document->start_date)->format('Y') + 543 }} <br>
                             </td>
                             <td class="align-middle">{{ $document->objective }}</td>
                             <td class="align-middle">{{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} -
@@ -128,5 +128,6 @@
             </tbody>
         </table>
     @endif
+    {{ $documents->appends(request()->query())->links() }}
 </div>
 @endsection
