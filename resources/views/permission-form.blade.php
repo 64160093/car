@@ -57,79 +57,57 @@
                             เวลา : {{ \Carbon\Carbon::parse($document->end_time)->format('H:i') }} น.
                         </td>
                         <td class="text-center">
-                            @if ( $document->cancel_allowed == 'pending' )
-                                @if (in_array(auth()->user()->role_id, [4, 5, 6, 7, 8, 9, 10]))
-                                    @if ($document->allow_division == 'approved')
-                                        <span class="badge bg-success">อนุมัติ</span>
-                                    @elseif ($document->allow_division == 'pending')
-                                        <span class="badge bg-warning">รอดำเนินการ</span>
+                            @if ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                                <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
+                            @elseif ($document->edit_allowed != null && $document->edit_by != 1)
+                                <span class="badge bg-info">รอการแก้ไขเอกสารโดยแอดมิน</span>
+                            @elseif ($document->cancel_allowed == 'pending')
+                                @foreach($document->reqDocumentUsers as $docUser)
+                                    @if ($docUser->division_id == 2)
+                                        @if ($document->allow_department == 'pending')
+                                            <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
+                                        @elseif ($document->allow_department == 'approved')
+                                            @include('partials.allow_status', ['document' => $document])
+                                        @else
+                                            <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
+                                            @if ($document->notallowed_reason)
+                                                <br><span>เหตุผล: {{ $document->notallowed_reason }}</span>
+                                            @endif
+                                        @endif
                                     @else
-                                        <span class="badge bg-danger">ถูกปฏิเสธ</span>
+                                        @include('partials.allow_status', ['document' => $document])
                                     @endif
-                                @elseif (in_array(auth()->user()->role_id, [13, 14, 15, 16]))
-                                    @if ($document->allow_department == 'approved')
-                                        <span class="badge bg-success">อนุมัติ</span>
-                                    @elseif ($document->allow_department	 == 'pending')
-                                        <span class="badge bg-warning">รอดำเนินการ</span>
-                                    @else
-                                        <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                    @endif 
-
-                                @elseif (in_array(auth()->user()->role_id, [12]))
-                                    @if ($document->allow_opcar == 'approved')
-                                        <span class="badge bg-success">อนุมัติ</span>
-                                    @elseif ($document->allow_opcar	 == 'pending')
-                                        <span class="badge bg-warning">รอดำเนินการ</span>
-                                    @else
-                                        <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                    @endif 
-
-                                @elseif (in_array(auth()->user()->role_id, [2]))
-                                    @if ($document->allow_officer == 'approved')
-                                        <span class="badge bg-success">อนุมัติ</span>
-                                    @elseif ($document->allow_officer	 == 'pending')
-                                        <span class="badge bg-warning">รอดำเนินการ</span>
-                                    @else
-                                        <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                    @endif 
-                                
-                                @elseif (in_array(auth()->user()->role_id, [3]))
-                                    @if ($document->allow_director == 'approved')
-                                        <span class="badge bg-success">อนุมัติ</span>
-                                    @elseif ($document->allow_director	 == 'pending')
-                                        <span class="badge bg-warning">รอดำเนินการ</span>
-                                    @else
-                                        <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                    @endif
-                                @endif
+                                @endforeach
                             <!-- ยกเลิกก่อนถึงผอ. -->
-                            @elseif ( $document->allow_director == 'pending' && $document->cancel_reason != null )
-                                @if ( $document->cancel_admin == 'Y' )
-                                    <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>  
+                            @elseif ($document->allow_director == 'pending' && $document->cancel_reason != null)
+                                @if ($document->cancel_admin == 'Y')
+                                    <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                                 @else
-                                    <span class="badge bg-info">อยู่ระหว่างการยกเลิกคำขอ</span>  
+                                    <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>
                                 @endif
                             <!-- ผอ.อนุมัติไปแล้ว -->
-                            @elseif ( $document->allow_director != 'pending' && $document->cancel_reason != null )
-                                @if ( $document->cancel_admin != 'Y' )
-                                    <span class="badge bg-info">อยู่ระหว่างการยกเลิกคำขอ</span>  
-                                @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
-                                    <span class="badge bg-info">อยู่ระหว่างการยกเลิกคำขอ</span>  
-                                @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                            @elseif ($document->allow_director != 'pending' && $document->cancel_reason != null)
+                                @if ($document->cancel_admin != 'Y')
+                                    <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>
+                                @elseif ($document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
+                                    <span class="badge bg-info">รอผู้อำนวยการอนุมัติคำขอยกเลิก</span>
+                                @elseif ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
                                     <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                                 @endif
                             @else
                                 <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
-                            @endif 
+                            @endif
+ 
                         </td>
                         <td class="text-center">
-                            @if ( $document->cancel_allowed == 'pending' )
-                                <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
-                                    class="btn btn-primary">ดูรายละเอียด</a>
-                            @else
-                                <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
-                                class="btn btn-secondary">ดูรายละเอียด</a>
-                            @endif
+                            <a href="{{ route('documents.show') }}?id={{ $document->document_id }}" class="btn 
+                                @if (($document->allow_director != 'approved' && $document->cancel_admin == 'Y') || 
+                                        ($document->allow_director == 'approved' && $document->cancel_admin == 'Y' && $document->cancel_director == 'Y'))
+                                    btn-secondary
+                                @else
+                                    btn-primary
+                                @endif"> ดูรายละเอียด
+                            </a>
 
                             @if ( in_array(auth()->user()->role_id, [3]))
                                 @if ( $document->cancel_admin == 'Y' && $document->cancel_director != 'Y' )
@@ -139,7 +117,14 @@
                                         data-cancel-reason="{{ $document->cancel_reason }}">
                                         !
                                     </button>
-                                @else
+                                @endif
+
+                                @if ( $document->edit_by == 1 )
+                                    <button class="btn btn-warning" data-bs-toggle="modal"
+                                        data-bs-target="#viewEditAllowedModal"
+                                        data-edit-allowed="{{ $document->edit_allowed }}">
+                                        !
+                                    </button>
                                 @endif
                             @endif 
                         </td>
@@ -151,6 +136,28 @@
     @endif
 </div>
 
+
+
+<!-- Modal แสดงข้อมูล edit_allowed -->
+<div class="modal fade" id="viewEditAllowedModal" tabindex="-1"
+    aria-labelledby="viewEditAllowedModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewEditAllowedModalLabel">มีการแก้ไขข้อมูลคำขอ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <strong>ต้องการแก้ไขเนื่องจาก : </strong><span id="editAllowedText"></span><br>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Model edit dirceter -->
 <div class="modal fade" id="confirmDirectorCancellationModal" tabindex="-1"
     aria-labelledby="confirmDirectorCancellationModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -180,7 +187,7 @@
 </div>
 
 <script>
-    // เมื่อ modal เปิด
+    //ยื่นยันคำขอยกเลิก
     var myModal = document.getElementById('confirmDirectorCancellationModal');
     myModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget; // ปุ่มที่เปิด modal
@@ -192,8 +199,17 @@
         var documentId = button.getAttribute('data-document-id'); // ดึง document_id
         documentIdInput.value = documentId; // ตั้งค่า document_id
     });
-</script>
 
+    // แสดงข้อมูลที่แก้ไข
+    var editAllowedModal = document.getElementById('viewEditAllowedModal');
+    editAllowedModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // ปุ่มที่เปิด modal
+        var editAllowed = button.getAttribute('data-edit-allowed'); // ดึงข้อมูล edit_allowed
+        var editAllowedText = editAllowedModal.querySelector('#editAllowedText'); // ค้นหาส่วนที่จะแสดงข้อมูล
+        // ตั้งค่าข้อความข้อมูล edit_allowed
+        editAllowedText.textContent = editAllowed ? editAllowed : 'ไม่มีข้อมูล';
+    });
+</script>
 
 
 @endsection

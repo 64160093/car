@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\ReqDocument;
 use App\Models\ReqDocumentUser;
 use App\Models\User;
@@ -339,7 +340,6 @@ class DocumentController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validation rule
         $request->validate([
             'objective' => 'required|string|max:255',
             'companion_name' => 'nullable',
@@ -356,10 +356,8 @@ class DocumentController extends Controller
 
         ]);
 
-        // ค้นหาเอกสาร
         $document = ReqDocument::findOrFail($id);
 
-        // อัพเดตข้อมูลเอกสาร
         $document->objective = $request->input('objective');
         $document->companion_name = $request->input('companion_name');
         $document->start_date = $request->input('start_date');
@@ -370,15 +368,33 @@ class DocumentController extends Controller
         $document->car_type = $request->input('car_type');
         $document->car_pickup = $request->input('car_pickup');
 
-        // อัพเดตข้อมูลจังหวัด อำเภอ และตำบล
         $document->provinces_id = $request->input('provinces_id');
         $document->amphoe_id = $request->input('amphoe_id');
         $document->district_id = $request->input('district_id');
 
-        // บันทึกการอัพเดตข้อมูล
+        $document->edit_by = Auth::user()->is_admin ? Auth::user()->id : null;
+
         $document->save();
 
-        return redirect()->route('documents.history')->with('success', 'บันทึกการแก้ไขสำเร็จ');
+        if (auth()->user()->is_admin == 1) {
+            return redirect()->route('documents.status', ['id' => $id])->with('success', 'บันทึกการแก้ไขสำเร็จ');
+        } else {
+            return redirect()->route('documents.status', ['id' => $id])->with('success', 'บันทึกการแก้ไขสำเร็จ');
+        }
+    }
+
+    // ยื่นเรื่องแก้ไขเอกสาร
+    public function updateEditAllowed(Request $request, $id)
+    {
+        $request->validate([
+            'edit_allowed' => 'required|string|max:255',
+        ]);
+
+        $document = ReqDocument::findOrFail($id);
+        $document->edit_allowed = $request->edit_allowed;
+        $document->save();
+
+        return redirect()->route('documents.status', ['id' => $id])->with('success', 'สถานะถูกแก้ไขเรียบร้อยแล้ว');
     }
 
 
@@ -401,10 +417,10 @@ class DocumentController extends Controller
             $document->cancel_reason = $request->cancel_reason ?? ''; // บันทึกเหตุผลถ้ามี
             $document->save();
 
-            return redirect()->route('documents.history')->with('success', 'ยกเลิกคำขอสำเร็จ');
+            return redirect()->route('documents.status', ['id' => $id])->with('success', 'ยกเลิกคำขอสำเร็จ');
         }
 
-        return redirect()->route('documents.history')->with('error', 'ไม่สามารถยกเลิกคำขอนี้ได้');
+        return redirect()->route('documents.status', ['id' => $id])->with('error', 'ไม่สามารถยกเลิกคำขอนี้ได้');
     }
 
     // ส่วนของแอดมิน
@@ -426,20 +442,6 @@ class DocumentController extends Controller
         $document->save();
 
         return redirect()->route('documents.index')->with('success', 'คำขอถูกยกเลิกเรียบร้อยแล้วโดยผู้อำนวยการ');
-    }
-
-
-    public function updateEditAllowed(Request $request, $id)
-    {
-        $request->validate([
-            'edit_allowed' => 'required|string|max:255',
-        ]);
-
-        $document = ReqDocument::findOrFail($id);
-        $document->edit_allowed = $request->edit_allowed;
-        $document->save();
-
-        return redirect()->route('documents.history')->with('success', 'สถานะถูกแก้ไขเรียบร้อยแล้ว');
     }
 
 

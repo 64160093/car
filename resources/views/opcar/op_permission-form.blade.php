@@ -38,30 +38,41 @@
                             เวลา : {{ \Carbon\Carbon::parse($document->start_time)->format('H:i') }} น.
                         </td>
                         <td class="text-center">
-                            @if ( $document->cancel_allowed == 'pending' )
-                                @if (in_array(auth()->user()->role_id, [12]))
-                                    @if ($document->allow_opcar == 'approved')
-                                        <span class="badge bg-success">อนุมัติ </span>
-                                    @elseif ($document->allow_opcar	 == 'pending')
-                                        <span class="badge bg-warning">รอดำเนินการ</span>
+                        @if ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                                <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
+                            @elseif ($document->edit_allowed != null && $document->edit_by != 1)
+                                <span class="badge bg-info">รอการแก้ไขเอกสารโดยแอดมิน</span>
+                            @elseif ($document->cancel_allowed == 'pending')
+                                @foreach($document->reqDocumentUsers as $docUser)
+                                    @if ($docUser->division_id == 2)
+                                        @if ($document->allow_department == 'pending')
+                                            <span class="badge bg-warning">รอหัวหน้างานพิจารณา</span>
+                                        @elseif ($document->allow_department == 'approved')
+                                            @include('partials.allow_status', ['document' => $document])
+                                        @else
+                                            <span class="badge bg-danger">หัวหน้างานไม่อนุมัติ</span>
+                                            @if ($document->notallowed_reason)
+                                                <br><span>เหตุผล: {{ $document->notallowed_reason }}</span>
+                                            @endif
+                                        @endif
                                     @else
-                                        <span class="badge bg-danger">ถูกปฏิเสธ</span>
-                                    @endif 
-                                @endif
+                                        @include('partials.allow_status', ['document' => $document])
+                                    @endif
+                                @endforeach
                             <!-- ยกเลิกก่อนถึงผอ. -->
-                            @elseif ( $document->allow_director == 'pending' && $document->cancel_reason != null )
-                                @if ( $document->cancel_admin == 'Y' )
-                                    <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>  
+                            @elseif ($document->allow_director == 'pending' && $document->cancel_reason != null)
+                                @if ($document->cancel_admin == 'Y')
+                                    <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                                 @else
-                                    <span class="badge bg-info">อยู่ระหว่างการยกเลิกคำขอ</span>  
+                                    <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>
                                 @endif
                             <!-- ผอ.อนุมัติไปแล้ว -->
-                            @elseif ( $document->allow_director != 'pending' && $document->cancel_reason != null )
-                                @if ( $document->cancel_admin != 'Y' )
-                                    <span class="badge bg-info">อยู่ระหว่างการยกเลิกคำขอ</span>  
-                                @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
-                                    <span class="badge bg-info">อยู่ระหว่างการยกเลิกคำขอ</span>  
-                                @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                            @elseif ($document->allow_director != 'pending' && $document->cancel_reason != null)
+                                @if ($document->cancel_admin != 'Y')
+                                    <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>
+                                @elseif ($document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
+                                    <span class="badge bg-info">รอผู้อำนวยการอนุมัติคำขอยกเลิก</span>
+                                @elseif ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
                                     <span class="badge bg-secondary">รายการคำขอถูกยกเลิกแล้ว</span>
                                 @endif
                             @else
@@ -101,13 +112,14 @@
                             @endif
                         </td>
                         <td class="text-center">
-                        @if ( $document->cancel_allowed == 'pending' )
-                            <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
-                                class="btn btn-primary">ดูรายละเอียด</a>
-                        @else
-                            <a href="{{ route('documents.show') }}?id={{ $document->document_id }}"
-                                class="btn btn-secondary">ดูรายละเอียด</a>
-                        @endif
+                            <a href="{{ route('documents.show') }}?id={{ $document->document_id }}" class="btn 
+                                @if (($document->allow_director != 'approved' && $document->cancel_admin == 'Y') || 
+                                        ($document->allow_director == 'approved' && $document->cancel_admin == 'Y' && $document->cancel_director == 'Y'))
+                                    btn-secondary
+                                @else
+                                    btn-primary
+                                @endif"> ดูรายละเอียด
+                            </a>
                         </td>
                         <td class="text-center">
                             <!-- แสดงปุ่มดู PDF หากมี ReportFormance -->

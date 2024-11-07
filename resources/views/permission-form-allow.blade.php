@@ -15,7 +15,10 @@
     @else
     @foreach($documents as $document)
     <!-- กรณีที่เอกสารถูกยกเลิก -->
-    @if ($document->cancel_allowed != 'pending')
+    @if (
+                ($document->allow_director != 'approved' && $document->cancel_admin == 'Y') ||
+                ($document->allow_director == 'approved' && $document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+            )
         <div class="card-body mb-4">
             <div class="d-flex align-items-center justify-content-center"
                 style="border: 1px solid #dc3545; color: #dc3545; padding: 10px 20px; border-radius: 5px; text-align: center;">
@@ -30,10 +33,15 @@
     @endif
 
 
+
     <!-- ส่วนแสดงรายละเอียดเอกสาร -->
     <div class="card mb-4 shadow-sm border-1">
-        <div @if ($document->cancel_allowed != 'pending') class="card-header bg-secondary text-white" @else
-        class="card-header bg-primary text-white" @endif>
+        <!-- ( $document->cancel_admin == 'Y' || ( $document->allow_director == 'approved' && $document->cancel_director == 'Y') -->
+        <div class="card-header text-white 
+            {{ ($document->allow_director != 'approved' && $document->cancel_admin == 'Y') ||
+            ($document->allow_director == 'approved' && $document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+            ? 'bg-secondary' : 'bg-primary' }}">
+
             <h5 class="mb-0">{{ __('เอกสาร ที่ : ') . $document->document_id }}</h5>
             <p class="mb-0">
                 {{ __('วันที่ทำเรื่อง: ')
@@ -167,7 +175,6 @@
                         </tr>
                     </table>
                 </div>
-
                 <!-- โครงการที่เกี่ยวข้อง -->
                 <div class="mt-4 border p-3">
                     <h6 class="text-muted">{{ __('โครงการที่เกี่ยวข้อง') }}</h6>
@@ -213,7 +220,6 @@
                     </div>
                 @endif
             @endif
-
 
         </div>
     </div>
@@ -568,7 +574,6 @@
                     <div class="card-footer text-right">
                         <button type="submit" class="btn btn-primary">{{ __('บันทึก') }}</button>
                     </div>
-
                 </div>
             @endif
             @endif
@@ -643,20 +648,6 @@
             }
         }
 
-        function toggleReasonField(isRejected) {
-            const reasonField = document.getElementById('reason_field_opcar');
-            const notallowedReasonInput = document.getElementById('notallowed_reason');
-
-            if (isRejected) {
-                reasonField.style.display = 'block';
-                notallowedReasonInput.setAttribute('required', 'required');
-            } else {
-                reasonField.style.display = 'none';
-                notallowedReasonInput.removeAttribute('required'); // ลบ required เมื่อฟิลด์ถูกซ่อน
-                notallowedReasonInput.value = ''; // ล้างค่าในฟิลด์เหตุผล
-            }
-        }
-
         function toggleVehicleAndDriver(isApproved) {
             const vehicleDriverSection = document.getElementById('vehicle_driver_section');
             const vehicleInput = document.getElementById('vehicle');
@@ -684,6 +675,7 @@
             }
         }
     </script>
+    <p style="color: red"> *** หากเอกสารมีการสะกดคำผิดกรุณาติดต่อเจ้าของเอกสารโดยตรงเพื่อแก้ไข</p>
 
     @endforeach
     @endif

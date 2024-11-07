@@ -106,9 +106,18 @@
                 </div>
             </div>
 
+        <!-- แสดงสถานะ -->
             <div class="text-center mb-4">
                 <!-- ไม่มีการขอยกเลิก -->
-                @if ($document->cancel_allowed == "pending")
+                @if ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                    <h4>สถานะปัจจุบัน:
+                        <span class="badge bg-danger">รายการคำขอถูกยกเลิกแล้ว</span>
+                    </h4>
+                @elseif ($document->edit_allowed != null && $document->edit_by != 1)
+                    <h4>สถานะปัจจุบัน:
+                        <span class="badge bg-info">รอแก้ไขเอกสารโดยแอดมิน</span> 
+                    </h4>
+                @elseif ($document->cancel_allowed == "pending")
                     <h4>สถานะปัจจุบัน:
                         <span>
                             @foreach($document->reqDocumentUsers as $docUser)
@@ -129,26 +138,23 @@
                             @endforeach
                         </span>
                     </h4>
-                <!-- ยกเลิกก่อนถึงผอ. -->
-                @elseif ( $document->allow_director == 'pending' && $document->cancel_reason != null )
+                @elseif ($document->allow_director == 'pending' && $document->cancel_reason != null)
                     <h4>สถานะปัจจุบัน:
-                        @if ( $document->cancel_admin == 'Y' )
+                        @if ($document->cancel_admin == 'Y')
                             <span class="badge bg-danger">รายการคำขอถูกยกเลิกแล้ว</span>  
                         @else
                             <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>  
                         @endif
                     </h4>
-                <!-- ผอ.อนุมัติไปแล้ว -->
-                @elseif ( $document->allow_director != 'pending' && $document->cancel_reason != null )
+                @elseif ($document->allow_director != 'pending' && $document->cancel_reason != null)
                     <h4>สถานะปัจจุบัน:
-                        @if ( $document->cancel_admin != 'Y' )
+                        @if ($document->cancel_admin != 'Y')
                             <span class="badge bg-info">รอแอดมินอนุมัติคำขอยกเลิก</span>  
-                        @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
+                        @elseif ($document->cancel_admin == 'Y' && $document->cancel_director != 'Y')
                             <span class="badge bg-info">รอผู้อำนวยการอนุมัติคำขอยกเลิก</span>  
-                        @elseif ( $document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
+                        @elseif ($document->cancel_admin == 'Y' && $document->cancel_director == 'Y')
                             <span class="badge bg-danger">รายการคำขอถูกยกเลิกแล้ว</span>
                         @endif
-                        
                     </h4>
                 @else
                     <h4>สถานะปัจจุบัน:
@@ -158,9 +164,11 @@
             </div>
 
             <div class="text-center">
-            <!-- แก้ไขเอกสาร -->
+        <!-- แก้ไขเอกสาร -->
+            @if (auth()->user()->is_admin != 1)
+
                 <!-- ถ้าไม่ยกเลิกแก้ไขได้ -->
-                @if ($document->cancel_allowed == "pending")
+                @if ($document->cancel_allowed == "pending" && $document->edit_by != 1)
                     @foreach($document->reqDocumentUsers as $docUser)  
                         <!-- ฝ่ายวิจัย -->
                         @if ($docUser->division_id == 2)
@@ -172,8 +180,8 @@
                                 </a>
                             <!-- ผ่านการอนุมัติ -->
                             @else
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAllowedModal">
-                                    ยื่นเรื่องแก้ไขสถานะ
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editAllowedModal">
+                                    ยื่นเรื่องแก้ไขคำขอ
                                 </button>
                             @endif
 
@@ -187,23 +195,35 @@
                                 </a>
                             <!-- ผ่านการอนุมัติ -->
                             @else
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAllowedModal">
-                                    ยื่นเรื่องแก้ไขสถานะ
+                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editAllowedModal">
+                                    ยื่นเรื่องแก้ไขคำขอ
                                 </button>
                             @endif
                         @endif
                     @endforeach
                 @else
-
-                
                 <!-- ถ้ายกเลิกแก้ไขไม่ได้ -->
                     <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
                         class="btn btn-warning disabled">
                         {{ __('แก้ไขเอกสาร') }}
                     </a>
                 @endif
-
-            <!-- ยกเลิกคำขอ -->
+            @else
+            <!-- ส่วนแก้ไขของแอดมินใช้งานได้เมื่อมีคำร้องขอแก้ไขเท่านั้น -->
+                @if ( $document->edit_allowed !=null && $document->edit_by != 1)
+                    <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
+                        class="btn btn-warning ">
+                        {{ __('แก้ไขเอกสาร') }}
+                    </a>
+                @else
+                    <a href="{{ route('documents.edit', ['id' => $document->document_id]) }}"
+                        class="btn btn-warning disabled">
+                        {{ __('แก้ไขเอกสาร') }}
+                    </a>
+                @endif
+            @endif
+            
+        <!-- ยกเลิกคำขอ -->
                 @if (auth()->user()->is_admin != 1) 
                     @if ($document->cancel_allowed == "pending") <!-- ยังไม่มีคำขอยกเลิก -->
 
@@ -259,14 +279,27 @@
                     <a href="{{ route('documents.history') }}" class="btn btn-secondary">ย้อนกลับ</a>
                 @endif
             </div>
+            
             <div class="text-center mt-4 mb-0">
-                <p style="color: red"> *** หากมีการอนุมัติคำขอใดแล้ว
-                    ต้องรอการอนุมัติคำขออนุญาตยกเลิกจากผู้ที่เกี่ยวข้องก่อน</p>
+                @if (auth()->user()->is_admin != 1 && $document->edit_by != 1)
+                    @if ($document->edit_allowed != null )
+                        <div class="alert alert-info" role="alert">
+                            <strong>ต้องการแก้ไขเนื่องจาก :</strong> {{ $document->edit_allowed }}
+                        </div>
+                    @endif
+                @endif
             </div>
         </div>
     </div>
+    @if (auth()->user()->is_admin != 1)
+        <p class="mt-2" > - หากมีการอนุมัติคำขอใดแล้วต้องรอการอนุมัติคำขออนุญาตยกเลิกจากผู้ที่เกี่ยวข้องก่อน <br>
+         - สามารถยื่นเรื่อง<span style="color: red">แก้ไขเอกสาร</span>ได้เพียง<span style="color: red"> 1 ครั้ง</span>
+        </p>
+    @endif
 
+    <!-- ส่วนของแอดมิน แก้ไข/ยกเลิก -->
     @if (auth()->user()->is_admin == 1)
+    <!-- ยกเลิก -->
         @if (is_null($document->cancel_reason) || $document->cancel_reason === '')
         <!-- ไม่แสดงอะไร -->
         @else
@@ -296,6 +329,25 @@
                 </div>
             </div>
         @endif
+        
+    <!-- แก้ไข -->
+        @if ( $document->edit_allowed !=null && $document->edit_by != 1)
+            <div class="card mt-4">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-6 pt-2">
+                            <h5>คำขอแก้ไขเอกสาร</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex;">
+                        <h5 class="mb-4 mt-3" style="margin: 0;">ต้องการแก้ไขเนื่องจาก : <u style="color: red;">{{ $document->edit_allowed }}</u></h5> 
+                    </div>      
+                </div>
+            </div>
+        @endif
+
     @endif
 
 
@@ -304,21 +356,21 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editAllowedModalLabel">แก้ไขสถานะ</h5>
+                    <h5 class="modal-title" id="editAllowedModalLabel">แก้ไขคำขอ</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="editAllowedForm" action="{{ route('documents.updateEditAllowed', ['id' => $document->document_id]) }}" method="POST">
                         @csrf
                         <div class="form-group">
-                            <label for="edit_allowed">กรอกสถานะใหม่:</label>
+                            <label for="edit_allowed">กรอกข้อมูลใหม่:</label>
                             <input type="text" name="edit_allowed" id="edit_allowed" class="form-control" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
-                    <button type="submit" class="btn btn-primary" form="editAllowedForm">บันทึกการเปลี่ยนแปลง</button>
+                    <button type="submit" class="btn btn-primary" form="editAllowedForm">ยืนยันคำขอแก้ไข</button>
                 </div>
             </div>
         </div>

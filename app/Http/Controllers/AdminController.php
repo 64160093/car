@@ -230,106 +230,110 @@ class AdminController extends Controller
 
     public function searchForm(Request $request)
     {
-        $q = $request->input('q');
-        $filter = $request->input('filter');
-        $startDate = $request->input('start_date'); // yyyy-mm format
-        $endDate = $request->input('end_date'); // yyyy-mm format
-        $startTime = $request->input('start_time');
-        $endTime = $request->input('end_time');
+        if (auth()->check()) {
+            $q = $request->input('q');
+            $filter = $request->input('filter');
+            $startDate = $request->input('start_date'); // yyyy-mm format
+            $endDate = $request->input('end_date'); // yyyy-mm format
+            $startTime = $request->input('start_time');
+            $endTime = $request->input('end_time');
 
-        $query = ReqDocument::join('req_document_user', 'req_document.document_id', '=', 'req_document_user.req_document_id')
-            ->join('users', 'req_document_user.user_id', '=', 'users.id')
-            ->select('req_document.*', 'users.name', 'users.lname')
-            ->orderBy('req_document.created_at', 'desc');
+            $query = ReqDocument::join('req_document_user', 'req_document.document_id', '=', 'req_document_user.req_document_id')
+                ->join('users', 'req_document_user.user_id', '=', 'users.id')
+                ->select('req_document.*', 'users.name', 'users.lname')
+                ->orderBy('req_document.created_at', 'desc');
 
-        if (!empty($q)) {
-            $keywords = explode(' ', $q);
-            $query->where(function ($subQuery) use ($keywords) {
-                if (count($keywords) == 2) {
-                    $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
-                        ->where('req_document_user.lname', 'LIKE', '%' . $keywords[1] . '%');
-                } else {
-                    $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
-                        ->orWhere('req_document_user.lname', 'LIKE', '%' . $keywords[0] . '%')
-                        ->orWhere('req_document.objective', 'LIKE', '%' . $keywords[0] . '%');
-                }
-            });
-        }
-
-        // กรองตามช่วงเดือน
-        if ($startDate && $endDate) {
-            $startDateTime = \Carbon\Carbon::createFromFormat('Y-m', $startDate)->startOfMonth();
-            $endDateTime = \Carbon\Carbon::createFromFormat('Y-m', $endDate)->endOfMonth();
-
-            $query->whereBetween('req_document.start_date', [$startDateTime, $endDateTime]);
-        }
-
-        // กรองตามช่วงเวลา
-        if ($startTime) {
-            $query->whereTime('req_document.start_time', '>=', $startTime);
-        }
-        if ($endTime) {
-            $query->whereTime('req_document.end_time', '<=', $endTime);
-        }
-
-        // การกรองสถานะ
-        if ($filter) {
-            switch ($filter) {
-                case 'completed':
-                    $query->where(function ($subQuery) {
-                        $subQuery->where('allow_division', 'approved')
-                            ->where('allow_opcar', 'approved')
-                            ->where('allow_officer', 'approved')
-                            ->where('allow_director', 'approved');
-                    })
-                        ->where(function ($subQuery) {
-                            $subQuery->where('allow_department', '!=', 'rejected')
-                                ->where('allow_division', '!=', 'rejected')
-                                ->where('allow_opcar', '!=', 'rejected')
-                                ->where('allow_officer', '!=', 'rejected')
-                                ->where('allow_director', '!=', 'rejected')
-                                ->where('cancel_allowed', '!=', 'rejected');
-                        })
-                        ->orWhereNull('allow_department');
-
-                    break;
-                case 'pending':
-                    $query->where(function ($subQuery) {
-                        $subQuery->where('allow_division', 'pending')
-                            ->orWhere('allow_opcar', 'pending')
-                            ->orWhere('allow_officer', 'pending')
-                            ->orWhere('allow_director', 'pending');
-                    })
-                        ->where(function ($subQuery) {
-                            $subQuery->where('allow_department', '!=', 'rejected')
-                                ->where('allow_division', '!=', 'rejected')
-                                ->where('allow_opcar', '!=', 'rejected')
-                                ->where('allow_officer', '!=', 'rejected')
-                                ->where('allow_director', '!=', 'rejected')
-                                ->where('cancel_allowed', '!=', 'rejected');
-                        });
-                    break;
-                case 'cancelled':
-                    $query->where(function ($subQuery) {
-                        $subQuery->where('allow_department', 'rejected')
-                            ->orWhere('allow_division', 'rejected')
-                            ->orWhere('allow_opcar', 'rejected')
-                            ->orWhere('allow_officer', 'rejected')
-                            ->orWhere('allow_director', 'rejected')
-                            ->orWhere('cancel_allowed', 'rejected')
-                            ->orWhere('cancel_admin', 'Y')
-                            ->orWhere('cancel_director', 'Y');
-                    })
-                        ->whereNotNull('allow_department');
-                    break;
+            if (!empty($q)) {
+                $keywords = explode(' ', $q);
+                $query->where(function ($subQuery) use ($keywords) {
+                    if (count($keywords) == 2) {
+                        $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
+                            ->where('req_document_user.lname', 'LIKE', '%' . $keywords[1] . '%');
+                    } else {
+                        $subQuery->where('req_document_user.name', 'LIKE', '%' . $keywords[0] . '%')
+                            ->orWhere('req_document_user.lname', 'LIKE', '%' . $keywords[0] . '%')
+                            ->orWhere('req_document.objective', 'LIKE', '%' . $keywords[0] . '%');
+                    }
+                });
             }
+
+            // กรองตามช่วงเดือน
+            if ($startDate && $endDate) {
+                $startDateTime = \Carbon\Carbon::createFromFormat('Y-m', $startDate)->startOfMonth();
+                $endDateTime = \Carbon\Carbon::createFromFormat('Y-m', $endDate)->endOfMonth();
+
+                $query->whereBetween('req_document.start_date', [$startDateTime, $endDateTime]);
+            }
+
+            // กรองตามช่วงเวลา
+            if ($startTime) {
+                $query->whereTime('req_document.start_time', '>=', $startTime);
+            }
+            if ($endTime) {
+                $query->whereTime('req_document.end_time', '<=', $endTime);
+            }
+
+            // การกรองสถานะ
+            if ($filter) {
+                switch ($filter) {
+                    case 'completed':
+                        $query->where(function ($subQuery) {
+                            $subQuery->where('allow_division', 'approved')
+                                ->where('allow_opcar', 'approved')
+                                ->where('allow_officer', 'approved')
+                                ->where('allow_director', 'approved');
+                        })
+                            ->where(function ($subQuery) {
+                                $subQuery->where('allow_department', '!=', 'rejected')
+                                    ->where('allow_division', '!=', 'rejected')
+                                    ->where('allow_opcar', '!=', 'rejected')
+                                    ->where('allow_officer', '!=', 'rejected')
+                                    ->where('allow_director', '!=', 'rejected')
+                                    ->where('cancel_allowed', '!=', 'rejected');
+                            })
+                            ->orWhereNull('allow_department');
+
+                        break;
+                    case 'pending':
+                        $query->where(function ($subQuery) {
+                            $subQuery->where('allow_division', 'pending')
+                                ->orWhere('allow_opcar', 'pending')
+                                ->orWhere('allow_officer', 'pending')
+                                ->orWhere('allow_director', 'pending');
+                        })
+                            ->where(function ($subQuery) {
+                                $subQuery->where('allow_department', '!=', 'rejected')
+                                    ->where('allow_division', '!=', 'rejected')
+                                    ->where('allow_opcar', '!=', 'rejected')
+                                    ->where('allow_officer', '!=', 'rejected')
+                                    ->where('allow_director', '!=', 'rejected')
+                                    ->where('cancel_allowed', '!=', 'rejected');
+                            });
+                        break;
+                    case 'cancelled':
+                        $query->where(function ($subQuery) {
+                            $subQuery->where('allow_department', 'rejected')
+                                ->orWhere('allow_division', 'rejected')
+                                ->orWhere('allow_opcar', 'rejected')
+                                ->orWhere('allow_officer', 'rejected')
+                                ->orWhere('allow_director', 'rejected')
+                                ->orWhere('cancel_allowed', 'rejected')
+                                ->orWhere('cancel_admin', 'Y')
+                                ->orWhere('cancel_director', 'Y');
+                        })
+                            ->whereNotNull('allow_department');
+                        break;
+                }
+            }
+
+            $documents = $query->paginate(10);
+            return view('admin.users.form', compact('documents'));
+            
+        } else {
+            return redirect()->route('login');
         }
 
-        $documents = $query->paginate(10);
-        return view('admin.users.form', compact('documents'));
     }
-
-
 
 
 

@@ -107,9 +107,17 @@
 
             <!-- ลายเซ็นผู้ส่ง -->
             <div class="mt-4" style="text-align: right; margin-right: 50px;">
-                <p class="form-control-static"><strong>{{ __('ลายเซ็นผู้ส่ง:') }}</strong></p>
-                <p class="form-control-static">{{ auth()->user()->signature }}</p>
+                <p class="form-control-static">
+                <strong>{{ __('ลายเซ็นผู้ส่ง:') }}</strong>
+                    @if (Auth::user()->signature_name)
+                        <img src="{{ url('/signatures/' . basename(Auth::user()->signature_name)) }}"
+                            alt="Signature Image" class="img-fluid" width="250" height="auto">
+                    @else
+                        <p class="text-danger">{{ __('กรุณาเพิ่มลายเซ็นที่หน้าแก้ไขโปรไฟล์') }}</p>
+                    @endif
+                </p>
             </div>
+
         </div>
     </div>
 </div>

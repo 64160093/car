@@ -99,11 +99,6 @@ class ReqDocument extends Model
         return $this->hasOne(ReportFormance::class, 'req_document_id', 'document_id');
     }
 
-    public function DivisionAllowBy()
-    {
-        return $this->belongsTo(User::class, 'approved_by_division');
-    }
-    
     public function carController()
     {
         return $this->belongsTo(User::class, 'car_controller');
@@ -113,5 +108,33 @@ class ReqDocument extends Model
         return $this->belongsToMany(User::class, 'req_document_user', 'req_document_id', 'user_id'); // กำหนดชื่อของตารางเชื่อม
     }
 
+    public function DivisionAllowBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_division');
+    }
 
+    public function DepartmentAllowBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_department');
+    }
+
+    public function OpcarAllowBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_opcar');
+    }
+
+    public function OfficerAllowBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_officer');
+    }
+
+    public function DirectorAllowBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_director');
+    }
+    
+    public function CarmenAllowBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by_carman');
+    }
 }

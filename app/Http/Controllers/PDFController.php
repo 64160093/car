@@ -19,22 +19,25 @@ class PDFController extends Controller
      */
     public function generatePDF(Request $request)
     {
+        $imagePathPublic = public_path('images/buu-logo.png');
+        $imageCancel = public_path('images/cancel.png');
         $id = $request->input('id');
-    
-        $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle','carmanUser','DivisionAllowBy'])
-                                ->findOrFail($id);
+        $documents = ReqDocument::with(['reqDocumentUsers', 'users', 'province', 'vehicle', 'carmanUser', 'DivisionAllowBy'])
+                                 ->findOrFail($id);
     
         $data = [
             'title' => 'Document Report',
-            'documents' => $documents,  // ส่งข้อมูล $documents ไปที่ view
+            'documents' => $documents,
+            'imagePathPublic' => $imagePathPublic, // ส่งเส้นทางของภาพใน public
+            'imageCancel' => $imageCancel,
         ];
     
-        // สร้าง PDF จาก view 'myPDF' โดยส่ง $data
         $pdf = PDF::loadView('myPDF', $data);
-    
-        // แสดง PDF ในเบราว์เซอร์
         return $pdf->stream('document_report.pdf');
     }
+    
+
+
 
         /**
      * รายงานคนขับรถ

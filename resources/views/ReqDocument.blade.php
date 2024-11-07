@@ -7,8 +7,10 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
 
 @endsection
 
@@ -56,6 +58,7 @@
                             @endif
                         </span>
                     </div>
+
                     <div class="col-md-4 text-right">
                         <div class="form-group">
                             <label for="reservation_date">{{ __('วันที่ทำเรื่อง') }}</label>
@@ -68,6 +71,7 @@
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
+
                         </div>
                     </div>
                 </div>
@@ -92,6 +96,7 @@
                     </div>
                 </div>
 
+
                 <!-- ฟิลด์ผู้ร่วมเดินทาง -->
                 <div class="row mb-4">
                     <div class="col-md-8">
@@ -115,6 +120,7 @@
                     </div>
                 </div>
                 <input type="hidden" id="companions_hidden" name="companion_name">
+
                 <!-- ผู้ควบคุมรถ -->
                 <div class="form-group mb-4">
                     <label for="car_controller">{{ __('ผู้ควบคุมรถ') }}</label>
@@ -128,6 +134,8 @@
                         </span>
                     @enderror
                 </div>
+
+
 
                 <!-- วัตถุประสงค์ -->
                 <div class="form-group mb-4">
@@ -166,7 +174,6 @@
                             <select id="car_type" class="form-control @error('car_type') is-invalid @enderror"
                                 name="car_type" {{ old('car_rent') ? 'disabled' : 'required' }}>
                                 <option value="" disabled selected>{{ __('เลือกประเภทของรถยนต์') }}</option>
-
                                 @php
                                     $hasDisplayedPickupTruck = false;
                                     $hasDisplayedVan = false;
@@ -213,7 +220,6 @@
                     function toggleCarType() {
                         const carTypeSelect = document.getElementById('car_type');
                         const carRentCheckbox = document.getElementById('car_rent');
-
                         if (carRentCheckbox.checked) {
                             carTypeSelect.value = "รถเช่า"; // ตั้งค่า car_type เป็น "รถเช่า"
                             carTypeSelect.disabled = true; // ปิดฟิลเลือกประเภทของรถยนต์
@@ -253,6 +259,7 @@
                             @enderror
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="end_date">{{ __('วันที่กลับ') }}</label>
@@ -267,6 +274,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- เวลาไป และ เวลากลับ -->
                 <div class="row mb-4">
@@ -283,6 +291,7 @@
                             @enderror
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="end_time">{{ __('เวลากลับ') }}</label>
@@ -331,6 +340,7 @@
                             @enderror
                         </div>
                     </div>
+
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="amphoe_id">{{ __('อำเภอ') }}</label>
@@ -354,6 +364,7 @@
                             @enderror
                         </div>
                     </div>
+
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="district_id">{{ __('ตำบล') }}</label>
@@ -391,6 +402,7 @@
                     @enderror
                 </div>
 
+
                 <!-- ลายเซ็นของผู้ใช้ -->
                 <div class="form-group mb-4">
                     <label for="signature">{{ __('ลงชื่อผู้ขอ') }}</label>
@@ -403,6 +415,7 @@
                         <p>{{ __('ยังไม่มีการอัปโหลดลายเซ็น') }}</p>
                     @endif
                 </div>
+
                 <button type="submit" class="btn btn-primary">{{ __('ยืนยันแบบฟอร์ม') }}</button>
             </form>
         </div>
@@ -415,6 +428,7 @@
 <!-- เพิ่ม CSS และ JS ของ select2 -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 
 <script type="text/javascript">
     // เมื่อเปลี่ยนแปลงจังหวัด
@@ -595,9 +609,12 @@
                 var selectedOption = this.options[this.selectedIndex];
                 selectedOption.parentNode.removeChild(selectedOption);
             }
+
             // ล้าง dropdown หลังจากเลือก
             this.value = '';
         });
     });
+
 </script>
+
 @endsection

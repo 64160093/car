@@ -52,14 +52,102 @@
             display: inline-block;
             height: 20px;
             padding-left: 0px;"
+        }
 
+        .signature .content {
+            margin-left: 20%;
+        }
+
+        .overlay-image {
+            position: absolute;
+            top: 0.1in; /* ปรับตำแหน่งแนวตั้ง */
+            left: 0.5in; /* ปรับตำแหน่งแนวนอน */
+            /* transform: translateX(-50%);  */
+            width: 75px;
+            height: auto;
+            z-index: 10; /* ทำให้รูปภาพอยู่ด้านหน้า */
+        }
+
+        .overlay-cancel {
+            position: absolute;
+            top: 0in; /* ปรับตำแหน่งแนวตั้ง */
+            left: 6in; /* ปรับตำแหน่งแนวนอน */
+            transform: translateY(-0.4in); 
+            z-index: 10; /* ทำให้รูปภาพอยู่ด้านหน้า */
+        }
+
+        .overlay-signatureUser {
+            position: absolute;
+            top: 6.1in; /* ปรับตำแหน่งแนวตั้ง */
+            left: 0in; /* ปรับตำแหน่งแนวนอน */
+            transform: translateX(4in); 
+            z-index: 10; /* ทำให้รูปภาพอยู่ด้านหน้า */
         }
         
+        .overlay-signatureDivsion {
+            position: absolute;
+            top: 6.75in; 
+            left: 0in; 
+            transform: translateX(4in); 
+            z-index: 10; 
+        }
+
+        .overlay-signatureDepartment {
+            position: absolute;
+            top: 6.5in; 
+            left: 1.5in; 
+            transform: translateX(4in); 
+            z-index: 10; 
+        }
+
+        .overlay-signatureOpcar {
+            position: absolute;
+            top: 7.5in; 
+            left: 0in; 
+            transform: translateX(4in); 
+            z-index: 10; 
+        }
+        
+        .overlay-signatureOfficer {
+            position: absolute;
+            top: 7.9in; 
+            left: 0in; 
+            transform: translateX(4in); 
+            z-index: 10;
+        }
+
+        .overlay-signatureDirector {
+            position: absolute;
+            top: 8.2in; 
+            left: 2.8in; 
+            transform: translateX(-0.2in); 
+            z-index: 10;
+        }
 
     </style>
 </head>
 <body>
-    <h1 class="text-center">บันทึกข้อความ</h1>
+
+    @if ( $documents->cancel_allowed != 'pending'  )
+        @if ($documents->cancel_admin == 'Y' && $documents->cancel_director == 'Y')
+            <img src="{{ $imageCancel }}" alt="Cancel" class="overlay-cancel" width="120">
+        @elseif ($documents->allow_director == 'pending' && $documents->cancel_reason != null)
+            @if ($documents->cancel_admin == 'Y')
+                <img src="{{ $imageCancel }}" alt="Cancel" class="overlay-cancel" width="120">
+            @endif
+        @elseif ($documents->allow_director != 'pending' && $documents->cancel_reason != null)
+            @if ($documents->cancel_admin != 'Y')
+            @elseif ($documents->cancel_admin == 'Y' && $documents->cancel_director != 'Y')
+            @elseif ($documents->cancel_admin == 'Y' && $documents->cancel_director == 'Y')
+                <img src="{{ $imageCancel }}" alt="Cancel" class="overlay-cancel" width="120">
+            @endif
+        @else
+            <img src="{{ $imageCancel }}" alt="Cancel" class="overlay-cancel" width="120">
+        @endif
+    @endif
+
+    <img src="{{ $imagePathPublic  }}" alt="BIMS Logo" class="overlay-image">
+    <h1>บันทึกข้อความ</h1>
     <div class="content">
         <p>
             <b>ส่วนงาน </b><span class="line">
@@ -136,8 +224,18 @@
         </p>
         <p style="margin-left: 35; line-height: 1.7;">จึงเรียนมาเพื่อโปรดพิจารณาอนุญาต จะเป็นพระคุณยิ่ง</p>
         
+        <!-- ลายเซ็นคนขอ -->
+        <div class="overlay-signatureUser">
+            @foreach($documents->reqDocumentUsers as $docUser)          
+                @php
+                    $signaturePath = storage_path('app/signatures/' . $docUser->signature_name);
+                @endphp
+                <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2 borde" >
+            @endforeach
+        </div>
+    
         <div class="signature">
-            <p style="line-height: 1.7;">ลงชื่อ <span class="line"  ></span> ผู้ขออนุญาต</p> 
+            <p style="line-height: 1.7;">ลงชื่อ <span class="line"  ></span> ผู้ขออนุญาต</p>
             <p style="margin-left: 25px;">
                 ( <span class="line" style="display: inline-block; text-align: center;">
                     @foreach($documents->reqDocumentUsers as $docUser)
@@ -146,20 +244,22 @@
                 </span> 
                 )
             </p>
-            <p style="line-height: 1; margin-left: 25"><span class="line" style="text-align: center;">
-                
-                {{ $documents->DivisionAllowBy ? $documents->DivisionAllowBy->name : '' }}
-                {{ $documents->DivisionAllowBy ? $documents->DivisionAllowBy->lname : '' }}
+            <p style="line-height: 1; margin-left: 25; padding-top: 8;"><span class="line" style="text-align: center;">
+                @if ( $documents->allow_division == 'approved')
+                <!-- หัวหน้าฝ่าย -->
+                    <a class="overlay-signatureDivision">
+                        @php
+                            $divisionAllowByUser = $documents->DivisionAllowBy;
+                            $signaturePath = null;
+                            if ($divisionAllowByUser) {
+                                $signaturePath = storage_path('app/signatures/' . $divisionAllowByUser->signature_name);
+                            }
+                        @endphp
+                        <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2" >
+                    </a>
+                @endif
                 </span> หัวหน้าฝ่าย
             </p>
-            <!-- <p style="line-height: 1; margin-left: 25; text-align: center;">
-                <span class="line" style="text-overflow: ellipsis; white-space: nowrap;">
-                    {{ $documents->DivisionAllowBy ? $documents->DivisionAllowBy->name : 'ยังไม่มีการอนุญาต' }} 
-                    {{ $documents->DivisionAllowBy ? $documents->DivisionAllowBy->lname : '' }}
-                </span>
-                หัวหน้าฝ่าย
-            </p> -->
-
         </div>
         <p>
             โปรดพิจารณาอนุญาตให้ใช้รถยนต์หมานเลขทะเบียน <span class="line" style="width:100px; padding-left: 10px;">
@@ -171,25 +271,88 @@
             {{ $documents->carmanUser ? $documents->carmanUser->lname : ''}}
         </span></p>
         <p>เป็นพนักงานขับรถยนต์ และ <span class="line" style="width: 373px;">
-         {{ $documents->carController->name }} {{ $documents->carController->lname }}
+         {{ $documents->carController ? $documents->carController->name : ''}} {{ $documents->carController ? $documents->carController->lname : ''}}
         </span> ควบคุมรถยนต์</p>
-        <p style="line-height: 1.7;">คำสั่งของผู้อำนวยการ <span class="line" style="width: 487px;"></span</p>
-        <!-- <p><span class="line" style="width: 605px; line-height: 0.9; padding-left: 30px;">2s</span></p> -->
+        
+        <p style="line-height: 1; padding-top: 5.5%;">คำสั่งของผู้อำนวยการ <span class="line" style="width: 487px;">
+            @if ( $documents->allow_director == 'approved' ) 
+                อนุญาต
+            @elseif ( $documents->allow_director == 'rejected' )
+                ไม่อนุญาต เนื่องจาก {{ $documents->notallowed_reason }}
+            @endif
+        </span></p>
+        <p><span class="line" style="width: 605px; line-height: 0.9; "></span></p>
 
-            @foreach($documents->reqDocumentUsers as $docUser)
-                <img src="{{ Storage::url('signatures/' . $docUser->signature_name) }}"  width="150" class="img-fluid mt-2">
-            @endforeach
+        
 
-            <a href="{{ asset('images/BIMS_TH.png') }}" target="_blank">
-                <img src="{{ asset('images/BIMS_TH.png') }}" alt="BIMS_TH Image" class="img-fluid" style="max-width: 100%; height: auto;">
+<!-- ลายเซ็น -->
+
+<div class="signature">
+            <div class="content">
+                @if ( $documents->allow_opcar == 'approved' && $documents->allow_officer != 'approved')
+                    
+                @elseif ( $documents->allow_opcar == 'approved' && $documents->allow_officer == 'approved')
+                   
+                @endif
+            </div>
+        </div>
+
+        @if ( $documents->allow_department == 'approved')
+        <!-- หัวหน้างาน -->
+                <a class="overlay-signatureDepartment">
+                    @php
+                        $departmentAllowByUser = $documents->DepartmentAllowBy;
+                        $signaturePath = null;
+
+                        if ($departmentAllowByUser) {
+                            $signaturePath = storage_path('app/signatures/' . $departmentAllowByUser->signature_name);
+                        }
+                    @endphp
+                    <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2" >
+                </a>
+        @endif
+        
+        @if ( $documents->allow_opcar == 'approved' )
+            <!-- คนสั่งรถ -->
+            <a class="overlay-signatureOpcar">
+                @php
+                    $opcarAllowByUser = $documents->OpcarAllowBy;
+                    $signaturePath = null;
+                    if ($opcarAllowByUser) {
+                        $signaturePath = storage_path('app/signatures/' . $opcarAllowByUser->signature_name);
+                    }
+                @endphp
+                <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2" >
             </a>
+        @endif
 
+        @if ( $documents->allow_officer == 'approved' )
+            <!-- หัวหน้าสำนักงาน -->
+            <a class="overlay-signatureOfficer">
+                @php
+                    $officerAllowByUser = $documents->OfficerAllowBy;
+                    $signaturePath = null;
 
-            @foreach($documents->reqDocumentUsers as $docUser)
-                <img src="{{ asset('public/images/BIMS_TH.png') }}" width="150" class="img-fluid mt-2">
-            @endforeach
+                    if ($officerAllowByUser) {
+                        $signaturePath = storage_path('app/signatures/' . $officerAllowByUser->signature_name);
+                    }
+                @endphp
+                <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2" >
+            </a>
+        @endif
+        
 
-
+        <!-- ผอ. -->
+        <a class="overlay-signatureDirector">
+            @php
+                $directorAllowByUser = $documents->DirectorAllowBy;
+                $signaturePath = null;
+                if ($directorAllowByUser) {
+                    $signaturePath = storage_path('app/signatures/' . $directorAllowByUser->signature_name);
+                }
+            @endphp
+            <img src="{{ $signaturePath }}" width="200" class="img-fluid mt-2" >
+        </a>
     </div>
 </body>
 </html>

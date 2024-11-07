@@ -60,9 +60,6 @@
                             @error('signature_name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
-                            <!-- @if ($user->signature_name)
-                                <img src="{{ asset('storage/' . $user->signature_name) }}" alt="Signature Image" class="img-fluid mt-2">
-                            @endif -->
                             @if ($user->signature_name)
                                 <img src="{{ url('/signatures/' . basename($user->signature_name)) }}" alt="Signature Image" class="img-fluid mt-2">
                             @endif
